@@ -1,4 +1,4 @@
-import { MdContentCopy, MdWarning } from "react-icons/md";
+import { MdWarning } from "react-icons/md";
 import { useEffect, useState } from "react";
 import {
   createEncryptionKey,
@@ -76,7 +76,7 @@ export default function Encryption() {
               onClick={(e) => {
                 e.preventDefault();
 
-                const generated = generateRandomEncryptionKey()
+                generateRandomEncryptionKey()
                   .then((key) => {
                     setKey(key);
                   })
@@ -124,7 +124,7 @@ export default function Encryption() {
           </Link>
           <Link
             href={allowNext ? "/setup/google-cloud" : ""}
-            onClick={async (e) => {
+            onClick={async () => {
               if (!allowNext) return;
               if (!key) return;
               createEncryptionKey(key).then((encryptionKey) => {

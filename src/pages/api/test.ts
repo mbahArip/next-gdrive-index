@@ -1,9 +1,6 @@
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import drive from "@utils/driveClient";
-import { decrypt } from "@utils/encryptionHelper";
-import { createJWTToken, verifyJWTToken } from "@utils/jwtHelper";
-import { hashToken, verifyHash } from "@utils/hashHelper";
-import { buildQuery } from "@utils/driveHelper";
+import { hashToken } from "@utils/hashHelper";
 
 export default async function handler(
   request: NextApiRequest,

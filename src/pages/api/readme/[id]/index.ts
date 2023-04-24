@@ -1,4 +1,4 @@
-import { ErrorResponse, ReadmeResponse } from "@/types/googleapis";
+import { ErrorResponse } from "@/types/googleapis";
 import { buildQuery } from "@/utils/driveHelper";
 import drive from "@/utils/driveClient";
 import { NextApiRequest, NextApiResponse } from "next";

@@ -1,18 +1,14 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import remarkBreaks from "remark-breaks";
 import remarkSlug from "remark-slug";
 import remarkToc from "remark-toc";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize";
 import rehypePrism from "rehype-prism-plus";
 import { SpecialComponents } from "react-markdown/lib/ast-to-react";
 import { NormalComponents } from "react-markdown/lib/complex-types";
 import config from "@/config/site.config";
-import useCopyText from "@hooks/useCopyText";
-import { MdContentCopy } from "react-icons/md";
 
 type Props = {
   content: string;
@@ -29,9 +25,6 @@ const customComponents: Partial<
           alt={alt}
           className='mx-auto w-full max-w-screen-tablet rounded-lg drop-shadow'
           {...props}
-          onClick={(e) => {
-            window;
-          }}
         />
         {config.readme.renderImageAlt && (
           <span className='my-0.5 text-center text-sm italic tablet:text-base'>
