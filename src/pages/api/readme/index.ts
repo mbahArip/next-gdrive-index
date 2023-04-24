@@ -1,9 +1,7 @@
-import { ErrorResponse, ReadmeResponse } from "@/types/googleapis";
+import { ErrorResponse } from "@/types/googleapis";
 import { buildQuery } from "@/utils/driveHelper";
 import drive from "@/utils/driveClient";
 import { NextApiRequest, NextApiResponse } from "next";
-import { drive_v3 } from "googleapis";
-import axios from "axios";
 
 export default async function handler(
   request: NextApiRequest,
@@ -49,26 +47,17 @@ export default async function handler(
       },
     );
 
-    streamFile.data.on("error", (error: any) => {
-      throw error;
-    });
-    streamFile.data.on("data", (chunk: Buffer) => {
-      response.write(chunk);
-    });
-    streamFile.data.on("end", () => {
-      response.end();
-    });
-
-    return response.status(200);
+    return response.send(streamFile.data);
   } catch (error: any) {
     if (error satisfies ErrorResponse) {
       const payload: ErrorResponse = {
         success: false,
         timestamp: new Date().toISOString(),
-        code: error.code,
+        code: error.code || 500,
         errors: {
-          message: error.errors?.[0]?.message || "",
-          reason: error.errors?.[0]?.reason || "",
+          message:
+            error.errors?.[0].message || error.message || "Unknown error",
+          reason: error.errors?.[0].reason || error.cause || "internalError",
         },
       };
 
@@ -78,10 +67,10 @@ export default async function handler(
     const payload: ErrorResponse = {
       success: false,
       timestamp: new Date().toISOString(),
-      code: 500,
+      code: error.code || 500,
       errors: {
-        message: error.message,
-        reason: "internalError",
+        message: error.message || "Unknown error",
+        reason: error.cause || "internalError",
       },
     };
 

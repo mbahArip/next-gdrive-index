@@ -5,7 +5,7 @@ import {
   TFileParent,
 } from "@/types/googleapis";
 import drive from "@/utils/driveClient";
-import { buildQuery } from "@/utils/driveHelper";
+import { buildQuery, validateProtected } from "@/utils/driveHelper";
 import { NextApiRequest, NextApiResponse } from "next";
 import config from "@config/site.config";
 
@@ -15,6 +15,8 @@ export default async function handler(
 ) {
   try {
     const { id } = request.query;
+    const { authorization } = request.headers;
+    const hash = authorization?.split(" ")[1] || null;
 
     const parentsArray: TFileParent[] = [];
 
@@ -22,7 +24,6 @@ export default async function handler(
       fileId: id as string,
       fields:
         "id, name, mimeType, parents, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, exportLinks",
-      // "*",
     });
 
     // Fetch parents
@@ -38,7 +39,13 @@ export default async function handler(
         fileId: parents[0],
         fields: "id, name, parents",
       });
-      if (fetchParents.data.id === config.files.rootFolder) break;
+      if (fetchParents.data.id === config.files.rootFolder) {
+        parentsArray.push({
+          id: fetchParents.data.id as string,
+          name: fetchParents.data.name as string,
+        });
+        break;
+      }
       parents = fetchParents.data.parents || [];
       if (!parents.length) break;
 
@@ -49,59 +56,19 @@ export default async function handler(
     }
 
     // Check for password file
-    // Password checking takes too long.
-    // Try to find a better way or just keep this as it is.
-    const passwordQuery = [
-      "name = '.password'",
-      "'me' in owners",
-      "trashed = false",
-    ];
-    const fetchPassword = await drive.files.list({
-      q: passwordQuery.join(" and "),
-      fields: "files(id, name, parents)",
-      pageSize: 1000,
-    });
-    const passwordFile = fetchPassword.data.files?.find((file) => {
-      if (file.parents?.[0] === id) return true;
-      return parentsArray.some((parent) => parent.id === file.parents?.[0]);
-    });
-
-    if (passwordFile) {
-      //   const {authorization} = request.headers;
-      //   const userPassword = authorization?.split(" ")[1];
-      //   For dev purpose, get password from query
-      const userPassword = request.query.password as string;
-      if (!userPassword)
-        return response.status(401).json({
-          success: false,
-          timestamp: new Date().toISOString(),
-          passwordRequired: true,
-          code: 401,
-          errors: {
-            message: "Unauthorized",
-            reason: "passwordRequired",
-          },
-        });
-
-      const getPassword = await drive.files.get(
-        {
-          fileId: passwordFile.id as string,
-          alt: "media",
-        },
-        { responseType: "text" },
-      );
-
-      if (getPassword.data !== userPassword)
-        return response.status(401).json({
-          success: false,
-          timestamp: new Date().toISOString(),
-          passwordRequired: true,
-          code: 401,
-          errors: {
-            message: "Unauthorized",
-            reason: "passwordWrong",
-          },
-        });
+    const validatePassword = await validateProtected(
+      parentsArray || (id as string),
+      hash as string,
+    );
+    if (validatePassword.isProtected && !validatePassword.valid) {
+      return response.status(200).json({
+        success: true,
+        timestamp: new Date().toISOString(),
+        passwordRequired: true,
+        passwordValidated: false,
+        parents: [],
+        file: {},
+      } as FileResponse);
     }
 
     // Check if file is folder
@@ -148,8 +115,8 @@ export default async function handler(
         success: true,
         timestamp: new Date().toISOString(),
         parents: parentsArray,
-        passwordRequired: !!passwordFile,
-        passwordValidated: true,
+        passwordRequired: validatePassword.isProtected,
+        passwordValidated: validatePassword.valid,
         folders,
         files,
         nextPageToken: fetchFiles.data.nextPageToken || undefined,
@@ -163,8 +130,8 @@ export default async function handler(
       success: true,
       timestamp: new Date().toISOString(),
       parents: parentsArray,
-      passwordRequired: !!passwordFile,
-      passwordValidated: true,
+      passwordRequired: validatePassword.isProtected,
+      passwordValidated: validatePassword.valid,
       file: fetchFile.data,
     };
 
@@ -174,10 +141,11 @@ export default async function handler(
       const payload: ErrorResponse = {
         success: false,
         timestamp: new Date().toISOString(),
-        code: error.code,
+        code: error.code || 500,
         errors: {
-          message: error.errors[0].message,
-          reason: error.errors[0].reason,
+          message:
+            error.errors?.[0].message || error.message || "Unknown error",
+          reason: error.errors?.[0].reason || error.cause || "internalError",
         },
       };
 
@@ -187,10 +155,10 @@ export default async function handler(
     const payload: ErrorResponse = {
       success: false,
       timestamp: new Date().toISOString(),
-      code: 500,
+      code: error.code || 500,
       errors: {
-        message: error.message,
-        reason: "internalError",
+        message: error.message || "Unknown error",
+        reason: error.cause || "internalError",
       },
     };
 

@@ -96,6 +96,11 @@ export interface ReadmeResponse extends APIResponse {
   file: TFile | drive_v3.Schema$File;
 }
 
+export interface PasswordResponse extends APIResponse {
+  passwordRequired: boolean;
+  passwordValidated: boolean;
+}
+
 export interface ErrorResponse extends APIResponse {
   code: number;
   errors: {

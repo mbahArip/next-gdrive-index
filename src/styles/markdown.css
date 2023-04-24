@@ -33,6 +33,9 @@
   .markdown ul {
     @apply list-disc ml-8 leading-loose;
   }
+  .markdown ol {
+    @apply list-decimal leading-loose;
+  }
 
   .markdown table {
     @apply block w-full overflow-auto border-collapse mb-4 border-spacing-0;

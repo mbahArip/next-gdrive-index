@@ -46,11 +46,12 @@ const config = {
     // Starting point of the drive
     // Use 'root' to use My Drive as starting point
     // Or use folder id to use a specific folder as starting point
-    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
+    // rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
+    rootFolder: "1p6znx1BKPsqFnyOPw49uhoc8FNglfYnD",
     // If this set to true, any user can download or view protected files.
     // If this set to false, only authorized users can download or view protected files.
     // The authorized users URL will have a token in it that valid for 1 hour.
-    allowDownloadProtectedFiles: true, // If this set to true, any user can download protected files, but can't see the details of the file or folder.
+    allowDownloadProtectedFiles: false, // If this set to true, any user can download protected files, but can't see the details of the file or folder.
   },
   /* Config for readme file render */
   readme: {

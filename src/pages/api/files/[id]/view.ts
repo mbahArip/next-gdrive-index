@@ -1,14 +1,18 @@
-import { ErrorResponse, TFileParent } from "@/types/googleapis";
+import { ErrorResponse, FileResponse, TFileParent } from "@/types/googleapis";
 import drive from "@utils/driveClient";
 import { NextApiRequest, NextApiResponse } from "next";
 import config from "@config/site.config";
+import { validateProtected } from "@utils/driveHelper";
+import { ExtendedError } from "@/types/default";
 
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
   try {
-    const { id } = request.query;
+    const { id, hash } = request.query;
+    const { authorization } = request.headers;
+    const headerHash = authorization?.split(" ")[1] || null;
 
     const fetchFileMetadata = await drive.files.get({
       fileId: id as string,
@@ -33,7 +37,13 @@ export default async function handler(
           fileId: parents[0],
           fields: "id, name, parents",
         });
-        if (fetchParents.data.id === config.files.rootFolder) break;
+        if (fetchParents.data.id === config.files.rootFolder) {
+          parentsArray.push({
+            id: fetchParents.data.id as string,
+            name: fetchParents.data.name as string,
+          });
+          break;
+        }
         parents = fetchParents.data.parents || [];
         if (!parents.length) break;
 
@@ -44,77 +54,29 @@ export default async function handler(
       }
 
       // Check for password file
-      // Password checking takes too long.
-      // Try to find a better way or just keep this as it is.
-      const passwordQuery = [
-        "name = '.password'",
-        "'me' in owners",
-        "trashed = false",
-      ];
-      const fetchPassword = await drive.files.list({
-        q: passwordQuery.join(" and "),
-        fields: "files(id, name, parents)",
-        pageSize: 1000,
-      });
-      const passwordFile = fetchPassword.data.files?.find((file) => {
-        if (file.parents?.[0] === id) return true;
-        return parentsArray.some((parent) => parent.id === file.parents?.[0]);
-      });
-
-      if (passwordFile) {
-        //   const {authorization} = request.headers;
-        //   const userPassword = authorization?.split(" ")[1];
-        //   For dev purpose, get password from query
-        const userPassword = request.query.password as string;
-        if (!userPassword)
-          return response.status(401).json({
-            success: false,
-            timestamp: new Date().toISOString(),
-            passwordRequired: true,
-            code: 401,
-            errors: {
-              message: "Unauthorized",
-              reason: "passwordRequired",
-            },
-          });
-
-        const getPassword = await drive.files.get(
-          {
-            fileId: passwordFile.id as string,
-            alt: "media",
-          },
-          { responseType: "text" },
-        );
-
-        if (getPassword.data !== userPassword)
-          return response.status(401).json({
-            success: false,
-            timestamp: new Date().toISOString(),
-            passwordRequired: true,
-            code: 401,
-            errors: {
-              message: "Unauthorized",
-              reason: "passwordWrong",
-            },
-          });
+      const validatePassword = await validateProtected(
+        parentsArray[0].id,
+        (headerHash as string) || (hash as string),
+      );
+      if (validatePassword.isProtected && !validatePassword.valid) {
+        return response.status(200).json({
+          success: true,
+          timestamp: new Date().toISOString(),
+          passwordRequired: true,
+          passwordValidated: false,
+          parents: [],
+          file: {},
+        } as FileResponse);
       }
     }
 
-    console.log("Serve file.");
-    const { name, mimeType, size, exportLinks } = fetchFileMetadata.data;
+    const { name, mimeType, size } = fetchFileMetadata.data;
 
     if (mimeType === "application/vnd.google-apps.folder") {
-      const payload: ErrorResponse = {
-        success: false,
-        timestamp: new Date().toISOString(),
-        code: 400,
-        errors: {
-          message: "Cannot view folder",
-          reason: "badRequest",
-        },
-      };
-
-      return response.status(400).json(payload);
+      const error = new Error("Folder cannot be downloaded") as ExtendedError;
+      error.cause = "badRequest";
+      error.code = 400;
+      throw error;
     }
 
     response.setHeader(
@@ -134,25 +96,17 @@ export default async function handler(
       },
     );
 
-    streamFile.data.on("error", (error: any) => {
-      throw error;
-    });
-    streamFile.data.on("data", (chunk: Buffer) => {
-      response.write(chunk);
-    });
-    streamFile.data.on("end", () => {
-      response.end();
-    });
-    return response.status(200);
+    return response.send(streamFile.data);
   } catch (error: any) {
     if (error satisfies ErrorResponse) {
       const payload: ErrorResponse = {
         success: false,
         timestamp: new Date().toISOString(),
-        code: error.code,
+        code: error.code || 500,
         errors: {
-          message: error.errors?.[0].message || error.message,
-          reason: error.errors?.[0].reason || "internalError",
+          message:
+            error.errors?.[0].message || error.message || "Unknown error",
+          reason: error.errors?.[0].reason || error.cause || "internalError",
         },
       };
 
@@ -162,10 +116,10 @@ export default async function handler(
     const payload: ErrorResponse = {
       success: false,
       timestamp: new Date().toISOString(),
-      code: 500,
+      code: error.code || 500,
       errors: {
-        message: error.message,
-        reason: "internalError",
+        message: error.message || "Unknown error",
+        reason: error.cause || "internalError",
       },
     };
 

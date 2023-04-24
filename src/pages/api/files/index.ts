@@ -1,6 +1,6 @@
 import { ErrorResponse, FilesResponse } from "@/types/googleapis";
 import drive from "@/utils/driveClient";
-import { buildQuery } from "@/utils/driveHelper";
+import { buildQuery, validateProtected } from "@/utils/driveHelper";
 import { NextApiRequest, NextApiResponse } from "next";
 import config from "@config/site.config";
 
@@ -10,6 +10,27 @@ export default async function handler(
 ) {
   try {
     const { pageToken } = request.query;
+    const { authorization } = request.headers;
+    const hash = authorization?.split(" ")[1] || null;
+
+    // Check for password file
+    const validatePassword = await validateProtected(
+      config.files.rootFolder,
+      hash as string,
+    );
+    if (validatePassword.isProtected && !validatePassword.valid) {
+      return response.status(200).json({
+        success: true,
+        timestamp: new Date().toISOString(),
+        passwordRequired: true,
+        passwordValidated: false,
+        parents: [],
+        files: [],
+        folders: [],
+        nextPageToken: undefined,
+        readmeExists: false,
+      });
+    }
 
     const fetchFiles = await drive.files.list({
       q: buildQuery({
@@ -47,6 +68,8 @@ export default async function handler(
     const payload: FilesResponse = {
       success: true,
       timestamp: new Date().toISOString(),
+      passwordRequired: validatePassword.isProtected,
+      passwordValidated: validatePassword.valid,
       folders,
       files,
       nextPageToken: fetchFiles.data.nextPageToken || undefined,
@@ -59,10 +82,11 @@ export default async function handler(
       const payload: ErrorResponse = {
         success: false,
         timestamp: new Date().toISOString(),
-        code: error.code,
+        code: error.code || 500,
         errors: {
-          message: error.errors[0].message,
-          reason: error.errors[0].reason,
+          message:
+            error.errors?.[0].message || error.message || "Unknown error",
+          reason: error.errors?.[0].reason || error.cause || "internalError",
         },
       };
 
@@ -72,10 +96,10 @@ export default async function handler(
     const payload: ErrorResponse = {
       success: false,
       timestamp: new Date().toISOString(),
-      code: 500,
+      code: error.code || 500,
       errors: {
-        message: error.message,
-        reason: "internalError",
+        message: error.message || "Unknown error",
+        reason: error.cause || "internalError",
       },
     };
 

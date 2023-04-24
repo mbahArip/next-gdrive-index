@@ -1,5 +1,8 @@
 module.exports = {
   client_id:
     "740683322791-5glqp7unsscric9g51ccdsctu5nenkgd.apps.googleusercontent.com",
-  redirect_uri: "http://localhost:5000/auth/google/callback",
+  client_secret:
+    "1b9a24512e48c83cf7e520a7b9442298:6b8c0dc1e9cb0c28c673ebb222f9f03f425f8566b0d9ef4a7265582a99e57499b6b215ff7d038a477c2797195a5ccf65",
+  refresh_token:
+    "fd0a8add6d49a1cbba6211eaa1e64e4e:e0a974bf57af247cf147237dea17c38e78fc6aa88e244f57ca3e373974e95dd6120949b9d320bb6c0dfaad026a2fdaac633a5c515683d1cd2eb468e6e97ac0ddf69068a5aa611fc264b9a998e8e85d20ef13a3c9ecfb527df34455f69fa5458e00e598e3441e20f8a5958c27da911a9a",
 };

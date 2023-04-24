@@ -11,6 +11,8 @@ import rehypePrism from "rehype-prism-plus";
 import { SpecialComponents } from "react-markdown/lib/ast-to-react";
 import { NormalComponents } from "react-markdown/lib/complex-types";
 import config from "@/config/site.config";
+import useCopyText from "@hooks/useCopyText";
+import { MdContentCopy } from "react-icons/md";
 
 type Props = {
   content: string;
@@ -21,7 +23,7 @@ const customComponents: Partial<
 > = {
   img({ alt, src, ...props }: any) {
     return (
-      <div className='flex flex-col gap-0'>
+      <div className='my-4 flex flex-col gap-0'>
         <img
           src={src}
           alt={alt}

@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+!/src/pages/api/test.ts
+
+# personal docs
+/docs

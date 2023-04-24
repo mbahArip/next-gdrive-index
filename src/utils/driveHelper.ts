@@ -1,5 +1,7 @@
 import drive from "@utils/driveClient";
 import config from "@config/site.config";
+import { verifyHash } from "@utils/hashHelper";
+import { TFileParent } from "@/types/googleapis";
 
 export function buildQuery({
   id,
@@ -31,7 +33,7 @@ export function buildQuery({
   return query.join(" and ");
 }
 
-export async function checkProtected(id: string) {
+export async function _checkProtected(id: string) {
   try {
     const files = await drive.files.list({
       q: id ? buildQuery({ id }) : buildQuery({}),
@@ -50,7 +52,7 @@ export async function checkProtected(id: string) {
   }
 }
 
-export async function validateFolderPassword(
+export async function _validateFolderPassword(
   passwordFileId: string,
   password: string,
 ) {
@@ -67,4 +69,50 @@ export async function validateFolderPassword(
   } catch (error: any) {
     return false;
   }
+}
+
+export async function validateProtected(
+  fileId: string | TFileParent[],
+  passwordHash: string,
+): Promise<{ isProtected: boolean; valid?: boolean }> {
+  const fetchPassword = await drive.files.list({
+    q: `name = '.password' and 'me' in owners and trashed = false`,
+    fields: "files(id, name, parents)",
+    pageSize: 1000,
+  });
+  let passwordFile;
+  if (typeof fileId === "string") {
+    passwordFile = fetchPassword.data.files?.find(
+      (file) => file.parents?.[0] === fileId,
+    );
+  }
+  if (Array.isArray(fileId)) {
+    const parentsIdMap = fileId.map((parent) => parent.id);
+    passwordFile = fetchPassword.data.files?.find((file) =>
+      parentsIdMap.includes(file.parents?.[0] as string),
+    );
+  }
+
+  console.log(fetchPassword.data.files);
+
+  if (!passwordFile) return { isProtected: false };
+
+  const getPassword = await drive.files.get(
+    {
+      fileId: passwordFile.id as string,
+      alt: "media",
+    },
+    { responseType: "text" },
+  );
+
+  if (!passwordHash)
+    return {
+      isProtected: true,
+      valid: false,
+    };
+
+  return {
+    isProtected: true,
+    valid: verifyHash(getPassword.data as string, passwordHash),
+  };
 }
