@@ -66,7 +66,6 @@ pre[class*="language-"], pre {
   word-break: normal;
   line-height: 1.5;
   -moz-tab-size: 2;
-  -o-tab-size: 2;
   tab-size: 2;
   -webkit-hyphens: none;
   -moz-hyphens: none;
@@ -202,10 +201,7 @@ pre[class*="language-"], pre {
   color: var(--hue-3);
 }
 
-.language-javascript
-  .token.template-string
-  > .token.interpolation
-  > .token.interpolation-punctuation.punctuation {
+.language-javascript .token.template-string > .token.interpolation > .token.interpolation-punctuation.punctuation {
   color: var(--hue-5-2);
 }
 
@@ -280,7 +276,7 @@ pre[class*="language-"], pre {
 /* Plugin overrides */
 /* Selectors should have higher specificity than those in the plugins' default stylesheets */
 
-/* Show Invisibles plugin overrides */
+/* Show Invisible plugin overrides */
 .token.token.tab:not(:empty):before,
 .token.token.cr:before,
 .token.token.lf:before,
@@ -333,9 +329,7 @@ div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus {
 
 /* Hovering over a linkable line number (in the gutter area) */
 /* Requires Line Numbers plugin as well */
-pre[id].linkable-line-numbers.linkable-line-numbers
-  span.line-numbers-rows
-  > span:hover:before {
+pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows > span:hover:before {
   background-color: var(--syntax-cursor-line);
 }
 

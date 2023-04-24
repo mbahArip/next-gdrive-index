@@ -1,8 +1,5 @@
-import { MdContentCopy, MdWarning } from "react-icons/md";
-import { ReactNode, useEffect, useState } from "react";
-import { encrypt, generateRandomEncryptionKey } from "@utils/encryptionHelper";
-import useCopyText from "@hooks/useCopyText";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { encrypt } from "@utils/encryptionHelper";
 import Link from "next/link";
 import useLocalStorage from "@hooks/useLocalStorage";
 import MarkdownRender from "@components/utility/MarkdownRender";
@@ -10,15 +7,9 @@ import useSWR from "swr";
 import fetcher from "@utils/swrFetch";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 
-type StepProps = {
-  stepName: string;
-  imgSrc?: string;
-  children: ReactNode;
-};
-
 export default function SetupGoogleCloud() {
   const [encryptionKey] = useLocalStorage("tempEncryption", "");
-  const [settingJson, setSettingJson] = useLocalStorage("tempGoogleCloud", {
+  const [_settingJson, setSettingJson] = useLocalStorage("tempGoogleCloud", {
     client_id: "",
     client_secret: "",
     refresh_token: "",

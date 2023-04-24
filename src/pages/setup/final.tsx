@@ -1,13 +1,8 @@
-import { GetServerSideProps } from "next";
 import Link from "next/link";
-import useSWR from "swr";
-import fetcher from "@utils/swrFetch";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import MarkdownRender from "@components/utility/MarkdownRender";
 import useLocalStorage from "@hooks/useLocalStorage";
-import { useEffect, useRef, useState } from "react";
-import { MdContentCopy } from "react-icons/md";
-import useCopyText from "@hooks/useCopyText";
+import { useEffect, useState } from "react";
 
 type ConfigProps = {
   client_id: string;
@@ -30,9 +25,6 @@ export default function SetupFinal() {
   const [dataConfig, setDataConfig] = useState<ConfigProps>(defaultConfig);
   const [dataKey, setDataKey] = useState<string>("");
   const [mdContent, setMdContent] = useState<string>("");
-
-  const dataRef = useRef<HTMLElement>(null);
-  const copyText = useCopyText();
 
   useEffect(() => {
     setIsLoading(true);
