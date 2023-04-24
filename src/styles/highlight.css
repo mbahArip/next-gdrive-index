@@ -54,7 +54,7 @@ html.dark {
 }
 
 code[class*="language-"],
-pre[class*="language-"] {
+pre[class*="language-"], pre {
   background: var(--syntax-bg);
   color: var(--syntax-fg);
   text-shadow: 0 1px rgba(0, 0, 0, 0);
@@ -92,7 +92,7 @@ pre[class*="language-"] *::selection {
 }
 
 /* Code blocks */
-pre[class*="language-"] {
+pre[class*="language-"], pre {
   padding: 1em;
   margin: 0.5em 0;
   overflow: auto;

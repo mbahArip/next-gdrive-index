@@ -71,11 +71,16 @@ html, body {
   }
   a {
     @apply hover:opacity-75 transition duration-150;
+    @apply text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500 underline;
+  }
+  a:has(div.items), a:has(span) {
+    @apply text-zinc-900 dark:text-zinc-100 hover:text-zinc-800 dark:hover:text-zinc-200;
+    @apply no-underline;
   }
 
 
   input, textarea, button, select {
-    @apply rounded-full px-4 py-2 tablet:py-1;
+    @apply rounded-lg px-4 py-2 tablet:py-1;
     @apply text-sm tablet:text-base;
     @apply outline-none border;
     @apply border-zinc-400 hover:border-blue-300 focus:border-blue-400;
@@ -91,19 +96,32 @@ html, body {
   button {
     @apply cursor-pointer disabled:cursor-default;
   }
+  button[disabled] {
+    @apply cursor-not-allowed !important;
+    @apply border-zinc-300 dark:border-zinc-700 !important;
+    @apply bg-zinc-400 dark:bg-zinc-800 !important;
+    @apply text-zinc-500 !important;
+  }
   button.primary {
-    @apply text-zinc-100 dark:text-zinc-300;
+    @apply text-zinc-100 dark:text-zinc-100;
     @apply border-blue-400 hover:border-blue-500 active:border-blue-600;
-    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-400;
+    @apply bg-blue-500 hover:bg-blue-700 active:bg-blue-400;
     @apply dark:border-blue-500 dark:hover:border-blue-600 dark:active:border-blue-700;
-    @apply dark:bg-blue-500 dark:hover:bg-blue-400 dark:active:bg-blue-600;
+    @apply dark:bg-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-600;
   }
   button.secondary{
-    @apply text-zinc-100 dark:text-zinc-300;
+    @apply text-zinc-100 dark:text-zinc-100;
     @apply border-zinc-400 hover:border-zinc-500 active:border-zinc-600;
     @apply bg-zinc-500 hover:bg-zinc-600 active:bg-zinc-400;
     @apply dark:border-zinc-500 dark:hover:border-zinc-600 dark:active:border-zinc-700;
     @apply dark:bg-zinc-500 dark:hover:bg-zinc-400 dark:active:bg-zinc-600;
+  }
+  button.danger {
+    @apply text-zinc-100 dark:text-zinc-100;
+    @apply border-red-400 hover:border-red-500 active:border-red-600;
+    @apply bg-red-500 hover:bg-red-700 active:bg-red-400;
+    @apply dark:border-red-500 dark:hover:border-red-600 dark:active:border-red-700;
+    @apply dark:bg-red-500 dark:hover:bg-red-600 dark:active:bg-red-600;
   }
 
   table {
@@ -118,6 +136,10 @@ html, body {
     td {
         @apply border-b border-zinc-400 dark:border-zinc-700 py-1.5;
     }
+
+  img.thumbnail {
+    @apply rounded-lg w-full max-w-screen-tablet mt-2 mb-4;
+  }
 }
 
 @layer components {
@@ -126,6 +148,18 @@ html, body {
     @apply border border-zinc-400 dark:border-zinc-700;
     @apply drop-shadow;
     @apply bg-zinc-100 dark:bg-zinc-900;
+  }
+
+  div.banner {
+    @apply rounded-lg p-2 tablet:p-4 my-2 tablet:my-4;
+    @apply border border-zinc-400 dark:border-zinc-700;
+    @apply drop-shadow;
+    @apply bg-zinc-100 dark:bg-zinc-900;
+    @apply flex gap-4 items-center;
+  }
+  div.banner.warning {
+    @apply border-yellow-400 dark:border-yellow-600;
+    @apply bg-yellow-100 dark:bg-yellow-900;
   }
 
   div.layoutDropdown {
@@ -187,7 +221,7 @@ html, body {
   }
 
   .navbar a {
-    @apply text-inherit font-normal not-italic;
+    @apply text-inherit font-normal not-italic no-underline;
   }
 
   .interactive {
