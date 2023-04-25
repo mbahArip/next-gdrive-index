@@ -14,8 +14,14 @@ import ListLayout from "@components/layout/Files/ListLayout";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import ErrorFeedback from "@components/APIFeedback/Error";
 import { useRouter } from "next/router";
+import axios from "axios";
+import Password from "@components/layout/Password";
+import { GetServerSidePropsContext } from "next";
 
-export default function Folder() {
+type Props = {
+  passwordParent?: string;
+};
+export default function Folder({ passwordParent }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
@@ -25,6 +31,10 @@ export default function Folder() {
   const [renderStyle] = useLocalStorage<"grid" | "list">("renderStyle", "grid");
   const [layoutStyle, setLayoutStyle] = useState<"grid" | "list">(renderStyle);
 
+  const [passwordStorage] = useLocalStorage<{
+    [key: string]: string;
+  }>("passwordStorage", {});
+
   const getNextKey = buildNextKey(`/api/files/${id}`);
   const {
     data: swrData,
@@ -32,7 +42,20 @@ export default function Folder() {
     isLoading,
     size,
     setSize,
-  } = useSWRInfinite<FilesResponse, ErrorResponse>(getNextKey, fetcher);
+  } = useSWRInfinite<FilesResponse, ErrorResponse>(getNextKey, (url, headers) =>
+    axios
+      .get<FilesResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${
+            passwordStorage?.[passwordParent as string] ||
+            passwordStorage?.[id as string] ||
+            ""
+          }`,
+          ...headers,
+        },
+      })
+      .then((res) => res.data),
+  );
   const {
     data: readmeData,
     error: readmeError,
@@ -44,7 +67,7 @@ export default function Folder() {
     isLoadingInitialData ||
     (size > 0 && swrData && typeof swrData[size - 1] === "undefined");
   const isEmpty =
-    swrData?.[0]?.files.length === 0 && swrData?.[0]?.folders.length === 0;
+    swrData?.[0]?.files?.length === 0 && swrData?.[0]?.folders?.length === 0;
   const isReachingEnd =
     isEmpty ||
     (swrData &&
@@ -82,62 +105,90 @@ export default function Folder() {
       {!isLoading && error && <ErrorFeedback message={error.errors?.message} />}
       {!isLoading && !error && data && (
         <>
-          {isReadmeExists && config.readme.position === "start" && (
-            <div className='card w-full'>
-              {readmeLoading && (
-                <LoadingFeedback message={"Loading readme..."} />
-              )}
-              {readmeError && !readmeLoading && (
-                <ErrorFeedback message={readmeError.errors?.message} />
-              )}
-              {readmeData && !readmeLoading && (
-                <MarkdownRender content={readmeData as string} />
-              )}
-            </div>
+          {data.passwordRequired && !data.passwordValidated && (
+            <Password folderId={id as string} />
           )}
+          {(data.passwordValidated || !data.passwordRequired) && (
+            <>
+              {isReadmeExists && config.readme.position === "start" && (
+                <div className='card w-full'>
+                  {readmeLoading && (
+                    <LoadingFeedback message={"Loading readme..."} />
+                  )}
+                  {readmeError && !readmeLoading && (
+                    <ErrorFeedback message={readmeError.errors?.message} />
+                  )}
+                  {readmeData && !readmeLoading && (
+                    <MarkdownRender content={readmeData as string} />
+                  )}
+                </div>
+              )}
 
-          <div className={"card"}>
-            {layoutStyle === "list" && (
-              <ListLayout
-                data={data}
-                pagination={{
-                  swrData,
-                  isLoadingMore,
-                  isReachingEnd,
-                  size,
-                  setSize,
-                }}
-              />
-            )}
-            {layoutStyle === "grid" && (
-              <GridLayout
-                data={data}
-                pagination={{
-                  swrData,
-                  isLoadingMore,
-                  isReachingEnd,
-                  size,
-                  setSize,
-                }}
-              />
-            )}
-          </div>
+              <div className={"card"}>
+                {layoutStyle === "list" && (
+                  <ListLayout
+                    data={data}
+                    pagination={{
+                      swrData,
+                      isLoadingMore,
+                      isReachingEnd,
+                      size,
+                      setSize,
+                    }}
+                  />
+                )}
+                {layoutStyle === "grid" && (
+                  <GridLayout
+                    data={data}
+                    pagination={{
+                      swrData,
+                      isLoadingMore,
+                      isReachingEnd,
+                      size,
+                      setSize,
+                    }}
+                  />
+                )}
+              </div>
 
-          {isReadmeExists && config.readme.position === "end" && (
-            <div className='card w-full'>
-              {readmeLoading && (
-                <LoadingFeedback message={"Loading readme..."} />
+              {isReadmeExists && config.readme.position === "end" && (
+                <div className='card w-full'>
+                  {readmeLoading && (
+                    <LoadingFeedback message={"Loading readme..."} />
+                  )}
+                  {readmeError && !readmeLoading && (
+                    <ErrorFeedback message={readmeError.errors?.message} />
+                  )}
+                  {readmeData && !readmeLoading && (
+                    <MarkdownRender content={readmeData as string} />
+                  )}
+                </div>
               )}
-              {readmeError && !readmeLoading && (
-                <ErrorFeedback message={readmeError.errors?.message} />
-              )}
-              {readmeData && !readmeLoading && (
-                <MarkdownRender content={readmeData as string} />
-              )}
-            </div>
+            </>
           )}
         </>
       )}
     </div>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { id } = context.query;
+  const passwordParent = await axios.get(
+    `http://localhost:5000/api/files/${id}`,
+  );
+
+  if (passwordParent) {
+    return {
+      props: {
+        passwordParent: passwordParent.data.protectedId || null,
+      },
+    };
+  } else {
+    return {
+      props: {
+        passwordParent: "",
+      },
+    };
+  }
 }

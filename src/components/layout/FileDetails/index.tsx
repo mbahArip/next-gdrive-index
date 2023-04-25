@@ -11,9 +11,10 @@ import useSWR from "swr";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
+  hash?: string;
 };
 
-export default function FileDetails({ data }: Props) {
+export default function FileDetails({ data, hash }: Props) {
   const [metadata, setMetadata] = useState<{ label: string; value: string }[]>(
     [],
   );
@@ -72,7 +73,12 @@ export default function FileDetails({ data }: Props) {
 
             <div className={"divider-horizontal"} />
 
-            {data.mimeType?.startsWith("image") && <ImagePreview data={data} />}
+            {data.mimeType?.startsWith("image") && (
+              <ImagePreview
+                data={data}
+                hash={hash || ""}
+              />
+            )}
             {/*{data.mimeType?.startsWith("audio") && (*/}
             <div className='flex w-full items-center justify-center'>
               {/*<video*/}

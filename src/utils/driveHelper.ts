@@ -74,26 +74,27 @@ export async function _validateFolderPassword(
 export async function validateProtected(
   fileId: string | TFileParent[],
   passwordHash: string,
-): Promise<{ isProtected: boolean; valid?: boolean }> {
+): Promise<{ isProtected: boolean; valid?: boolean; protectedId?: string }> {
   const fetchPassword = await drive.files.list({
     q: `name = '.password' and 'me' in owners and trashed = false`,
     fields: "files(id, name, parents)",
     pageSize: 1000,
   });
   let passwordFile;
+  let protectedId;
   if (typeof fileId === "string") {
     passwordFile = fetchPassword.data.files?.find(
       (file) => file.parents?.[0] === fileId,
     );
+    protectedId = fileId;
   }
   if (Array.isArray(fileId)) {
     const parentsIdMap = fileId.map((parent) => parent.id);
     passwordFile = fetchPassword.data.files?.find((file) =>
       parentsIdMap.includes(file.parents?.[0] as string),
     );
+    protectedId = passwordFile?.parents?.[0];
   }
-
-  console.log(fetchPassword.data.files);
 
   if (!passwordFile) return { isProtected: false };
 
@@ -109,10 +110,12 @@ export async function validateProtected(
     return {
       isProtected: true,
       valid: false,
+      protectedId,
     };
 
   return {
     isProtected: true,
     valid: verifyHash(getPassword.data as string, passwordHash),
+    protectedId,
   };
 }

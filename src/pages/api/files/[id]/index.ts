@@ -66,6 +66,7 @@ export default async function handler(
         timestamp: new Date().toISOString(),
         passwordRequired: true,
         passwordValidated: false,
+        protectedId: validatePassword.protectedId,
         parents: [],
         file: {},
       } as FileResponse);
@@ -117,6 +118,7 @@ export default async function handler(
         parents: parentsArray,
         passwordRequired: validatePassword.isProtected,
         passwordValidated: validatePassword.valid,
+        protectedId: validatePassword.protectedId,
         folders,
         files,
         nextPageToken: fetchFiles.data.nextPageToken || undefined,
@@ -132,6 +134,7 @@ export default async function handler(
       parents: parentsArray,
       passwordRequired: validatePassword.isProtected,
       passwordValidated: validatePassword.valid,
+      protectedId: validatePassword.protectedId,
       file: fetchFile.data,
     };
 

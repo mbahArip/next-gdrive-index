@@ -7,9 +7,10 @@ import config from "@config/site.config";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
+  hash?: string;
 };
 
-export default function ImagePreview({ data }: Props) {
+export default function ImagePreview({ data, hash }: Props) {
   const [image, setImage] = useState<string>("");
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -21,7 +22,7 @@ export default function ImagePreview({ data }: Props) {
       try {
         let loaded = false;
         const _image = new Image();
-        _image.src = `/api/files/${data.id}/view`;
+        _image.src = `/api/files/${data.id}/view${hash ? `?hash=${hash}` : ""}`;
         _image.onload = () => {
           setImage(_image.src);
           setIsImageLoaded(true);

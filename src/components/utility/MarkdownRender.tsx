@@ -30,6 +30,7 @@ const customComponents: Partial<
           <span className='my-0.5 text-center text-sm italic tablet:text-base'>
             {alt} |{" "}
             <a
+              className={"link"}
               href={src}
               target='_blank'
               rel='noopener noreferrer'
@@ -39,6 +40,17 @@ const customComponents: Partial<
           </span>
         )}
       </div>
+    );
+  },
+  a({ href, ...props }: any) {
+    return (
+      <a
+        className={"link"}
+        href={href}
+        target='_blank'
+        rel='noopener noreferrer'
+        {...props}
+      />
     );
   },
 };

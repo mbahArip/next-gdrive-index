@@ -1,25 +1,53 @@
 import useSWR from "swr";
 import fetcher from "@utils/swrFetch";
-import { ErrorResponse, FileResponse, TFileParent } from "@/types/googleapis";
+import {
+  ErrorResponse,
+  FileResponse,
+  FilesResponse,
+  TFileParent,
+} from "@/types/googleapis";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useEffect, useState } from "react";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import ErrorFeedback from "@components/APIFeedback/Error";
 import { useRouter } from "next/router";
 import FileDetails from "@components/layout/FileDetails";
+import useLocalStorage from "@hooks/useLocalStorage";
+import axios from "axios";
+import { GetServerSidePropsContext } from "next";
 
-export default function File() {
+type Props = {
+  passwordParent?: string;
+};
+export default function File({ passwordParent }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
   const [data, setData] = useState<FileResponse>();
   const [dataLoading, setDataLoading] = useState<boolean>(true);
 
+  const [passwordStorage] = useLocalStorage<{
+    [key: string]: string;
+  }>("passwordStorage", {});
+
   const {
     data: swrData,
     error,
     isLoading,
-  } = useSWR<FileResponse, ErrorResponse>(`/api/files/${id}`, fetcher);
+  } = useSWR<FileResponse, ErrorResponse>(`/api/files/${id}`, (url, headers) =>
+    axios
+      .get<FileResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${
+            passwordStorage?.[passwordParent as string] ||
+            passwordStorage?.[id as string] ||
+            ""
+          }`,
+          ...headers,
+        },
+      })
+      .then((res) => res.data),
+  );
 
   useEffect(() => {
     setDataLoading(true);
@@ -51,7 +79,33 @@ export default function File() {
 
       {isLoading && <LoadingFeedback message={"Loading file details..."} />}
       {!isLoading && error && <ErrorFeedback message={error.errors?.message} />}
-      {!isLoading && !error && data && <FileDetails data={data.file} />}
+      {!isLoading && !error && data && (
+        <FileDetails
+          data={data.file}
+          hash={passwordStorage?.[passwordParent as string] || ""}
+        />
+      )}
     </div>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { id } = context.query;
+  const passwordParent = await axios.get(
+    `http://localhost:5000/api/files/${id}`,
+  );
+
+  if (passwordParent) {
+    return {
+      props: {
+        passwordParent: passwordParent.data.protectedId || null,
+      },
+    };
+  } else {
+    return {
+      props: {
+        passwordParent: "",
+      },
+    };
+  }
 }

@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { MdHome } from "react-icons/md";
 import useLocalStorage from "@hooks/useLocalStorage";
 import ReactLoading from "react-loading";
+import config from "@config/site.config";
 
 type Props = {
   data: TFileParent[];
@@ -47,13 +48,7 @@ export default function Breadcrumb({ data, isLoading }: Props) {
       {isLimited && !isLoading && (
         <Fragment>
           <span>/</span>
-          <Link
-            href={`/folder/${slicedPath?.id}`}
-            title={slicedPath?.name}
-            className='flex items-center gap-2'
-          >
-            ...
-          </Link>
+          <span>...</span>
         </Fragment>
       )}
       {!isLoading && (

@@ -27,7 +27,10 @@ export default function GridLayout({ data, pagination }: Props) {
           <div className='flex w-full items-center justify-between rounded-lg px-4'>
             <span className='font-bold'>Folders</span>
           </div>
-          <div className='my-4 grid grid-cols-2 gap-4  tablet:grid-cols-5 desktop:grid-cols-7'>
+          <div
+            id={"grid-folders"}
+            className='my-4 grid grid-cols-2 gap-4  tablet:grid-cols-5 desktop:grid-cols-7'
+          >
             {data?.folders.length === 0 ? (
               <div className='col-span-full mb-4 flex w-full items-center justify-center'>
                 <span className='text-gray-500'>No folders</span>
@@ -55,7 +58,10 @@ export default function GridLayout({ data, pagination }: Props) {
           <div className='flex w-full items-center justify-between rounded-lg px-4'>
             <span className='font-bold'>Files</span>
           </div>
-          <div className='my-4 grid grid-cols-2 gap-4  tablet:grid-cols-5 desktop:grid-cols-7'>
+          <div
+            id={"grid-files"}
+            className='my-4 grid grid-cols-2 gap-4  tablet:grid-cols-5 desktop:grid-cols-7'
+          >
             {data?.files.length === 0 ? (
               <div className='col-span-full mb-4 flex w-full items-center justify-center'>
                 <span className='text-gray-500'>No files</span>

@@ -23,16 +23,16 @@ class DriveClient {
   }
 
   getInstance() {
-    // if (!this.instance) {
-    //   const oauth2Client = new google.auth.OAuth2(
-    //     apiConfig.client_id,
-    //     this.decryptedSecret,
-    //   );
-    //   oauth2Client.setCredentials({
-    //     refresh_token: process.env.REFRESH_TOKEN,
-    //   });
-    //   this.instance = google.drive({ version: "v3", auth: oauth2Client });
-    // }
+    if (!this.instance) {
+      const oauth2Client = new google.auth.OAuth2(
+        apiConfig.client_id,
+        this.decryptedSecret,
+      );
+      oauth2Client.setCredentials({
+        refresh_token: process.env.REFRESH_TOKEN,
+      });
+      this.instance = google.drive({ version: "v3", auth: oauth2Client });
+    }
     return this.instance;
   }
 }

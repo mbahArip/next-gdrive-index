@@ -13,6 +13,9 @@ import SwitchLayout from "@components/utility/SwitchLayout";
 import ListLayout from "@components/layout/Files/ListLayout";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import ErrorFeedback from "@components/APIFeedback/Error";
+import { hashToken } from "@utils/hashHelper";
+import axios from "axios";
+import Password from "@components/layout/Password";
 
 export default function Home() {
   const [data, setData] = useState<FilesResponse>();
@@ -21,6 +24,10 @@ export default function Home() {
   const [renderStyle] = useLocalStorage<"grid" | "list">("renderStyle", "grid");
   const [layoutStyle, setLayoutStyle] = useState<"grid" | "list">(renderStyle);
 
+  const [passwordStorage, setPasswordStorage] = useLocalStorage<{
+    [key: string]: string;
+  }>("passwordStorage", {});
+
   const getNextKey = buildNextKey("/api/files/");
   const {
     data: swrData,
@@ -28,19 +35,33 @@ export default function Home() {
     isLoading,
     size,
     setSize,
-  } = useSWRInfinite<FilesResponse, ErrorResponse>(getNextKey, fetcher);
+    mutate,
+  } = useSWRInfinite<FilesResponse, ErrorResponse>(getNextKey, (url, headers) =>
+    axios
+      .get<FilesResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${
+            passwordStorage?.[config.files.rootFolder] || ""
+          }`,
+          ...headers,
+        },
+      })
+      .then((res) => res.data),
+  );
   const {
     data: readmeData,
     error: readmeError,
     isLoading: readmeLoading,
-  } = useSWR("/api/readme/", fetcher);
+  } = useSWR("/api/readme/", fetcher, {
+    shouldRetryOnError: false,
+  });
 
   const isLoadingInitialData = !swrData && !error;
   const isLoadingMore =
     isLoadingInitialData ||
     (size > 0 && swrData && typeof swrData[size - 1] === "undefined");
   const isEmpty =
-    swrData?.[0]?.files.length === 0 && swrData?.[0]?.folders.length === 0;
+    swrData?.[0]?.files?.length === 0 && swrData?.[0]?.folders?.length === 0;
   const isReachingEnd =
     isEmpty ||
     (swrData &&
@@ -75,62 +96,71 @@ export default function Home() {
       </div>
 
       {isLoading && <LoadingFeedback message={"Loading file..."} />}
-      {!isLoading && error && <ErrorFeedback message={error.errors?.message} />}
+      {!isLoading && error && (
+        <ErrorFeedback message={error.errors?.message || "Unknown error"} />
+      )}
       {!isLoading && !error && data && (
         <>
-          {isReadmeExists && config.readme.position === "start" && (
-            <div className='card w-full'>
-              {readmeLoading && (
-                <LoadingFeedback message={"Loading readme..."} />
-              )}
-              {readmeError && !readmeLoading && (
-                <ErrorFeedback message={readmeError.errors?.message} />
-              )}
-              {readmeData && !readmeLoading && (
-                <MarkdownRender content={readmeData as string} />
-              )}
-            </div>
+          {data.passwordRequired && !data.passwordValidated && (
+            <Password folderId={config.files.rootFolder} />
           )}
+          {(data.passwordValidated || !data.passwordRequired) && (
+            <>
+              {isReadmeExists && config.readme.position === "start" && (
+                <div className='card w-full'>
+                  {readmeLoading && (
+                    <LoadingFeedback message={"Loading readme..."} />
+                  )}
+                  {readmeError && !readmeLoading && (
+                    <ErrorFeedback message={readmeError.errors?.message} />
+                  )}
+                  {readmeData && !readmeLoading && (
+                    <MarkdownRender content={readmeData as string} />
+                  )}
+                </div>
+              )}
 
-          <div className={"card"}>
-            {layoutStyle === "list" && (
-              <ListLayout
-                data={data}
-                pagination={{
-                  swrData,
-                  isLoadingMore,
-                  isReachingEnd,
-                  size,
-                  setSize,
-                }}
-              />
-            )}
-            {layoutStyle === "grid" && (
-              <GridLayout
-                data={data}
-                pagination={{
-                  swrData,
-                  isLoadingMore,
-                  isReachingEnd,
-                  size,
-                  setSize,
-                }}
-              />
-            )}
-          </div>
+              <div className={"card"}>
+                {layoutStyle === "list" && (
+                  <ListLayout
+                    data={data}
+                    pagination={{
+                      swrData,
+                      isLoadingMore,
+                      isReachingEnd,
+                      size,
+                      setSize,
+                    }}
+                  />
+                )}
+                {layoutStyle === "grid" && (
+                  <GridLayout
+                    data={data}
+                    pagination={{
+                      swrData,
+                      isLoadingMore,
+                      isReachingEnd,
+                      size,
+                      setSize,
+                    }}
+                  />
+                )}
+              </div>
 
-          {isReadmeExists && config.readme.position === "end" && (
-            <div className='card w-full'>
-              {readmeLoading && (
-                <LoadingFeedback message={"Loading readme..."} />
+              {isReadmeExists && config.readme.position === "end" && (
+                <div className='card w-full'>
+                  {readmeLoading && (
+                    <LoadingFeedback message={"Loading readme..."} />
+                  )}
+                  {readmeError && !readmeLoading && (
+                    <ErrorFeedback message={readmeError.errors?.message} />
+                  )}
+                  {readmeData && !readmeLoading && (
+                    <MarkdownRender content={readmeData as string} />
+                  )}
+                </div>
               )}
-              {readmeError && !readmeLoading && (
-                <ErrorFeedback message={readmeError.errors?.message} />
-              )}
-              {readmeData && !readmeLoading && (
-                <MarkdownRender content={readmeData as string} />
-              )}
-            </div>
+            </>
           )}
         </>
       )}

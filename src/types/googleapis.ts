@@ -74,6 +74,7 @@ export type TFile = {
 export interface FilesResponse extends APIResponse {
   passwordRequired: boolean;
   passwordValidated?: boolean;
+  protectedId?: string;
   parents?: TFileParent[];
   folders: (TFolder | drive_v3.Schema$File)[];
   files: (TFile | drive_v3.Schema$File)[];
@@ -85,6 +86,7 @@ export interface FileResponse extends APIResponse {
   parents?: TFileParent[];
   passwordRequired: boolean;
   passwordValidated?: boolean;
+  protectedId?: string;
   file: TFile | drive_v3.Schema$File;
 }
 
