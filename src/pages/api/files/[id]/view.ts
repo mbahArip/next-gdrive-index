@@ -55,7 +55,7 @@ export default async function handler(
 
       // Check for password file
       const validatePassword = await validateProtected(
-        parentsArray[0].id,
+        parentsArray,
         (headerHash as string) || (hash as string),
       );
       if (validatePassword.isProtected && !validatePassword.valid) {
