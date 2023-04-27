@@ -28,8 +28,21 @@ TBA
 ## TODO
 - [x] Navigate through folders
 - [ ] File preview
+  - [ ] Audio
+  - [ ] Code
+  - [ ] Default
+  - [ ] Image
+  - [ ] Markdown
+  - [ ] 3D Model
+  - [ ] Office files (Word, Excel, PowerPoint)
+  - [ ] PDF
+  - [ ] Text
+  - [ ] Video
 - [x] Search for files
+- [x] Direct view the files
+- [x] Download files
 - [x] Render Readme file
-- [ ] Password protection
-  - [ ] Create token hash for sharing protected files that valid for x hours 
+- [x] Password protection
+  - [x] Create token hash for sharing protected ~~files that valid for x hours~~ 
+  - [ ] Implement time limit for token
 - [ ] ~~Pretty path URL~~ (Not possible, since Google Drive allowing multiple files with same name)
