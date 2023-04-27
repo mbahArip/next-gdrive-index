@@ -148,7 +148,9 @@ export default function File({ passwordParent, fileName }: Props) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { id } = context.query;
-  const data = await axios.get(`http://localhost:5000/api/files/${id}`);
+  const data = await axios.get(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
+  );
 
   context.res.setHeader(
     "Cache-Control",
