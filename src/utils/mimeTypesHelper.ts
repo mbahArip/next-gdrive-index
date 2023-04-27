@@ -4,7 +4,6 @@ import {
   BsBoxFill,
   BsDatabaseFill,
   BsFileEarmarkBinaryFill,
-  BsFileEarmarkBreakFill,
   BsFileEarmarkCodeFill,
   BsFileEarmarkFill,
   BsFileEarmarkFontFill,
@@ -13,14 +12,11 @@ import {
   BsFileEarmarkPdfFill,
   BsFileEarmarkPlayFill,
   BsFileEarmarkRichtextFill,
-  BsFileEarmarkRuledFill,
   BsFileEarmarkSlidesFill,
   BsFileEarmarkSpreadsheetFill,
   BsFileEarmarkTextFill,
   BsFileEarmarkWordFill,
   BsFileEarmarkZipFill,
-  BsFillDatabaseFill,
-  BsFolderFill,
 } from "react-icons/bs";
 import ModelPreview from "@components/FilePreview/ModelPreview";
 import AudioPreview from "@components/FilePreview/AudioPreview";
@@ -33,7 +29,7 @@ import CodePreview from "@components/FilePreview/CodePreview";
 import TextPreview from "@components/FilePreview/TextPreview";
 import VideoPreview from "@components/FilePreview/VideoPreview";
 
-export default function findMimeType(extension: string): string {
+function findMimeType(extension: string): string {
   return mime.lookup(extension) || "application/octet-stream";
 }
 

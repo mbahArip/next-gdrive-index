@@ -33,44 +33,6 @@ export function buildQuery({
   return query.join(" and ");
 }
 
-export async function _checkProtected(id: string) {
-  try {
-    const files = await drive.files.list({
-      q: id ? buildQuery({ id }) : buildQuery({}),
-      fields: "files(id)",
-    });
-
-    return {
-      protected: files.data.files?.length,
-      id: files.data.files?.[0].id || null,
-    };
-  } catch (error: any) {
-    return {
-      protected: false,
-      id: null,
-    };
-  }
-}
-
-export async function _validateFolderPassword(
-  passwordFileId: string,
-  password: string,
-) {
-  try {
-    const folderPassword = await drive.files.get(
-      {
-        fileId: passwordFileId,
-        alt: "media",
-      },
-      { responseType: "text" },
-    );
-
-    return folderPassword.data === password;
-  } catch (error: any) {
-    return false;
-  }
-}
-
 export async function validateProtected(
   fileId: string | TFileParent[],
   passwordHash?: string,

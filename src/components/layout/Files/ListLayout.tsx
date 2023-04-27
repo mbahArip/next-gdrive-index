@@ -59,7 +59,7 @@ export default function ListLayout({ data, pagination }: Props) {
         <button
           disabled={isLoadingMore}
           onClick={() => {
-            setSize(size + 1);
+            setSize(size + 1).then((r) => r);
           }}
           className='w-full rounded-lg'
         >

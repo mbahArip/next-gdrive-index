@@ -10,11 +10,13 @@ import useLocalStorage from "@hooks/useLocalStorage";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Password from "@components/layout/Password";
+import { NextSeo } from "next-seo";
 
 type Props = {
   passwordParent?: string;
+  fileName?: string;
 };
-export default function File({ passwordParent }: Props) {
+export default function File({ passwordParent, fileName }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
@@ -93,6 +95,8 @@ export default function File({ passwordParent }: Props) {
   useEffect(() => {
     mutate(swrData, {
       revalidate: true,
+    }).then((r) => {
+      return r;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [password]);
@@ -108,6 +112,7 @@ export default function File({ passwordParent }: Props) {
 
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
+      <NextSeo title={fileName || "File preview"} />
       {globalLoading && <LoadingFeedback message={"Loading file details..."} />}
       {!globalLoading && error && (
         <ErrorFeedback message={error.errors?.message} />
@@ -143,25 +148,25 @@ export default function File({ passwordParent }: Props) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { id } = context.query;
-  const passwordParent = await axios.get(
-    `http://localhost:5000/api/files/${id}`,
-  );
+  const data = await axios.get(`http://localhost:5000/api/files/${id}`);
 
   context.res.setHeader(
     "Cache-Control",
     "public, s-maxage=10, stale-while-revalidate=59",
   );
 
-  if (passwordParent) {
+  if (data) {
     return {
       props: {
-        passwordParent: passwordParent.data.protectedId || null,
+        passwordParent: data.data.protectedId || null,
+        fileName: data.data.file.name,
       },
     };
   } else {
     return {
       props: {
         passwordParent: "",
+        fileName: "",
       },
     };
   }

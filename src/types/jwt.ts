@@ -9,8 +9,3 @@ export interface ExpiredJWTPayload {
   exp: number;
   isExpired: boolean;
 }
-
-export interface ProtectionPayload {
-  fileId: string;
-  password: string;
-}

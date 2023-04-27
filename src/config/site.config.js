@@ -4,6 +4,9 @@ const config = {
   /* Site MetaData */
   // The name of the site
   siteName: "My Drive Linker",
+  // The description of the site
+  // Used in meta tags and document head
+  siteDescription: "My Drive Linker",
   // Fav icon of the site
   // Also used as the logo of the site on the navbar
   siteIcon: "/favicon.ico",

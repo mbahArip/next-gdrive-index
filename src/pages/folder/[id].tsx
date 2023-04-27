@@ -1,16 +1,10 @@
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 import fetcher, { buildNextKey } from "@utils/swrFetch";
 import { ErrorResponse, FilesResponse, TFile } from "@/types/googleapis";
 import Breadcrumb from "@/components/Breadcrumb";
 import { drive_v3 } from "googleapis";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import MarkdownRender from "@/components/utility/MarkdownRender";
 import config from "@config/site.config";
 import GridLayout from "@components/layout/Files/GridLayout";
@@ -23,11 +17,13 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Password from "@components/layout/Password";
 import { GetServerSidePropsContext } from "next";
+import { NextSeo } from "next-seo";
 
 type Props = {
   passwordParent?: string;
+  folderName?: string;
 };
-export default function Folder({ passwordParent }: Props) {
+export default function Folder({ passwordParent, folderName }: Props) {
   const router = useRouter();
   const { id } = router.query;
 
@@ -150,6 +146,8 @@ export default function Folder({ passwordParent }: Props) {
 
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
+      <NextSeo title={folderName || "Folder"} />
+
       <div className='flex items-center justify-between'>
         <Breadcrumb
           data={data?.parents || []}
@@ -236,25 +234,25 @@ export default function Folder({ passwordParent }: Props) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { id } = context.query;
-  const passwordParent = await axios.get(
-    `http://localhost:5000/api/files/${id}`,
-  );
+  const data = await axios.get(`http://localhost:5000/api/files/${id}`);
 
   context.res.setHeader(
     "Cache-Control",
     "public, s-maxage=10, stale-while-revalidate=59",
   );
 
-  if (passwordParent) {
+  if (data) {
     return {
       props: {
-        passwordParent: passwordParent.data.protectedId || null,
+        passwordParent: data.data.protectedId || null,
+        folderName: data.data.parents?.[0]?.name || null,
       },
     };
   } else {
     return {
       props: {
         passwordParent: "",
+        folderName: "",
       },
     };
   }

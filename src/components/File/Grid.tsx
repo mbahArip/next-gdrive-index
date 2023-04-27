@@ -37,7 +37,7 @@ export default function GridFile({ data }: Props) {
             {data.videoMediaMetadata && (
               <>
                 <MdPlayCircleFilled className='center absolute h-8 w-8 text-white/50 transition-colors duration-300 group-hover:text-white/80' />
-                <span className='absolute bottom-1 right-1 rounded-lg bg-zinc-950/50 px-1 py-0.5 text-xs text-white'>
+                <span className='absolute bottom-0 right-0 rounded-lg rounded-bl-none rounded-tr-none bg-zinc-950/75 px-1 py-0.5 text-xs text-white'>
                   {formatDuration(data.videoMediaMetadata.durationMillis!)}
                 </span>
               </>

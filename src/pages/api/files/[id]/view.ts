@@ -4,8 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import config from "@config/site.config";
 import { validateProtected } from "@utils/driveHelper";
 import { ExtendedError } from "@/types/default";
-import { decrypt } from "@utils/encryptionHelper";
-import { verify } from "jsonwebtoken";
 import { reverseString } from "@utils/hashHelper";
 
 export default async function handler(
@@ -14,7 +12,6 @@ export default async function handler(
 ) {
   try {
     const { id, hash } = request.query;
-    const { vector, data } = request.query;
     const { authorization } = request.headers;
     const headerHash = authorization?.split(" ")[1] || null;
 

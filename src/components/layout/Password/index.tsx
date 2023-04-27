@@ -1,21 +1,17 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useState } from "react";
 import useLocalStorage from "@hooks/useLocalStorage";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLock } from "react-icons/md";
-import { useRouter } from "next/router";
 import { hashToken } from "@utils/hashHelper";
-import ReactLoading from "react-loading";
 
 type Props = {
   folderId: string;
   inputCallback: (data: { [p: string]: string }) => void;
 };
 export default function Password({ folderId, inputCallback }: Props) {
-  const router = useRouter();
-
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [passwordStorage, setPasswordStorage] = useLocalStorage<{
+  const [passwordStorage] = useLocalStorage<{
     [key: string]: string;
   }>("passwordStorage", {});
 
@@ -63,7 +59,7 @@ export default function Password({ folderId, inputCallback }: Props) {
               onChange={(e) => {
                 setPassword(e.target.value);
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSubmit();
                 }

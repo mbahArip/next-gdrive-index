@@ -1,13 +1,10 @@
-import { ErrorResponse, FileResponse, TFile } from "@/types/googleapis";
+import { TFile } from "@/types/googleapis";
 import { drive_v3 } from "googleapis";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import { formatBytes, formatDate, formatDuration } from "@utils/formatHelper";
 import { useEffect, useState } from "react";
 import DetailsButtons from "@components/layout/FileDetails/DetailsButtons";
-import ImagePreview from "@components/FilePreview/ImagePreview";
-import MarkdownRender from "@components/utility/MarkdownRender";
-import fetcher from "@utils/swrFetch";
-import useSWR from "swr";
+import { getFilePreview } from "@utils/mimeTypesHelper";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
@@ -18,6 +15,20 @@ export default function FileDetails({ data, hash }: Props) {
   const [metadata, setMetadata] = useState<{ label: string; value: string }[]>(
     [],
   );
+  const [PreviewComponent, setPreviewComponent] = useState<JSX.Element | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const Preview = getFilePreview(data.fileExtension as string);
+    setPreviewComponent(
+      <Preview
+        data={data}
+        hash={hash || ""}
+      />,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -73,12 +84,13 @@ export default function FileDetails({ data, hash }: Props) {
 
             <div className={"divider-horizontal"} />
 
-            {data.mimeType?.startsWith("image") && (
-              <ImagePreview
-                data={data}
-                hash={hash || ""}
-              />
-            )}
+            {PreviewComponent}
+            {/*{data.mimeType?.startsWith("image") && (*/}
+            {/*  <ImagePreview*/}
+            {/*    data={data}*/}
+            {/*    hash={hash || ""}*/}
+            {/*  />*/}
+            {/*)}*/}
             {/*{data.mimeType?.startsWith("audio") && (*/}
             <div className='flex w-full items-center justify-center'>
               {/*<video*/}

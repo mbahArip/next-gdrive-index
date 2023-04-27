@@ -55,6 +55,15 @@ export default function Navbar() {
   const { data, error, isLoading } = useSWR<SearchResponse, ErrorResponse>(
     `/api/search?query=${debouncedSearchQuery}`,
     fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
+      shouldRetryOnError: false,
+      revalidateIfStale: true,
+    },
   );
 
   useEffect(() => {

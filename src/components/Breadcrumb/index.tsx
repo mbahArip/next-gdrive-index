@@ -13,7 +13,6 @@ type Props = {
 export default function Breadcrumb({ data, isLoading }: Props) {
   const limitItem = 2;
   const [limitedPath, setLimitedPath] = useState<TFileParent[]>([]);
-  const [slicedPath, setSlicedPath] = useState<TFileParent>();
   const [isLimited, setIsLimited] = useState<boolean>();
   // const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -21,12 +20,12 @@ export default function Breadcrumb({ data, isLoading }: Props) {
     // setIsLoading(true);
     if (data.length > 0) {
       const findRoot = data.find((item) => item.id === config.files.rootFolder);
+      let _data = data;
       if (findRoot) {
-        data = data.filter((item) => item.id !== config.files.rootFolder);
+        _data = _data.filter((item) => item.id !== config.files.rootFolder);
       }
-      setLimitedPath(data.slice(0, limitItem).reverse());
-      setSlicedPath(data.slice(limitItem)[0]);
-      setIsLimited(data.length > limitItem);
+      setLimitedPath(_data.slice(0, limitItem).reverse());
+      setIsLimited(_data.length > limitItem);
       // setIsLoading(false);
     }
   }, [data]);
@@ -61,7 +60,7 @@ export default function Breadcrumb({ data, isLoading }: Props) {
                 <span className={"cursor-default"}>/</span>
 
                 {idx === limitedPath.length - 1 ? (
-                  <span className='flex cursor-default cursor-default items-center gap-2 font-bold'>
+                  <span className='flex cursor-default items-center gap-2 font-bold'>
                     {parent.name}
                   </span>
                 ) : (

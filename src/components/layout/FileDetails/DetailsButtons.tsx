@@ -70,7 +70,7 @@ export default function DetailsButtons({ data, hash }: Props) {
         <MdCopyAll />
         Copy direct link
       </button>
-      {!config.files.allowDownloadProtectedWithoutAccess && (
+      {hash && !config.files.allowDownloadProtectedWithoutAccess && (
         <div className={"banner warning text-sm"}>
           <div className={"flex flex-col gap-2"}>
             <div className={"font-bold"}>
