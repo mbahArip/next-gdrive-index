@@ -1,13 +1,7 @@
 import useSWR from "swr";
-import fetcher from "@utils/swrFetch";
-import {
-  ErrorResponse,
-  FileResponse,
-  FilesResponse,
-  TFileParent,
-} from "@/types/googleapis";
+import { ErrorResponse, FileResponse, TFileParent } from "@/types/googleapis";
 import Breadcrumb from "@/components/Breadcrumb";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import ErrorFeedback from "@components/APIFeedback/Error";
 import { useRouter } from "next/router";
@@ -15,6 +9,7 @@ import FileDetails from "@components/layout/FileDetails";
 import useLocalStorage from "@hooks/useLocalStorage";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
+import Password from "@components/layout/Password";
 
 type Props = {
   passwordParent?: string;
@@ -24,33 +19,51 @@ export default function File({ passwordParent }: Props) {
   const { id } = router.query;
 
   const [data, setData] = useState<FileResponse>();
-  const [dataLoading, setDataLoading] = useState<boolean>(true);
+  const [globalLoading, setGlobalLoading] = useState<boolean>(true);
 
-  const [passwordStorage] = useLocalStorage<{
+  const [passwordStorage, setPasswordStorage] = useLocalStorage<{
     [key: string]: string;
   }>("passwordStorage", {});
+  const [password, setPassword] = useState<{ [p: string]: string }>(
+    passwordStorage,
+  );
 
   const {
     data: swrData,
     error,
     isLoading,
-  } = useSWR<FileResponse, ErrorResponse>(`/api/files/${id}`, (url, headers) =>
-    axios
-      .get<FileResponse>(url, {
-        headers: {
-          Authorization: `Bearer ${
-            passwordStorage?.[passwordParent as string] ||
-            passwordStorage?.[id as string] ||
-            ""
-          }`,
-          ...headers,
-        },
-      })
-      .then((res) => res.data),
+    isValidating,
+    mutate,
+  } = useSWR<FileResponse, ErrorResponse>(
+    `/api/files/${id}`,
+    (url, headers) =>
+      axios
+        .get<FileResponse>(url, {
+          headers: {
+            Authorization: `Bearer ${
+              password?.[passwordParent as string] ||
+              password?.[id as string] ||
+              passwordStorage?.[passwordParent as string] ||
+              passwordStorage?.[id as string] ||
+              ""
+            }`,
+            ...headers,
+          },
+        })
+        .then((res) => res.data),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
+      shouldRetryOnError: false,
+      revalidateIfStale: true,
+    },
   );
 
   useEffect(() => {
-    setDataLoading(true);
+    setGlobalLoading(true);
     if (swrData) {
       const parentsArray: TFileParent[] | undefined = swrData.parents;
       parentsArray?.unshift({
@@ -62,28 +75,67 @@ export default function File({ passwordParent }: Props) {
         ...swrData,
       };
       setData(payload);
-      setDataLoading(false);
+      setGlobalLoading(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [swrData, error, isLoading]);
+  }, [swrData, error, isLoading, isValidating, password]);
+
+  useEffect(() => {
+    if (!isLoading && !isValidating) {
+      setGlobalLoading(false);
+    } else {
+      setGlobalLoading(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isValidating]);
+
+  useEffect(() => {
+    mutate(swrData, {
+      revalidate: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [password]);
+
+  const inputPassCallback = useCallback(
+    (data: { [p: string]: string }) => {
+      setGlobalLoading(true);
+      setPasswordStorage(data);
+      setPassword(data);
+    },
+    [setPasswordStorage],
+  );
 
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
-      <div className='flex items-center justify-between'>
-        <Breadcrumb
-          data={data?.parents || []}
-          isLoading={dataLoading}
-        />
-      </div>
+      {globalLoading && <LoadingFeedback message={"Loading file details..."} />}
+      {!globalLoading && error && (
+        <ErrorFeedback message={error.errors?.message} />
+      )}
+      {!globalLoading && !error && data && (
+        <>
+          {data.passwordRequired && !data.passwordValidated && (
+            <Password
+              folderId={(passwordParent as string) || (id as string)}
+              inputCallback={inputPassCallback}
+            />
+          )}
+          {(data.passwordValidated || !data.passwordRequired) && (
+            <>
+              <div className='flex items-center justify-between'>
+                <Breadcrumb
+                  data={data?.parents || []}
+                  isLoading={globalLoading}
+                />
+              </div>
 
-      {isLoading && <LoadingFeedback message={"Loading file details..."} />}
-      {!isLoading && error && <ErrorFeedback message={error.errors?.message} />}
-      {!isLoading && !error && data && (
-        <FileDetails
-          data={data.file}
-          hash={passwordStorage?.[passwordParent as string] || ""}
-        />
+              <FileDetails
+                data={data.file}
+                hash={passwordStorage?.[passwordParent as string] || ""}
+              />
+            </>
+          )}
+        </>
       )}
     </div>
   );
@@ -93,6 +145,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { id } = context.query;
   const passwordParent = await axios.get(
     `http://localhost:5000/api/files/${id}`,
+  );
+
+  context.res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59",
   );
 
   if (passwordParent) {

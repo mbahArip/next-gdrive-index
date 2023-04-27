@@ -3,43 +3,55 @@ import { drive_v3 } from "googleapis";
 import { MdCopyAll, MdDownload, MdOpenInBrowser } from "react-icons/md";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import config from "@config/site.config";
+import { reverseString } from "@utils/hashHelper";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
+  hash?: string;
 };
 
-export default function DetailsButtons({ data }: Props) {
+export default function DetailsButtons({ data, hash }: Props) {
   return (
     <div className={"flex flex-col gap-2"}>
       <Link
-        href={`/api/files/${data.id}/download`}
-        className={
-          "flex w-full items-center justify-center gap-2 rounded-lg bg-blue-500 py-4 text-center text-zinc-100 dark:bg-blue-400 tablet:py-2"
-        }
+        href={`/api/files/${data.id}/download${
+          hash ? `?hash=${reverseString(hash)}` : ""
+        }`}
         target={"_blank"}
         rel={"noopener noreferrer"}
       >
-        <MdDownload />
-        Download file
+        <button
+          className={
+            "primary flex w-full items-center justify-center gap-2 py-4 tablet:py-2"
+          }
+        >
+          <MdDownload />
+          Download file
+        </button>
       </Link>
       <Link
-        href={`/api/files/${data.id}/view`}
-        className={
-          "flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-500 py-4 text-center text-zinc-100 dark:bg-zinc-500 tablet:py-2"
-        }
+        href={`/api/files/${data.id}/view${
+          hash ? `?hash=${reverseString(hash)}` : ""
+        }`}
         target={"_blank"}
         rel={"noopener noreferrer"}
       >
-        <MdOpenInBrowser />
-        Open in new tab
+        <button
+          className={
+            "secondary flex w-full items-center justify-center gap-2 py-4 tablet:py-2"
+          }
+        >
+          <MdOpenInBrowser />
+          Open in new tab
+        </button>
       </Link>
-      <Link
-        href={``}
-        className={
-          "flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-500 py-4 text-center text-zinc-100 dark:bg-zinc-500 tablet:py-2"
-        }
-        target={"_blank"}
-        rel={"noopener noreferrer"}
+      <button
+        className={`flex w-full items-center justify-center gap-2 py-4 tablet:py-2 ${
+          config.files.allowDownloadProtectedWithoutAccess
+            ? "secondary"
+            : "danger"
+        }`}
         onClick={async (e) => {
           e.preventDefault();
           if (!window.navigator) {
@@ -48,14 +60,28 @@ export default function DetailsButtons({ data }: Props) {
           }
 
           const host = window.location.host;
-          const url = `${host}/api/files/${data.id}/view`;
+          const url = `${host}/api/files/${data.id}/view${
+            hash ? `?hash=${reverseString(hash)}` : ""
+          }`;
           await window.navigator.clipboard.writeText(url);
           toast.success("Copied to clipboard");
         }}
       >
         <MdCopyAll />
         Copy direct link
-      </Link>
+      </button>
+      {!config.files.allowDownloadProtectedWithoutAccess && (
+        <div className={"banner warning text-sm"}>
+          <div className={"flex flex-col gap-2"}>
+            <div className={"font-bold"}>
+              Copying the direct link will also copy the access token.
+            </div>
+            <p className={"text-sm"}>
+              Only share the direct link with people you trust.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

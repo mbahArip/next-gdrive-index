@@ -123,7 +123,10 @@ export default function FileDetails({ data, hash }: Props) {
               </div>
             </div>
             <div className={"card"}>
-              <DetailsButtons data={data} />
+              <DetailsButtons
+                data={data}
+                hash={hash || ""}
+              />
             </div>
           </div>
         </div>

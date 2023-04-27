@@ -106,21 +106,21 @@ html, body {
     @apply border-blue-400 hover:border-blue-500 active:border-blue-600;
     @apply bg-blue-500 hover:bg-blue-700 active:bg-blue-400;
     @apply dark:border-blue-500 dark:hover:border-blue-600 dark:active:border-blue-700;
-    @apply dark:bg-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-600;
+    @apply dark:bg-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700;
   }
   button.secondary{
     @apply text-zinc-100 dark:text-zinc-100;
     @apply border-zinc-400 hover:border-zinc-500 active:border-zinc-600;
-    @apply bg-zinc-500 hover:bg-zinc-600 active:bg-zinc-400;
+    @apply bg-zinc-500 hover:bg-zinc-700 active:bg-zinc-400;
     @apply dark:border-zinc-500 dark:hover:border-zinc-600 dark:active:border-zinc-700;
-    @apply dark:bg-zinc-500 dark:hover:bg-zinc-400 dark:active:bg-zinc-600;
+    @apply dark:bg-zinc-500 dark:hover:bg-zinc-600 dark:active:bg-zinc-700;
   }
   button.danger {
     @apply text-zinc-100 dark:text-zinc-100;
     @apply border-red-400 hover:border-red-500 active:border-red-600;
     @apply bg-red-500 hover:bg-red-700 active:bg-red-400;
     @apply dark:border-red-500 dark:hover:border-red-600 dark:active:border-red-700;
-    @apply dark:bg-red-500 dark:hover:bg-red-600 dark:active:bg-red-600;
+    @apply dark:bg-red-500 dark:hover:bg-red-600 dark:active:bg-red-700;
   }
 
   table {
@@ -150,7 +150,7 @@ html, body {
   }
 
   div.banner {
-    @apply rounded-lg p-2 tablet:p-4 my-2 tablet:my-4;
+    @apply rounded-lg p-2 tablet:p-4 my-2;
     @apply border border-zinc-400 dark:border-zinc-700;
     @apply drop-shadow;
     @apply bg-zinc-100 dark:bg-zinc-900;

@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import config from "@config/site.config";
 import { validateProtected } from "@utils/driveHelper";
 import { ExtendedError } from "@/types/default";
+import { reverseString } from "@utils/hashHelper";
 
 export default async function handler(
   request: NextApiRequest,
@@ -19,9 +20,13 @@ export default async function handler(
       fields: "id, name, mimeType, size, exportLinks, parents",
     });
 
-    if (!config.files.allowDownloadProtectedFiles) {
+    if (!config.files.allowDownloadProtectedWithoutAccess) {
       const parentsArray: TFileParent[] = [];
 
+      let validHash = headerHash as string;
+      if (hash) {
+        validHash = reverseString(hash as string);
+      }
       // Fetch parents
       if (
         fetchFileMetadata.data.mimeType === "application/vnd.google-apps.folder"
@@ -54,10 +59,7 @@ export default async function handler(
       }
 
       // Check for password file
-      const validatePassword = await validateProtected(
-        parentsArray,
-        (headerHash as string) || (hash as string),
-      );
+      const validatePassword = await validateProtected(parentsArray, validHash);
       if (validatePassword.isProtected && !validatePassword.valid) {
         return response.status(200).json({
           success: true,

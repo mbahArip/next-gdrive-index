@@ -107,7 +107,11 @@ export default function Navbar() {
         <div className='flex-grow'></div>
 
         {/* Search */}
-        <div className='interactive flex items-center gap-2'>
+        <div
+          id={"search-modal-toggle"}
+          className='interactive flex items-center gap-2'
+          role={"button"}
+        >
           <div
             className='relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
             onClick={() => setIsSearching(true)}
@@ -117,8 +121,10 @@ export default function Navbar() {
         </div>
         {/* Dark mode */}
         <div
+          id={"btn-theme-toggle"}
           className='interactive relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
           onClick={handleDarkMode}
+          role={"button"}
         >
           <MdDarkMode
             className={`absolute left-0 h-full w-full transition-all duration-150 ${

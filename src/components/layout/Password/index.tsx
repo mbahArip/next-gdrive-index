@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import useLocalStorage from "@hooks/useLocalStorage";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLock } from "react-icons/md";
 import { useRouter } from "next/router";
 import { hashToken } from "@utils/hashHelper";
+import ReactLoading from "react-loading";
 
 type Props = {
   folderId: string;
+  inputCallback: (data: { [p: string]: string }) => void;
 };
-export default function Password({ folderId }: Props) {
+export default function Password({ folderId, inputCallback }: Props) {
   const router = useRouter();
+
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [passwordStorage, setPasswordStorage] = useLocalStorage<{
@@ -17,12 +20,16 @@ export default function Password({ folderId }: Props) {
   }>("passwordStorage", {});
 
   const handleSubmit = () => {
-    setPasswordStorage({
+    inputCallback({
       ...passwordStorage,
       [folderId]: hashToken(password),
     });
-
-    router.reload();
+    // setPasswordStorage({
+    //   ...passwordStorage,
+    //   [folderId]: hashToken(password),
+    // });
+    //
+    // callback();
   };
 
   return (
@@ -89,7 +96,16 @@ export default function Password({ folderId }: Props) {
             className={"primary w-full whitespace-nowrap tablet:w-fit"}
             onClick={handleSubmit}
           >
+            {/*{isLoading ? (*/}
+            {/*  <ReactLoading*/}
+            {/*    type='spin'*/}
+            {/*    width={16}*/}
+            {/*    height={16}*/}
+            {/*    className={"loading"}*/}
+            {/*  />*/}
+            {/*) : (*/}
             Submit
+            {/*)}*/}
           </button>
         </div>
       </div>

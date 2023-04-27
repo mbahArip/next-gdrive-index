@@ -73,7 +73,7 @@ export async function _validateFolderPassword(
 
 export async function validateProtected(
   fileId: string | TFileParent[],
-  passwordHash: string,
+  passwordHash?: string,
 ): Promise<{ isProtected: boolean; valid?: boolean; protectedId?: string }> {
   const fetchPassword = await drive.files.list({
     q: `name = '.password' and 'me' in owners and trashed = false`,

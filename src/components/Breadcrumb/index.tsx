@@ -2,7 +2,6 @@ import { TFileParent } from "@/types/googleapis";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { MdHome } from "react-icons/md";
-import useLocalStorage from "@hooks/useLocalStorage";
 import ReactLoading from "react-loading";
 import config from "@config/site.config";
 
@@ -21,6 +20,10 @@ export default function Breadcrumb({ data, isLoading }: Props) {
   useEffect(() => {
     // setIsLoading(true);
     if (data.length > 0) {
+      const findRoot = data.find((item) => item.id === config.files.rootFolder);
+      if (findRoot) {
+        data = data.filter((item) => item.id !== config.files.rootFolder);
+      }
       setLimitedPath(data.slice(0, limitItem).reverse());
       setSlicedPath(data.slice(limitItem)[0]);
       setIsLimited(data.length > limitItem);
@@ -30,51 +33,52 @@ export default function Breadcrumb({ data, isLoading }: Props) {
 
   return (
     <div className='flex items-center gap-2'>
-      <Link
-        href='/'
-        className='flex items-center gap-2'
-      >
-        <MdHome />
-        <span>Root</span>
-      </Link>
-      {isLoading && (
+      {isLoading ? (
         <ReactLoading
           type='spin'
           width={20}
           height={20}
           className={"loading"}
         />
-      )}
-      {isLimited && !isLoading && (
-        <Fragment>
-          <span>/</span>
-          <span>...</span>
-        </Fragment>
-      )}
-      {!isLoading && (
+      ) : (
         <>
-          {limitedPath.map((parent, idx) => (
-            <Fragment key={parent.id}>
-              <span>/</span>
-
-              {idx === limitedPath.length - 1 ? (
-                <span className='flex cursor-default items-center gap-2 font-bold'>
-                  {parent.name}
-                </span>
-              ) : (
-                <Link
-                  href={`/folder/${parent.id}`}
-                  className={`flex items-center gap-2 ${
-                    idx === limitedPath.length - 1
-                      ? "cursor-default font-bold"
-                      : "cursor-pointer"
-                  }`}
-                >
-                  {parent.name}
-                </Link>
-              )}
+          <Link
+            href='/'
+            className='flex items-center gap-2'
+          >
+            <MdHome />
+            <span>Root</span>
+          </Link>
+          {isLimited && (
+            <Fragment>
+              <span className={"cursor-default"}>/</span>
+              <span className={"cursor-default"}>...</span>
             </Fragment>
-          ))}
+          )}
+          <>
+            {limitedPath.map((parent, idx) => (
+              <Fragment key={parent.id}>
+                <span className={"cursor-default"}>/</span>
+
+                {idx === limitedPath.length - 1 ? (
+                  <span className='flex cursor-default cursor-default items-center gap-2 font-bold'>
+                    {parent.name}
+                  </span>
+                ) : (
+                  <Link
+                    href={`/folder/${parent.id}`}
+                    className={`flex items-center gap-2 ${
+                      idx === limitedPath.length - 1
+                        ? "cursor-default font-bold"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    {parent.name}
+                  </Link>
+                )}
+              </Fragment>
+            ))}
+          </>
         </>
       )}
     </div>

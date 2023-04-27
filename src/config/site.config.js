@@ -52,7 +52,7 @@ const config = {
     // If this set to true, any user can download or view protected files.
     // If this set to false, only authorized users can download or view protected files.
     // The authorized users URL will have a token in it that valid for 1 hour.
-    allowDownloadProtectedFiles: false, // If this set to true, any user can download protected files, but can't see the details of the file or folder.
+    allowDownloadProtectedWithoutAccess: false, // If this set to true, any user can download protected files, but can't see the details of the file or folder.
   },
   /* Config for readme file render */
   readme: {

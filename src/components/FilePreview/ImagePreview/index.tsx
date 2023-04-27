@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import LoadingFeedback from "@components/APIFeedback/Loading";
 import ErrorFeedback from "@components/APIFeedback/Error";
 import config from "@config/site.config";
+import { reverseString } from "@utils/hashHelper";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
@@ -22,7 +23,9 @@ export default function ImagePreview({ data, hash }: Props) {
       try {
         let loaded = false;
         const _image = new Image();
-        _image.src = `/api/files/${data.id}/view${hash ? `?hash=${hash}` : ""}`;
+        _image.src = `/api/files/${data.id}/view${
+          hash ? `?hash=${reverseString(hash)}` : ""
+        }`;
         _image.onload = () => {
           setImage(_image.src);
           setIsImageLoaded(true);
