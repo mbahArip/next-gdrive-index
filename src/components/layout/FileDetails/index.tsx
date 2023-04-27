@@ -20,7 +20,10 @@ export default function FileDetails({ data, hash }: Props) {
   );
 
   useEffect(() => {
-    const Preview = getFilePreview(data.fileExtension as string);
+    const Preview = getFilePreview(
+      data.fileExtension as string,
+      data.mimeType as string,
+    );
     setPreviewComponent(
       <Preview
         data={data}
@@ -33,7 +36,12 @@ export default function FileDetails({ data, hash }: Props) {
   useEffect(() => {
     if (data) {
       const _metadata = [
-        { label: "Name", value: data.name as string },
+        {
+          label: "File name",
+          value: (data.name as string).split(
+            `.${data.fileExtension as string}`,
+          )[0],
+        },
         { label: "Size", value: formatBytes(data.size as string) },
         { label: "Type", value: data.mimeType as string },
         {
@@ -78,35 +86,13 @@ export default function FileDetails({ data, hash }: Props) {
       ) : (
         <div className={"grid grid-cols-1 gap-4 tablet:grid-cols-4"}>
           <div className={"card h-fit tablet:col-span-3"}>
-            <div className='flex w-full items-center justify-between rounded-lg px-4'>
+            <div className='flex w-full items-center justify-between rounded-lg'>
               <span className='font-bold'>Preview</span>
             </div>
 
             <div className={"divider-horizontal"} />
 
             {PreviewComponent}
-            {/*{data.mimeType?.startsWith("image") && (*/}
-            {/*  <ImagePreview*/}
-            {/*    data={data}*/}
-            {/*    hash={hash || ""}*/}
-            {/*  />*/}
-            {/*)}*/}
-            {/*{data.mimeType?.startsWith("audio") && (*/}
-            <div className='flex w-full items-center justify-center'>
-              {/*<video*/}
-              {/*  poster={data.thumbnailLink as string}*/}
-              {/*  autoPlay={true}*/}
-              {/*  controls*/}
-              {/*  className={"h-full w-full"}*/}
-              {/*>*/}
-              {/*  <source*/}
-              {/*    src={`/api/files/${data.id}/view`}*/}
-              {/*    type={data.mimeType as string}*/}
-              {/*  />*/}
-              {/*  Browser not supported*/}
-              {/*</video>*/}
-            </div>
-            {/*)}*/}
           </div>
           <div
             className={
@@ -114,7 +100,7 @@ export default function FileDetails({ data, hash }: Props) {
             }
           >
             <div className={"card"}>
-              <div className='flex w-full items-center justify-between rounded-lg px-2'>
+              <div className='flex w-full items-center justify-between rounded-lg'>
                 <span className='font-bold'>Details</span>
               </div>
 

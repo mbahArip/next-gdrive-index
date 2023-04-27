@@ -51,11 +51,14 @@ const config = {
     // Or use folder id to use a specific folder as starting point
     // rootFolder: "root",
     rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
-    // rootFolder: "1p6znx1BKPsqFnyOPw49uhoc8FNglfYnD",
     // If this set to true, any user can download or view protected files.
     // If this set to false, only authorized users can download or view protected files.
     // The authorized users URL will have a token in it that valid for 1 hour.
-    allowDownloadProtectedWithoutAccess: false, // If this set to true, any user can download protected files, but can't see the details of the file or folder.
+    // Only used on API routes.
+    //
+    // This take too much time to load, so I disabled it for now.
+    // Unless someone can help me to make it faster.
+    allowDownloadProtectedWithoutAccess: true,
   },
   /* Config for readme file render */
   readme: {
@@ -74,6 +77,11 @@ const config = {
     // And the thumbnail or the file icon will be shown instead.
     // The value is in milliseconds.
     timeout: 30000,
+    // The URL of the preview service
+    // Available services:
+    // google / mozilla
+    // NOTE: the Google service sometimes doesn't work.
+    pdfProvider: "mozilla",
   },
 };
 

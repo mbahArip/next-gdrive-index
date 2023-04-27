@@ -31,10 +31,13 @@
   }
 
   .markdown ul {
-    @apply list-disc ml-8 leading-loose;
+    @apply list-disc leading-loose;
   }
   .markdown ol {
     @apply list-decimal leading-loose;
+  }
+  .markdown li {
+    @apply ml-8;
   }
 
   .markdown table {
@@ -66,6 +69,6 @@
     @apply pl-2 border-l-4 border-l-zinc-500;
   }
   .markdown hr {
-    @apply my-2
+    @apply my-4 border-t-0 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700;
   }
 }

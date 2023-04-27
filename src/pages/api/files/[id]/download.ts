@@ -5,11 +5,9 @@ import config from "@config/site.config";
 import { validateProtected } from "@utils/driveHelper";
 import { ExtendedError } from "@/types/default";
 import { reverseString } from "@utils/hashHelper";
+import initMiddleware from "@utils/apiMiddleware";
 
-export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse,
-) {
+async function handler(request: NextApiRequest, response: NextApiResponse) {
   try {
     const { id, hash } = request.query;
     const { authorization } = request.headers;
@@ -128,3 +126,5 @@ export default async function handler(
     return response.status(500).json(payload);
   }
 }
+
+export default initMiddleware(handler);

@@ -62,7 +62,7 @@ export default function ListFile({ data }: Props) {
   const isFolder = data.mimeType === "application/vnd.google-apps.folder";
   const Icon = isFolder
     ? BsFolderFill
-    : getFileIcon(data.fileExtension as string);
+    : getFileIcon(data.fileExtension as string, data.mimeType as string);
   if (!data) return null;
 
   return (

@@ -208,6 +208,18 @@ html, body {
   div.loading > svg {
     @apply fill-zinc-900 dark:fill-zinc-100;
   }
+
+  div.preview-audio > div.rhap_container {
+    @apply rounded-lg;
+    @apply bg-zinc-50 dark:bg-zinc-800;
+    @apply text-zinc-900 dark:text-zinc-100;
+  }
+  div.preview-audio div.rhap_time {
+    @apply text-zinc-900 dark:text-zinc-100;
+  }
+  div.preview-audio button {
+    @apply bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent;
+  }
 }
 
 /* Utility */

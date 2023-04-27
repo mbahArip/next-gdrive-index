@@ -113,6 +113,13 @@ export default function File({ passwordParent, fileName }: Props) {
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
       <NextSeo title={fileName || "File preview"} />
+
+      <div className='flex items-center justify-between'>
+        <Breadcrumb
+          data={data?.parents || []}
+          isLoading={globalLoading}
+        />
+      </div>
       {globalLoading && <LoadingFeedback message={"Loading file details..."} />}
       {!globalLoading && error && (
         <ErrorFeedback message={error.errors?.message} />
@@ -127,13 +134,6 @@ export default function File({ passwordParent, fileName }: Props) {
           )}
           {(data.passwordValidated || !data.passwordRequired) && (
             <>
-              <div className='flex items-center justify-between'>
-                <Breadcrumb
-                  data={data?.parents || []}
-                  isLoading={globalLoading}
-                />
-              </div>
-
               <FileDetails
                 data={data.file}
                 hash={passwordStorage?.[passwordParent as string] || ""}

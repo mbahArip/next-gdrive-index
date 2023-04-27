@@ -60,7 +60,11 @@ export default function MarkdownRender({ content }: Props) {
     <div className='markdown'>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath, remarkSlug, remarkToc]}
-        rehypePlugins={[rehypeKatex, rehypeRaw, rehypePrism]}
+        rehypePlugins={[
+          rehypeKatex,
+          rehypeRaw,
+          [rehypePrism, { ignoreMissing: true }],
+        ]}
         components={customComponents}
       >
         {content}

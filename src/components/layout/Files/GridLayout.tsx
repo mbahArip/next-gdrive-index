@@ -68,10 +68,10 @@ export default function GridLayout({ data, pagination }: Props) {
               </div>
             ) : (
               <>
-                {data?.files.map((file) => (
+                {data?.files.map((file, idx) => (
                   <GridFile
                     data={file as drive_v3.Schema$File}
-                    key={file.id}
+                    key={`File-idx${idx}`}
                   />
                 ))}
               </>

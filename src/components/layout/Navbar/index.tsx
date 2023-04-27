@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import siteConfig from "@config/site.config";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import Link from "next/link";
@@ -27,6 +27,7 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<drive_v3.Schema$File[]>(); // [
@@ -123,7 +124,10 @@ export default function Navbar() {
         >
           <div
             className='relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
-            onClick={() => setIsSearching(true)}
+            onClick={() => {
+              setIsSearching(true);
+              searchInputRef.current?.focus();
+            }}
           >
             <MdSearch className='h-full w-full' />
           </div>
@@ -186,12 +190,6 @@ export default function Navbar() {
                 : "pointer-events-none rotate-90 opacity-0"
             }`}
           />
-          {/* <span
-            className='cursor-pointer'
-            onPointerDown={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <MdMenu className='h-full w-full' />
-          </span> */}
         </div>
       </div>
 
@@ -218,7 +216,7 @@ export default function Navbar() {
       {/* Search Modal */}
       <Modal
         title={
-          <span className='flex items-center text-lg'>
+          <span className='flex items-center gap-2 text-lg'>
             <MdSearch /> Search files
           </span>
         }
@@ -230,6 +228,7 @@ export default function Navbar() {
         <div className='relative flex w-full flex-grow items-center'>
           <MdSearch className='absolute right-4' />
           <input
+            ref={searchInputRef}
             type='text'
             className='w-full flex-grow py-2 pr-8'
             placeholder='Type folder or file name...'
@@ -268,16 +267,20 @@ export default function Navbar() {
                   item.mimeType === "application/vnd.google-apps.folder";
                 const Icon = isFolder
                   ? BsFolderFill
-                  : getFileIcon(item.fileExtension as string);
+                  : getFileIcon(
+                      item.fileExtension as string,
+                      item.mimeType as string,
+                    );
 
                 return (
                   <Link
                     href={isFolder ? `/folder/${item.id}` : `/file/${item.id}`}
                     key={item.id}
                     className='rounded-lg py-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 tablet:px-2 tablet:py-2'
+                    onClick={handleCloseSearch}
                   >
                     <div className='flex items-center gap-4'>
-                      <div className='flex aspect-square h-10 w-10 items-center justify-center overflow-hidden rounded-lg tablet:h-12 tablet:w-12'>
+                      <div className='flex aspect-square h-10 w-10 flex-shrink-0 flex-grow-0 items-center justify-center overflow-hidden rounded-lg tablet:h-12 tablet:w-12'>
                         {item.thumbnailLink ? (
                           <img
                             src={item.thumbnailLink}
@@ -288,7 +291,7 @@ export default function Navbar() {
                           <Icon className='h-full w-full' />
                         )}
                       </div>
-                      <div className='flex flex-col'>
+                      <div className='line-clamp-1 flex w-full flex-shrink flex-grow flex-col'>
                         <div className={"flex items-center gap-2"}>
                           <Icon className='h-4 w-4' />
                           <span className='text-sm font-medium'>

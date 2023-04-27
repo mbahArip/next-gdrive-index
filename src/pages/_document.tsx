@@ -1,6 +1,4 @@
-import { Html, Head, Main, NextScript } from 'next/document'
-import { Inter, Merriweather, JetBrains_Mono } from "next/font/google";
-
+import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (

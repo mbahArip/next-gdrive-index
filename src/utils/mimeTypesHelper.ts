@@ -29,6 +29,11 @@ import CodePreview from "@components/FilePreview/CodePreview";
 import TextPreview from "@components/FilePreview/TextPreview";
 import VideoPreview from "@components/FilePreview/VideoPreview";
 
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
+
 function findMimeType(extension: string): string {
   return mime.lookup(extension) || "application/octet-stream";
 }
@@ -37,7 +42,7 @@ const type = {
   "3d": "3d", // model preview
   "audio": "audio", // audio preview
   "archive": "archive", // default preview
-  "rich_text": "markdown", // markdown preview
+  "rich_text": "rich_text", // markdown preview
   "officeWord": "officeWord", // office preview
   "officeExcel": "officeExcel", // office preview
   "officePowerPoint": "officePowerPoint", // office preview
@@ -163,6 +168,8 @@ const extToTypeMap: { [key: string]: string } = {
   "tsx": type.code,
   "xml": type.code,
   "yaml": type.code,
+  "vue": type.code,
+  "toml": type.code,
 
   // Text
   "txt": type.text,
@@ -189,17 +196,17 @@ const extToTypeMap: { [key: string]: string } = {
   "msi": type.binary,
 };
 
-export function getFilePreview(extension: string) {
+export function getFilePreview(extension: string, mimeType?: string) {
   if (overlapVideo.includes(extension)) {
-    const isVideo = findMimeType(extension).startsWith("video");
+    const isVideo = !!mimeType?.startsWith("video");
     if (isVideo) {
       return VideoPreview;
     }
   }
   const category = extToTypeMap[extension] || type.default;
   switch (category) {
-    case type["3d"]:
-      return ModelPreview;
+    // case type["3d"]:
+    //   return ModelPreview;
     case type.audio:
       return AudioPreview;
     case type.rich_text:
@@ -223,13 +230,57 @@ export function getFilePreview(extension: string) {
   }
 }
 
-export function getFileIcon(extension: string): IconType {
+export function getFileIcon(extension: string, mimeType?: string): IconType {
   if (overlapVideo.includes(extension)) {
-    const isVideo = findMimeType(extension).startsWith("video");
+    const isVideo = !!mimeType?.startsWith("video");
     if (isVideo) {
       return iconsForType["video"];
     }
   }
   const category = extToTypeMap[extension] || type.default;
   return iconsForType[category];
+}
+
+// Not all extensions are included here
+// Taken from onedrive-vercel-index by SpencerWoo
+// https://github.com/spencerwooo/onedrive-vercel-index/blob/main/src/utils/getPreviewType.ts
+export function getCodeLanguage(extension: string) {
+  switch (extension) {
+    case "ts":
+    case "tsx":
+      return "typescript";
+    case "rs":
+      return "rust";
+    case "js":
+    case "jsx":
+    case "vue":
+      return "javascript";
+    case "sh":
+      return "shell";
+    case "cs":
+      return "csharp";
+    case "py":
+      return "python";
+    case "yml":
+      return "yaml";
+    default:
+      return extension;
+  }
+}
+
+export function get3DLoader(extension: string) {
+  switch (extension) {
+    case "fbx":
+      return FBXLoader;
+    case "gltf":
+      return GLTFLoader;
+    case "glb":
+      return GLTFLoader;
+    case "obj":
+      return OBJLoader;
+    case "stl":
+      return STLLoader;
+    default:
+      return null;
+  }
 }

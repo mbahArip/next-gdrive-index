@@ -1,10 +1,10 @@
 import { TFile } from "@/types/googleapis";
 import { drive_v3 } from "googleapis";
-import { MdCopyAll, MdDownload, MdOpenInBrowser } from "react-icons/md";
+import { MdCopyAll, MdDownload } from "react-icons/md";
 import Link from "next/link";
-import { toast } from "react-toastify";
 import config from "@config/site.config";
-import { reverseString } from "@utils/hashHelper";
+import { useEffect, useState } from "react";
+import useCopyText from "@hooks/useCopyText";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
@@ -12,12 +12,19 @@ type Props = {
 };
 
 export default function DetailsButtons({ data, hash }: Props) {
+  const [downloadURL, setDownloadURL] = useState<string>("");
+  const [viewURL, setViewURL] = useState<string>("");
+  const copyText = useCopyText();
+
+  useEffect(() => {
+    setDownloadURL(`/download/${data.id}/${data.name}`);
+    setViewURL(`${window.location.host}/media/${data.id}/${data.name}`);
+  }, [data]);
+
   return (
     <div className={"flex flex-col gap-2"}>
       <Link
-        href={`/api/files/${data.id}/download${
-          hash ? `?hash=${reverseString(hash)}` : ""
-        }`}
+        href={downloadURL}
         target={"_blank"}
         rel={"noopener noreferrer"}
       >
@@ -30,22 +37,6 @@ export default function DetailsButtons({ data, hash }: Props) {
           Download file
         </button>
       </Link>
-      <Link
-        href={`/api/files/${data.id}/view${
-          hash ? `?hash=${reverseString(hash)}` : ""
-        }`}
-        target={"_blank"}
-        rel={"noopener noreferrer"}
-      >
-        <button
-          className={
-            "secondary flex w-full items-center justify-center gap-2 py-4 tablet:py-2"
-          }
-        >
-          <MdOpenInBrowser />
-          Open in new tab
-        </button>
-      </Link>
       <button
         className={`flex w-full items-center justify-center gap-2 py-4 tablet:py-2 ${
           config.files.allowDownloadProtectedWithoutAccess
@@ -54,17 +45,7 @@ export default function DetailsButtons({ data, hash }: Props) {
         }`}
         onClick={async (e) => {
           e.preventDefault();
-          if (!window.navigator) {
-            toast.error("Your browser does not support this feature");
-            return;
-          }
-
-          const host = window.location.host;
-          const url = `${host}/api/files/${data.id}/view${
-            hash ? `?hash=${reverseString(hash)}` : ""
-          }`;
-          await window.navigator.clipboard.writeText(url);
-          toast.success("Copied to clipboard");
+          copyText(viewURL);
         }}
       >
         <MdCopyAll />

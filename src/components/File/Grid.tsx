@@ -14,13 +14,14 @@ export default function GridFile({ data }: Props) {
   // const Icon = getMimeIcon(data.mimeType as string);
   const Icon = isFolder
     ? BsFolderFill
-    : getFileIcon(data.fileExtension as string);
+    : getFileIcon(data.fileExtension as string, data.mimeType as string);
 
   return (
     <Link
       href={isFolder ? `/folder/${data.id}` : `/file/${data.id}`}
       key={data.id}
       className={"hover:opacity-100"}
+      title={data.name as string}
     >
       <div className='items relative mx-auto h-32 w-32'>
         {data.thumbnailLink ? (
@@ -38,7 +39,7 @@ export default function GridFile({ data }: Props) {
               <>
                 <MdPlayCircleFilled className='center absolute h-8 w-8 text-white/50 transition-colors duration-300 group-hover:text-white/80' />
                 <span className='absolute bottom-0 right-0 rounded-lg rounded-bl-none rounded-tr-none bg-zinc-950/75 px-1 py-0.5 text-xs text-white'>
-                  {formatDuration(data.videoMediaMetadata.durationMillis!)}
+                  {formatDuration(data.videoMediaMetadata.durationMillis || 0)}
                 </span>
               </>
             )}

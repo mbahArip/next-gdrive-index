@@ -12,65 +12,53 @@ type Props = {
 };
 
 export default function ImagePreview({ data, hash }: Props) {
-  const [image, setImage] = useState<string>("");
-  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [imageSrc, setImageSrc] = useState<string>("");
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (data) {
-      try {
-        let loaded = false;
-        const _image = new Image();
-        _image.src = `/api/files/${data.id}/view${
-          hash ? `?hash=${reverseString(hash)}` : ""
-        }`;
-        _image.onload = () => {
-          setImage(_image.src);
-          setIsImageLoaded(true);
-          loaded = true;
-        };
-        timeout = setTimeout(() => {
-          if (!loaded) {
-            setIsError(true);
-            setError(
-              new Error(
-                "Cannot load image preview, extension probably not supported",
-              ),
-            );
-          }
-        }, config.preview.timeout);
-      } catch (error: any) {
-        setIsError(true);
-        setError(error);
-        console.error(error);
-      }
-    }
+    const timeout = setTimeout(() => {
+      setIsError(true);
+      setErrorMessage("Image took too long to load");
+      setIsLoading(false);
+    }, config.preview.timeout);
+    const image = new Image();
+    image.src = `/media/${data.id}/${data.name}`;
+    image.onload = () => {
+      setImageSrc(image.src);
+      setIsLoading(false);
+      clearTimeout(timeout);
+    };
+    image.onerror = (error: any) => {
+      setIsError(true);
+      setErrorMessage(error.message);
+      setIsLoading(false);
+      clearTimeout(timeout);
+    };
+
     return () => {
       clearTimeout(timeout);
     };
-  }, [data]);
+  }, [data.id, data.name]);
 
   return (
     <div className='flex w-full items-center justify-center'>
-      {!isImageLoaded && !isError && (
+      {isLoading ? (
         <LoadingFeedback
           message={"Loading image preview..."}
           useContainer={false}
         />
-      )}
-      {!isImageLoaded && isError && (
+      ) : isError ? (
         <ErrorFeedback
-          message={error?.message || "Error loading image preview"}
+          message={errorMessage}
           useContainer={false}
         />
-      )}
-      {isImageLoaded && !isError && (
+      ) : (
         <img
-          src={image}
-          alt={data.name as string}
-          className='bg-size-checkerboard h-full w-full rounded-lg bg-checkerboard dark:bg-checkerboard-dark'
+          src={imageSrc}
+          alt={(data.name as string) || reverseString(hash as string)}
+          className='max-h-full max-w-full rounded-lg'
         />
       )}
     </div>
