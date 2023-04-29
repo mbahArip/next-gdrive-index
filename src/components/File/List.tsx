@@ -41,7 +41,13 @@ function CopyButton({ url, isFolder }: { url: string; isFolder: boolean }) {
     </button>
   );
 }
-function DownloadButton({ fileId }: { fileId: string }) {
+function DownloadButton({
+  fileId,
+  fileName,
+}: {
+  fileId: string;
+  fileName: string;
+}) {
   return (
     <button
       className={"p-2"}
@@ -49,7 +55,7 @@ function DownloadButton({ fileId }: { fileId: string }) {
         e.preventDefault();
         e.stopPropagation();
 
-        window.open(`/api/files/${fileId}/download`, "_self");
+        window.open(`/download/${fileId}/${fileName}`, "_self");
         toast.info("Downloading file...");
       }}
     >
@@ -90,7 +96,12 @@ export default function ListFile({ data }: Props) {
           url={isFolder ? `/folder/${data.id}` : `/file/${data.id}`}
           isFolder={isFolder}
         />
-        {isFolder ? null : <DownloadButton fileId={data.id as string} />}
+        {isFolder ? null : (
+          <DownloadButton
+            fileId={data.id as string}
+            fileName={data.name as string}
+          />
+        )}
       </div>
     </Link>
   );

@@ -1,7 +1,8 @@
 // LOGO OR BANNER GOES HERE
 
 ## Status
-Currently still in development, but main features are already working as intended.  
+Currently still in development, ~~but main features are already working as intended.~~ Preview and download files are not working because of Vercel's limit for serverless function.  Working on a workaround for this.
+
 You can check the demo [here](https://drive.mbaharip.com).
 
 ## What is this?
@@ -50,6 +51,10 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 - [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo for the inspiration and also some file type helpers.
 
 ---
+
+## Known Issues
+- Fetching files from Google Drive API take too much time, it triggers 504 Error on Vercel.
+- Can't download big files, because of Vercel's 10MB limit for serverless function.
 
 ## TODO
 - [x] Navigate through folders

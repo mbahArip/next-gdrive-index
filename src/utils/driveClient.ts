@@ -20,6 +20,14 @@ class DriveClient {
     );
     oauth2Client.setCredentials({ refresh_token: this.decryptedRefreshToken });
     this.instance = google.drive({ version: "v3", auth: oauth2Client });
+    oauth2Client.on("tokens", (tokens) => {
+      if (tokens.refresh_token) {
+        console.log("Refresh: ", tokens.refresh_token);
+      }
+      if (tokens.access_token) {
+        console.log("Access: ", tokens.access_token);
+      }
+    });
   }
 
   getInstance() {
@@ -32,6 +40,7 @@ class DriveClient {
         refresh_token: process.env.REFRESH_TOKEN,
       });
       this.instance = google.drive({ version: "v3", auth: oauth2Client });
+      console.log(oauth2Client.credentials.access_token);
     }
     return this.instance;
   }
