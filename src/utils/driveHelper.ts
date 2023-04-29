@@ -33,6 +33,11 @@ export function buildQuery({
   return query.join(" and ");
 }
 
+export const hiddenFiles = [
+  '.password',
+  '.readme.md'
+]
+
 export async function validateProtected(
   fileId: string | TFileParent[],
   passwordHash?: string,

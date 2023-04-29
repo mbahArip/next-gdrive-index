@@ -40,6 +40,7 @@ const config = {
   // It will be rendered as
   // {year} {footerText} - Powered by guDora-index {version} ❤️
   footerText: "gDrive Linker",
+
   /* Config for files render */
   files: {
     // How many files to show per page
@@ -63,7 +64,8 @@ const config = {
   },
   /* Config for readme file render */
   readme: {
-    // If this set to true, it will render the readme file on the page.
+    // If this set
+    // rootFolder: "root", // Rootto true, it will render the readme file on the page.
     render: true,
     // Position of the readme file on the page.
     // It can be "start" or "end".

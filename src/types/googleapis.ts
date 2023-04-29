@@ -3,7 +3,7 @@ import { drive_v3 } from "googleapis";
 export interface APIResponse {
   success: boolean;
   timestamp: string;
-  durationMs?: number;
+  responseTime?: number;
 }
 
 export type TFileParent = {
@@ -73,26 +73,26 @@ export type TFile = {
 };
 
 export interface FilesResponse extends APIResponse {
-  passwordRequired: boolean;
+  passwordRequired?: boolean;
   passwordValidated?: boolean;
   protectedId?: string;
   parents?: TFileParent[];
-  folders: (TFolder | drive_v3.Schema$File)[];
-  files: (TFile | drive_v3.Schema$File)[];
-  readmeExists: boolean;
+  folders: drive_v3.Schema$File[];
+  files: drive_v3.Schema$File[];
+  readmeContents?: string;
   nextPageToken?: string;
 }
 
 export interface FileResponse extends APIResponse {
   parents?: TFileParent[];
-  passwordRequired: boolean;
+  passwordRequired?: boolean;
   passwordValidated?: boolean;
   protectedId?: string;
-  file: TFile | drive_v3.Schema$File;
+  file: drive_v3.Schema$File;
 }
 
 export interface SearchResponse extends APIResponse {
-  files: (TFile | drive_v3.Schema$File)[];
+  files: drive_v3.Schema$File[];
 }
 
 export interface ErrorResponse extends APIResponse {
