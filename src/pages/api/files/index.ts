@@ -1,110 +1,112 @@
-import { ErrorResponse, FilesResponse } from "@/types/googleapis";
-import drive from "@/utils/driveClient";
-import { buildQuery, validateProtected } from "@/utils/driveHelper";
 import { NextApiRequest, NextApiResponse } from "next";
-import config from "@config/site.config";
+import drive from "@utils/driveClient";
+import config from "@/config/site.config";
+import { ErrorResponse, FilesResponse } from "@/types/googleapis";
+import { urlEncrypt } from "@/utils/encryptionHelper";
+import { ExtendedError } from "@/types/default";
 
 export default async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<FilesResponse | ErrorResponse>,
+  response: NextApiResponse,
 ) {
+  const _start = Date.now();
+
   try {
     const { pageToken } = request.query;
-    const { authorization } = request.headers;
-    const hash = authorization?.split(" ")[1] || null;
+    const authorization =
+      process.env.NODE_ENV === "development"
+        ? request.query.hash
+        : request.headers.authorization?.split(" ")[1] || null;
 
-    // Check for password file
-    const validatePassword = await validateProtected(
-      config.files.rootFolder,
-      hash as string,
+    const query = [
+      `'${config.files.rootFolder}' in parents`,
+      "trashed = false",
+      "'me' in owners",
+    ];
+    const promiseFolderContents = await drive.files.list({
+      q: `${query.join(" and ")}`,
+      fields:
+        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, videoMediaMetadata), nextPageToken",
+      orderBy: "folder, name asc",
+      pageSize: config.files.itemsPerPage,
+      pageToken: (pageToken as string) || undefined,
+    });
+
+    const passwordFile = promiseFolderContents.data.files?.find(
+      (file) => file.name === ".password",
     );
-    if (validatePassword.isProtected && !validatePassword.valid) {
-      return response.status(200).json({
-        success: true,
-        timestamp: new Date().toISOString(),
-        passwordRequired: true,
-        passwordValidated: false,
-        protectedId: config.files.rootFolder,
-        parents: [],
-        files: [],
-        folders: [],
-        nextPageToken: undefined,
-        readmeExists: false,
-      });
+    const readmeFile = promiseFolderContents.data.files?.find(
+      (file) => file.name === ".readme.md",
+    );
+    const folderList =
+      promiseFolderContents.data.files?.filter(
+        (item) => item.mimeType === "application/vnd.google-apps.folder",
+      ) || [];
+    const fileList =
+      promiseFolderContents.data.files?.filter(
+        (item) => item.mimeType !== "application/vnd.google-apps.folder",
+      ) || [];
+
+    if (passwordFile && !authorization) {
+      const error: ExtendedError = new Error("Unauthorized");
+      error.code = 401;
+      error.cause = "unauthorized";
+      throw error;
     }
 
-    const fetchFiles = await drive.files.list({
-      q: buildQuery({
-        extraQuery: ["not mimeType contains 'application/vnd.google-apps'"],
-      }),
-      fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, videoMediaMetadata), nextPageToken",
-      orderBy: "folder, name asc",
-      pageSize: config.files.itemsPerPage,
-      pageToken: (pageToken as string) || undefined,
-    });
-    const fetchFolders = await drive.files.list({
-      q: buildQuery({
-        extraQuery: ["mimeType = 'application/vnd.google-apps.folder'"],
-      }),
-      fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, videoMediaMetadata), nextPageToken",
-      orderBy: "folder, name asc",
-      pageSize: config.files.itemsPerPage,
-      pageToken: (pageToken as string) || undefined,
-    });
-    const checkReadme = await drive.files.list({
-      q: buildQuery({ extraQuery: ["name = 'readme.md'"] }),
-    });
+    if (readmeFile && authorization) {
+      const validatePassword = await drive.files.get(
+        {
+          fileId: promiseFolderContents.data.files?.find(
+            (file) => file.name === ".password",
+          )?.id as string,
+          alt: "media",
+        },
+        { responseType: "text" },
+      );
+      if (validatePassword.data !== authorization) {
+        const error: ExtendedError = new Error("Unauthorized");
+        error.code = 401;
+        error.cause = "unauthorized";
+        throw error;
+      }
+    }
 
-    const folders =
-      fetchFolders.data.files?.filter(
-        (file) => file.mimeType === "application/vnd.google-apps.folder",
-      ) || [];
-    const files =
-      fetchFiles.data.files?.filter(
-        (file) => file.mimeType !== "application/vnd.google-apps.folder",
-      ) || [];
-
+    const _end = Date.now();
     const payload: FilesResponse = {
       success: true,
       timestamp: new Date().toISOString(),
-      passwordRequired: validatePassword.isProtected,
-      passwordValidated: validatePassword.valid,
-      protectedId: validatePassword.protectedId,
-      folders,
-      files,
-      nextPageToken: fetchFiles.data.nextPageToken || undefined,
-      readmeExists: !!checkReadme.data.files?.length,
+      durationMs: _end - _start,
+      passwordRequired: passwordFile ? true : false,
+      passwordValidated: true,
+      protectedId: "",
+      parents: [],
+      files: fileList.map((file) => ({
+        ...file,
+        id: urlEncrypt(file.id as string),
+      })),
+      folders: folderList,
+      readmeExists: readmeFile ? true : false,
+      nextPageToken: promiseFolderContents.data.nextPageToken || undefined,
     };
 
-    return response.status(200).json(payload);
+    return response
+      .status(200)
+      .setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate")
+      .json(payload);
   } catch (error: any) {
-    if (error satisfies ErrorResponse) {
-      const payload: ErrorResponse = {
-        success: false,
-        timestamp: new Date().toISOString(),
-        code: error.code || 500,
-        errors: {
-          message:
-            error.errors?.[0].message || error.message || "Unknown error",
-          reason: error.errors?.[0].reason || error.cause || "internalError",
-        },
-      };
-
-      return response.status(error.code).json(payload);
-    }
-
+    const _end = Date.now();
     const payload: ErrorResponse = {
       success: false,
       timestamp: new Date().toISOString(),
+      durationMs: _end - _start,
       code: error.code || 500,
       errors: {
-        message: error.message || "Unknown error",
-        reason: error.cause || "internalError",
+        message: error.errors?.[0].message || error.message || "Unknown error",
+        reason: error.errors?.[0].reason || error.cause || "internalError",
       },
     };
 
-    return response.status(500).json(payload);
+    return response.status(payload.code || 500).json(payload);
   }
 }

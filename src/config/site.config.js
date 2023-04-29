@@ -43,14 +43,15 @@ const config = {
   /* Config for files render */
   files: {
     // How many files to show per page
-    itemsPerPage: 100,
+    itemsPerPage: 500,
     // Max number of files to show in search result
     searchResult: 10,
     // Starting point of the drive
     // Use 'root' to use My Drive as starting point
     // Or use folder id to use a specific folder as starting point
-    // rootFolder: "root",
-    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
+    // rootFolder: "root", // Root
+    // rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j", // Test folder
+    rootFolder: "1p6znx1BKPsqFnyOPw49uhoc8FNglfYnD", // Protected folder
     // If this set to true, any user can download or view protected files.
     // If this set to false, only authorized users can download or view protected files.
     // The authorized users URL will have a token in it that valid for 1 hour.

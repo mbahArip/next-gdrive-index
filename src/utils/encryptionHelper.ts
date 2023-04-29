@@ -57,3 +57,20 @@ export function decrypt(encryptedData: string, encryptionKey: string) {
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
 }
+
+const urlIV = crypto.randomBytes(16);
+const urlKey = process.env.ENCRYPTION_KEY?.slice(0, 16) || "gudora-index9534";
+
+export function urlEncrypt(fileId: string): string {
+  const cipher = crypto.createCipheriv("aes-128-cbc", urlKey, urlIV);
+  let cipherText = cipher.update(fileId, "utf8", "hex");
+  cipherText += cipher.final("hex");
+  return cipherText;
+}
+
+export function urlDecrypt(chiperText: string): string {
+  const decipher = crypto.createDecipheriv("aes-128-cbc", urlKey, urlIV);
+  let plainText = decipher.update(chiperText, "hex", "utf8");
+  plainText += decipher.final("utf8");
+  return plainText;
+}
