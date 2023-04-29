@@ -16,14 +16,12 @@ const oauth2Client = new google.auth.OAuth2(
   decryptedSecret,
 );
 oauth2Client.setCredentials({ refresh_token: decryptedRefreshToken });
-google.options({ auth: oauth2Client });
 
 let gdriveInstance;
 if (!gdriveInstance) {
   gdriveInstance = google.drive({
     version: "v3",
     auth: oauth2Client,
-    http2: true,
   });
 }
 

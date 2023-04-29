@@ -8,8 +8,8 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
+  const _start = Date.now();
   try {
-    const _start = Date.now();
     const pathArray = request.query.path as string[];
     const [folderName, partialId] = pathArray[pathArray.length - 1].split(".");
 
@@ -36,11 +36,9 @@ export default async function handler(
         q: `'${findPath.id}' in parents and trashed = false and 'me' in owners`,
         fields: "files(id, name, mimeType, parents), nextPageToken",
       });
-      isReadmeFile = fetchFolder.data.files?.some(
+      isReadmeFile = !!fetchFolder.data.files?.some(
         (file) => file.name === ".readme.md",
-      )
-        ? true
-        : false;
+      );
 
       payload = {
         success: true,
@@ -87,6 +85,30 @@ export default async function handler(
       }
     }
 
+    if (isProtected) {
+      const findPassword = await drive.files.list({
+        q: `name = '.password' and '${protectedId}' in parents and trashed = false and 'me' in owners`,
+        fields: "files(id)",
+      });
+      if (findPassword.data.files?.length) {
+        const passwordFile = await drive.files.get({
+          fileId: findPassword.data.files[0].id as string,
+          alt: "media",
+        });
+        const password = passwordFile.data as unknown as string;
+        const { password: passwordQuery } = request.query;
+        if (password === passwordQuery) {
+          isValidated = true;
+        }
+      }
+    }
+    if (isProtected && !isValidated) {
+      const error = new Error("Protected folder") as ExtendedError;
+      error.cause = "protected";
+      error.code = 403;
+      throw error;
+    }
+
     payload.passwordRequired = isProtected;
     payload.passwordValidated = isValidated;
     payload.protectedId = protectedId;
@@ -97,9 +119,11 @@ export default async function handler(
     return response.status(200).json(payload);
   } catch (error: any) {
     console.error(error);
+    const _end = Date.now();
     return response.status(500).json({
       success: false,
       timestamp: new Date().toISOString(),
+      durationMs: _end - _start,
       error: error.message,
     });
   }
