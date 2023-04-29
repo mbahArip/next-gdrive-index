@@ -3,7 +3,7 @@ import { drive_v3 } from "googleapis";
 export interface APIResponse {
   success: boolean;
   timestamp: string;
-  durationMs: number;
+  durationMs?: number;
 }
 
 export type TFileParent = {
