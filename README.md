@@ -1,9 +1,16 @@
 // LOGO OR BANNER GOES HERE
 
 ## Status
-Currently still in development, ~~but main features are already working as intended.~~ Preview and download files are not working because of Vercel's limit for serverless function.  Working on a workaround for this.
+### Project halted at the moment.
+Found out it's not cfworker fault, but Google Drive API is the one that slow.  
+It took 500ms to 1s response time to fetch files, took longer if it's inside protected folder.
+It can be faster if I'm using `@upstash/redis` to cache the response, but for free tier it capped on 10k request per day. (It should've enough for most people)
 
-You can check the demo [here](https://drive.mbaharip.com).
+I'm currently working on a workaround for this, but it's not a priority for me at the moment.
+
+~~Currently still in development, ~~but main features are already working as intended.~~ Preview and download files are not working because of Vercel's limit for serverless function.  Working on a workaround for this.~~
+
+~~You can check the demo [here](https://drive.mbaharip.com).~~
 
 ## What is this?
 gudora-index is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  

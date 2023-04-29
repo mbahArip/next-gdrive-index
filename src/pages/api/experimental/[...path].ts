@@ -31,10 +31,12 @@ export default async function handler(
 
     let isReadmeFile = false;
     let payload: FileResponse | FilesResponse;
+    let description = "";
     if (findPath.mimeType === "application/vnd.google-apps.folder") {
       const fetchFolder = await drive.files.list({
         q: `'${findPath.id}' in parents and trashed = false and 'me' in owners`,
-        fields: "files(id, name, mimeType, parents), nextPageToken",
+        fields:
+          "files(id, name, mimeType, parents, description), nextPageToken",
       });
       isReadmeFile = !!fetchFolder.data.files?.some(
         (file) => file.name === ".readme.md",
@@ -85,29 +87,43 @@ export default async function handler(
       }
     }
 
-    if (isProtected) {
-      const findPassword = await drive.files.list({
-        q: `name = '.password' and '${protectedId}' in parents and trashed = false and 'me' in owners`,
-        fields: "files(id)",
+    if (protectedId) {
+      const findPassword = await drive.files.get({
+        fileId: protectedId,
+        fields: "description",
       });
-      if (findPassword.data.files?.length) {
-        const passwordFile = await drive.files.get({
-          fileId: findPassword.data.files[0].id as string,
-          alt: "media",
-        });
-        const password = passwordFile.data as unknown as string;
+      if (findPassword.data.description) {
+        description = findPassword.data.description;
         const { password: passwordQuery } = request.query;
-        if (password === passwordQuery) {
+        if (findPassword.data.description === passwordQuery) {
           isValidated = true;
         }
       }
     }
-    if (isProtected && !isValidated) {
-      const error = new Error("Protected folder") as ExtendedError;
-      error.cause = "protected";
-      error.code = 403;
-      throw error;
-    }
+
+    // if (isProtected) {
+    //   const findPassword = await drive.files.list({
+    //     q: `name = '.password' and '${protectedId}' in parents and trashed = false and 'me' in owners`,
+    //     fields: "files(id)",
+    //   });
+    //   if (findPassword.data.files?.length) {
+    //     const passwordFile = await drive.files.get({
+    //       fileId: findPassword.data.files[0].id as string,
+    //       alt: "media",
+    //     });
+    //     const password = passwordFile.data as unknown as string;
+    //     const { password: passwordQuery } = request.query;
+    //     if (password === passwordQuery) {
+    //       isValidated = true;
+    //     }
+    //   }
+    // }
+    // if (isProtected && !isValidated) {
+    //   const error = new Error("Protected folder") as ExtendedError;
+    //   error.cause = "protected";
+    //   error.code = 403;
+    //   throw error;
+    // }
 
     payload.passwordRequired = isProtected;
     payload.passwordValidated = isValidated;
@@ -116,7 +132,7 @@ export default async function handler(
     const _end = Date.now();
     payload.durationMs = _end - _start;
 
-    return response.status(200).json(payload);
+    return response.status(200).json({ payload, description });
   } catch (error: any) {
     console.error(error);
     const _end = Date.now();
