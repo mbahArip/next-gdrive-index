@@ -1,4 +1,5 @@
 //Accepted id is Name#PartialID
+// [filename]:[partialId]
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { ErrorResponse, FileResponse, FilesResponse } from "types/googleapis";
@@ -15,7 +16,7 @@ export default initMiddleware(async function handler(
   const _start = Date.now();
 
   try {
-    const { id, pageToken } = request.query;
+    const { id, pageToken, download } = request.query;
 
     const [name, partialId] = (id as string).split(":");
 
@@ -41,10 +42,40 @@ export default initMiddleware(async function handler(
     if (!file) {
       throw new ExtendedError("File not found.", 404, "notFound");
     }
+    if (file.id === apiConfig.files.rootFolder) {
+      return response.status(301).redirect("/api/files");
+    }
 
     response.setHeader("Cache-Control", apiConfig.cache);
 
     if (file.mimeType !== "application/vnd.google-apps.folder") {
+      if (download === "1") {
+        // Check size
+        if (Number(file.size as string) > apiConfig.maxResponseSize) {
+          return response.status(301).redirect(file.webContentLink as string);
+        }
+
+        const fileStream = await driveClient.files.get(
+          {
+            fileId: file.id as string,
+            alt: "media",
+          },
+          { responseType: "stream" },
+        );
+
+        response.setHeader(
+          "Content-Type",
+          file.mimeType || "application/octet-stream",
+        );
+        response.setHeader(
+          "Content-Disposition",
+          `attachment; filename=${encodeURIComponent(file.name as string)}`,
+        );
+        response.setHeader("Content-Length", file.size as string);
+
+        return response.status(200).send(fileStream.data);
+      }
+
       const payload: FileResponse = {
         success: true,
         timestamp: new Date().toISOString(),

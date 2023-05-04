@@ -3,11 +3,11 @@ import {
   FileResponse,
   FilesResponse,
   TFileParent,
-} from "@/types/googleapis";
-import drive from "@/utils/driveClient";
-import { buildQuery, validateProtected } from "@/utils/driveHelper";
+} from "types/googleapis";
+import drive from "utils/driveClient";
+import {} from "utils/driveHelper";
 import { NextApiRequest, NextApiResponse } from "next";
-import config from "@config/site.config";
+import config from "config/site.config";
 
 export default async function handler(
   request: NextApiRequest,
