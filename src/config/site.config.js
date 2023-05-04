@@ -1,4 +1,4 @@
-import { BsGithub, BsDiscord, BsPaypal } from "react-icons/bs";
+import { BsDiscord, BsGithub, BsPaypal } from "react-icons/bs";
 
 const config = {
   /* Site MetaData */

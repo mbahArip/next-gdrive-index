@@ -1,6 +1,6 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
-import ErrorFeedback from "@components/APIFeedback/Error";
+import ErrorFeedback from "components/APIFeedback/Error";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;

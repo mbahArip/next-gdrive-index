@@ -1,9 +1,9 @@
-import { TFileParent } from "@/types/googleapis";
+import { TFileParent } from "types/googleapis";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { MdHome } from "react-icons/md";
 import ReactLoading from "react-loading";
-import config from "@config/site.config";
+import config from "config/site.config";
 
 type Props = {
   data: TFileParent[];

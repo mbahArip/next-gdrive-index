@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import siteConfig from "@config/site.config";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import siteConfig from "config/site.config";
+import useLocalStorage from "hooks/useLocalStorage";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  MdLightMode,
-  MdDarkMode,
-  MdSearch,
-  MdMenu,
   MdClose,
+  MdDarkMode,
+  MdLightMode,
+  MdMenu,
+  MdSearch,
 } from "react-icons/md";
-import Modal from "@/components/utility/Modal";
-import { formatBytes } from "@/utils/formatHelper";
-import { ErrorResponse, SearchResponse } from "@/types/googleapis";
+import Modal from "components/utility/Modal";
+import { formatBytes } from "utils/formatHelper";
+import { ErrorResponse, SearchResponse } from "types/googleapis";
 import useSWR from "swr";
-import fetcher from "@utils/swrFetch";
+import fetcher from "utils/swrFetch";
 import { drive_v3 } from "googleapis";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import ErrorFeedback from "@components/APIFeedback/Error";
-import EmptyFeedback from "@components/APIFeedback/Empty";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import ErrorFeedback from "components/APIFeedback/Error";
+import EmptyFeedback from "components/APIFeedback/Empty";
 import { BsFolderFill } from "react-icons/bs";
-import { getFileIcon } from "@utils/mimeTypesHelper";
+import { getFileIcon } from "utils/mimeTypesHelper";
 
 export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useLocalStorage("isDarkMode", "false");

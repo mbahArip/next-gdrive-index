@@ -1,21 +1,21 @@
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
-import fetcher, { buildNextKey } from "@utils/swrFetch";
-import { ErrorResponse, FilesResponse, TFile } from "@/types/googleapis";
-import Breadcrumb from "@/components/Breadcrumb";
+import fetcher, { buildNextKey } from "utils/swrFetch";
+import { ErrorResponse, FilesResponse, TFile } from "types/googleapis";
+import Breadcrumb from "components/Breadcrumb";
 import { drive_v3 } from "googleapis";
 import { useCallback, useEffect, useState } from "react";
-import MarkdownRender from "@/components/utility/MarkdownRender";
-import config from "@config/site.config";
-import GridLayout from "@components/layout/Files/GridLayout";
-import useLocalStorage from "@hooks/useLocalStorage";
-import SwitchLayout from "@components/utility/SwitchLayout";
-import ListLayout from "@components/layout/Files/ListLayout";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import ErrorFeedback from "@components/APIFeedback/Error";
+import MarkdownRender from "components/utility/MarkdownRender";
+import config from "config/site.config";
+import GridLayout from "components/layout/Files/GridLayout";
+import useLocalStorage from "hooks/useLocalStorage";
+import SwitchLayout from "components/utility/SwitchLayout";
+import ListLayout from "components/layout/Files/ListLayout";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import ErrorFeedback from "components/APIFeedback/Error";
 import { useRouter } from "next/router";
 import axios from "axios";
-import Password from "@components/layout/Password";
+import Password from "components/layout/Password";
 import { GetServerSidePropsContext } from "next";
 import { NextSeo } from "next-seo";
 
@@ -109,11 +109,11 @@ export default function Folder({ passwordParent, folderName }: Props) {
       swrData?.flatMap((item: FilesResponse) => item.folders);
     const newData: FilesResponse = {
       ...(swrData?.[size - 1] as FilesResponse),
-      files: files || [],
-      folders: folders || [],
+      files: (files as drive_v3.Schema$File[]) || [],
+      folders: (folders as drive_v3.Schema$File[]) || [],
     };
     setData(newData);
-    if (newData.readmeExists) setIsReadmeExists(true);
+    if (newData.isReadmeExists) setIsReadmeExists(true);
     setGlobalLoading(false);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,8 +1,8 @@
-import { formatDuration } from "@/utils/formatHelper";
+import { formatDuration } from "utils/formatHelper";
 import { drive_v3 } from "googleapis";
 import Link from "next/link";
 import { MdPlayCircleFilled } from "react-icons/md";
-import { getFileIcon } from "@utils/mimeTypesHelper";
+import { getFileIcon } from "utils/mimeTypesHelper";
 import { BsFolderFill } from "react-icons/bs";
 
 type Props = {

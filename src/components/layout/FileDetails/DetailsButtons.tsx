@@ -1,10 +1,10 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import { MdCopyAll, MdDownload } from "react-icons/md";
 import Link from "next/link";
-import config from "@config/site.config";
+import config from "config/site.config";
 import { useEffect, useState } from "react";
-import useCopyText from "@hooks/useCopyText";
+import useCopyText from "hooks/useCopyText";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;

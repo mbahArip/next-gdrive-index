@@ -113,7 +113,6 @@ export default async function handler(
           (file) => file.mimeType !== "application/vnd.google-apps.folder",
         ) || [];
 
-      const _end = Date.now();
       const payload: FilesResponse = {
         success: true,
         timestamp: new Date().toISOString(),
@@ -130,7 +129,6 @@ export default async function handler(
       return response.status(200).json(payload);
     }
 
-    const _end = Date.now();
     const payload: FileResponse = {
       success: true,
       timestamp: new Date().toISOString(),

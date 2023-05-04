@@ -1,8 +1,8 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import Cors, { CorsRequest } from "cors";
-import { ErrorResponse } from "@/types/googleapis";
+import { ErrorResponse } from "types/googleapis";
 
-function _initMiddleware(middleware: CorsRequest | any) {
+export function _initMiddleware(middleware: CorsRequest | any) {
   return (req: NextApiRequest, res: NextApiResponse) =>
     new Promise((resolve, reject) => {
       middleware(req, res, (result: any) => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FilesResponse } from "@/types/googleapis";
+import { FilesResponse } from "types/googleapis";
 
 const fetcher = async <T>(url: string, headers: Record<string, string> = {}) =>
   axios.get<T>(url, { headers }).then((res) => res.data);

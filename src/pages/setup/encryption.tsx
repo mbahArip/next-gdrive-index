@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import {
   createEncryptionKey,
   generateRandomEncryptionKey,
-} from "@utils/encryptionHelper";
-import useCopyText from "@hooks/useCopyText";
+} from "utils/encryptionHelper";
+import useCopyText from "hooks/useCopyText";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import useLocalStorage from "@hooks/useLocalStorage";
+import useLocalStorage from "hooks/useLocalStorage";
 
 export default function Encryption() {
   const [settingJson, setSettingJson] = useLocalStorage("tempEncryption", "");

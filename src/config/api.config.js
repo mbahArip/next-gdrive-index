@@ -8,22 +8,24 @@ module.exports = {
   client_secret:
     "54f0505d11a8fe04d22ec642cdde4728:a6f911c70b0305a51160a2133a9bd2ada3c120567857002311f17bf29cc69e07d7f1a9ca20fd119d684191aee6e3866a",
   refresh_token:
-    "b6ef7852ce97441fb6a43e1701b788f1:d96b5bc1624455536b0f5934a1d39e223d11bacfb2edcbfe69be568c7230bec69d741bc4c789d5c435bf575ab70dfd9a4c350c70562b73ec4f6e4903f0aef825fdd2dd2b1b8c42cb78f0fed1d74be7785e9a48082aac76b23cb3dc419ce11e9a8c61a586423913a1b7c2d996a5306816",
+    "44078de6e3407c6dc6a41c65a5f58687:da00ab1cff6daea563ed1991da94fb4ac232dd09eb4a65286b2400cb3e36b5ba28a553b5e3a08bc05029839b7f6f83779e1feaecbe56c9aabce9dd245b2f40982818ac216be21c1409919c0c7a2f9be9915825e1d4708089b8ab59599d327704910f71e081851748b98f6d6e82ab8c30",
 
   files: {
     // How many files to show per page
-    itemsPerPage: 500,
+    itemsPerPage: 50,
     // Max number of files to show in search result
     searchResult: 10,
     // Starting point of the drive
     // Use 'root' to use My Drive as starting point
     // Or use folder id to use a specific folder as starting point
     // TODO: Change when final
-    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j", // Test folder
+    rootFolder: "root",
+    // rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j", // Test folder
   },
 
   // Cache control header
   // https://web.dev/uses-long-cache-ttl/
+  // Default: 1 minute
   cache: "s-maxage=60, stale-while-revalidate",
 
   // Max response body size

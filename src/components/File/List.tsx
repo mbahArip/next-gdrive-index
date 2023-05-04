@@ -1,9 +1,9 @@
 import { drive_v3 } from "googleapis";
 import Link from "next/link";
-import { formatBytes, formatDate } from "@utils/formatHelper";
+import { formatBytes, formatDate } from "utils/formatHelper";
 import { toast } from "react-toastify";
 import { MdContentCopy, MdDownload } from "react-icons/md";
-import { getFileIcon } from "@utils/mimeTypesHelper";
+import { getFileIcon } from "utils/mimeTypesHelper";
 import { BsFolderFill } from "react-icons/bs";
 
 type Props = {

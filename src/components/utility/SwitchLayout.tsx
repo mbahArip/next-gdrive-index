@@ -1,4 +1,4 @@
-import useLocalStorage from "@hooks/useLocalStorage";
+import useLocalStorage from "hooks/useLocalStorage";
 import { MdArrowDropDown, MdGridView, MdList } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
 

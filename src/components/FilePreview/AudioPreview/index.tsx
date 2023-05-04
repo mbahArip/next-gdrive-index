@@ -1,9 +1,9 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import { useEffect, useState } from "react";
-import config from "@config/site.config";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import ErrorFeedback from "@components/APIFeedback/Error";
+import config from "config/site.config";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import ErrorFeedback from "components/APIFeedback/Error";
 import H5AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 

@@ -1,20 +1,20 @@
 import type { AppProps } from "next/app";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import Navbar from "components/layout/Navbar";
+import Footer from "components/layout/Footer";
 import NextNProgress from "nextjs-progressbar";
 
-import "@/styles/globals.css";
-import "@/styles/markdown.css";
-import "@/styles/highlight.css";
-import "@config/site.config";
+import "styles/globals.css";
+import "styles/markdown.css";
+import "styles/highlight.css";
+import "config/site.config";
 import "react-toastify/dist/ReactToastify.min.css";
 
-import { Exo_2, Source_Sans_Pro, JetBrains_Mono } from "next/font/google";
+import { Exo_2, JetBrains_Mono, Source_Sans_Pro } from "next/font/google";
 import { IconContext } from "react-icons";
 import { ToastContainer } from "react-toastify";
-import useLocalStorage from "@hooks/useLocalStorage";
+import useLocalStorage from "hooks/useLocalStorage";
 import { DefaultSeo, DefaultSeoProps } from "next-seo";
-import config from "@config/site.config";
+import config from "config/site.config";
 
 const exo2 = Exo_2({
   weight: ["300", "400", "600", "700"],

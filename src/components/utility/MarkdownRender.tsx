@@ -8,7 +8,7 @@ import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
 import { SpecialComponents } from "react-markdown/lib/ast-to-react";
 import { NormalComponents } from "react-markdown/lib/complex-types";
-import config from "@/config/site.config";
+import config from "config/site.config";
 
 type Props = {
   content: string;

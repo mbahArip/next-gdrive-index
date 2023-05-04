@@ -32,7 +32,10 @@ export function createEncryptionKey(passphrase: string): Promise<string> {
   });
 }
 
-export function encrypt(data: string, encryptionKey: string) {
+export function encrypt(
+  data: string,
+  encryptionKey: string = process.env.ENCRYPTION_KEY as string,
+) {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
@@ -44,7 +47,10 @@ export function encrypt(data: string, encryptionKey: string) {
   return iv.toString("hex") + ":" + encrypted.toString("hex");
 }
 
-export function decrypt(encryptedData: string, encryptionKey: string) {
+export function decrypt(
+  encryptedData: string,
+  encryptionKey: string = process.env.ENCRYPTION_KEY as string,
+) {
   const [ivString, encryptedString] = encryptedData.split(":");
   const iv = Buffer.from(ivString, "hex");
   const encrypted = Buffer.from(encryptedString, "hex");
@@ -58,8 +64,8 @@ export function decrypt(encryptedData: string, encryptionKey: string) {
   return decrypted.toString();
 }
 
-const urlIV = crypto.randomBytes(16);
-const urlKey = process.env.ENCRYPTION_KEY?.slice(0, 16) || "gudora-index9534";
+const urlKey = (process.env.ENCRYPTION_KEY as string).slice(0, 16);
+const urlIV = Buffer.from(urlKey);
 
 export function urlEncrypt(fileId: string): string {
   const cipher = crypto.createCipheriv("aes-128-cbc", urlKey, urlIV);
@@ -68,9 +74,9 @@ export function urlEncrypt(fileId: string): string {
   return cipherText;
 }
 
-export function urlDecrypt(chiperText: string): string {
+export function urlDecrypt(cipherText: string): string {
   const decipher = crypto.createDecipheriv("aes-128-cbc", urlKey, urlIV);
-  let plainText = decipher.update(chiperText, "hex", "utf8");
+  let plainText = decipher.update(cipherText, "hex", "utf8");
   plainText += decipher.final("utf8");
   return plainText;
 }

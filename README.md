@@ -29,31 +29,6 @@ For free plan, Google Drive offering 15GB of storage, and Onedrive offering 5GB 
 
 I know there are a lot of people selling cheap edu account for Google Drive and Onedrive, but most of the time those account doesn't last long, especially Google Drive account. So I want to do it legit without buying cheap edu account or anything similar this time.
 
-## Features
-- Share files without any hassle
-- Preview files before downloading
-- Render readme file inside the folder
-- Protect your folder with password
-- Search for files easily
-- Direct view or download files
-  - Can be used for hosting assets for your website
-
-## How to use
-### Prerequisites
-- Google Drive account
-- Google Drive API key
-- Vercel account
-
-### Setup
-1. Fork [gudora-index/mbaharip](https://github.com/mbaharip/gudora-index) repository
-2. Open [Setup page](https://drive.mbaharip.com/setup) and follow the instructions
-3. Change the `site.config.js` to your liking
-4. Deploy your forked repository to Vercel
-5. Open your Vercel project, and go to **Settings > Environment Variables**
-6. Add `ENCRYPTION_KEY`, `JWT_KEY`, and `NEXT_PUBLIC_DOMAIN` environment variables
-7. Redeploy your project
-8. Done!
-
 ## Credits
 - [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo for the inspiration and also some file type helpers.
 
@@ -61,9 +36,17 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 
 ## Known Issues
 - Fetching files from Google Drive API take too much time, it triggers 504 Error on Vercel.
-- Can't download big files, because of Vercel's 10MB limit for serverless function.
+- ~~Can't download big files, because of Vercel's 4.5MB limit for serverless function.~~ (Implement redirect to Google Drive download link instead of using Vercel serverless function for files bigger than 4MB)
+  - Need to set the folder to public, so it can be downloaded directly from Google Drive.
+  - The way to get files are changed because of this, now it's using the file name, and 8 first character of file id for hiding the id so no one can access it via Google Drive.
+  - All id and webContentLink are now encrypted using AES-128-CBC.
+- Protected folder cause long response time, because it need to fetch the file / folder first > fetch each of the parents till root > check if it's inside protected folder > then checking the password.
+- Download might show scan warning, because it's using Google Drive's direct download link.
 
 ## TODO
+- [ ] Aim for max 1.5s response time for every API routes
+  - Fetch all routes - 600~900ms
+  - Fetch file or folder - 
 - [x] Navigate through folders
 - [ ] File preview
   - [x] Audio
@@ -83,4 +66,4 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 - [x] Password protection
   - [x] Create token hash for sharing protected ~~files that valid for x hours~~ 
   - [ ] Implement time limit for token
-- [ ] ~~Pretty path URL~~ (Not possible, since Google Drive allowing multiple files with same name)
+- [x] ~~Pretty path URL~~ ~~(Not possible, since Google Drive allowing multiple files with same name)~~ (Kinda pretty now, it consist of the file name, then 8 character of file id for security) 

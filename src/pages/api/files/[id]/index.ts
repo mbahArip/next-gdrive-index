@@ -1,26 +1,71 @@
+//Accepted id is Name#PartialID
+
 import { NextApiRequest, NextApiResponse } from "next";
+import { ErrorResponse, FileResponse, FilesResponse } from "types/googleapis";
+import { ExtendedError, hiddenFiles } from "utils/driveHelper";
 import driveClient from "utils/driveClient";
 import apiConfig from "config/api.config";
-import { hiddenFiles } from "utils/driveHelper";
 import initMiddleware from "utils/apiMiddleware";
-import { ErrorResponse, FilesResponse } from "types/googleapis";
 import { urlEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<FilesResponse | ErrorResponse>,
+  response: NextApiResponse,
 ) {
   const _start = Date.now();
 
   try {
-    const { pageToken } = request.query;
+    const { id, pageToken } = request.query;
 
-    const query = ["trashed = false", "'me' in owners"];
-    if (apiConfig.files.rootFolder === "root") {
-      query.push("parents = 'root'");
-    } else {
-      query.push(`parents = '${apiConfig.files.rootFolder}'`);
+    const [name, partialId] = (id as string).split(":");
+
+    if (!name || !partialId || partialId.length !== 8) {
+      throw new ExtendedError(
+        "Can't resolve name and id provided.",
+        400,
+        "invalidId",
+      );
     }
+
+    const searchForFile = await driveClient.files.list({
+      q: `name contains '${name}' and trashed = false and 'me' in owners`,
+      fields:
+        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink)",
+    });
+
+    const file = searchForFile.data.files?.find(
+      (file) =>
+        file.name === decodeURIComponent(name) &&
+        (file.id as string).startsWith(partialId),
+    );
+    if (!file) {
+      throw new ExtendedError("File not found.", 404, "notFound");
+    }
+
+    response.setHeader("Cache-Control", apiConfig.cache);
+
+    if (file.mimeType !== "application/vnd.google-apps.folder") {
+      const payload: FileResponse = {
+        success: true,
+        timestamp: new Date().toISOString(),
+        responseTime: Date.now() - _start,
+        file: {
+          ...file,
+          id: urlEncrypt(file.id as string),
+          webContentLink: file.webContentLink
+            ? urlEncrypt(file.webContentLink)
+            : undefined,
+        },
+      };
+
+      return response.status(200).json(payload);
+    }
+
+    const query = [
+      `'${file.id}' in parents`,
+      "trashed = false",
+      "'me' in owners",
+    ];
     const fetchFolderContents = await driveClient.files.list({
       q: `${query.join(" and ")}`,
       fields:
@@ -33,6 +78,7 @@ export default initMiddleware(async function handler(
     const isReadmeExists = !!fetchFolderContents.data.files?.find(
       (file) => file.name === ".readme.md",
     );
+    // Get only folder, since we order the folder to be first, we can just get all the folder first
     const folderList =
       fetchFolderContents.data.files
         ?.filter(
@@ -42,6 +88,8 @@ export default initMiddleware(async function handler(
           ...item,
           id: urlEncrypt(item.id as string),
         })) || [];
+    // Filter the files, excluding every google apps files and hidden files (.password and .readme.md)
+    // .password currently not used, but will probably be used in the future
     const fileList =
       fetchFolderContents.data.files
         ?.filter(
@@ -61,16 +109,13 @@ export default initMiddleware(async function handler(
       success: true,
       timestamp: new Date().toISOString(),
       responseTime: Date.now() - _start,
+      isReadmeExists: isReadmeExists,
       folders: folderList,
       files: fileList,
-      isReadmeExists: isReadmeExists,
       nextPageToken: fetchFolderContents.data.nextPageToken || undefined,
     };
 
-    return response
-      .status(200)
-      .setHeader("Cache-Control", apiConfig.cache)
-      .json(payload);
+    return response.status(200).json(payload);
   } catch (error: any) {
     const payload: ErrorResponse = {
       success: false,

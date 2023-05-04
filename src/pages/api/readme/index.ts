@@ -1,6 +1,5 @@
-import { ErrorResponse } from "@/types/googleapis";
-import { buildQuery } from "@/utils/driveHelper";
-import drive from "@/utils/driveClient";
+import { ErrorResponse } from "types/googleapis";
+import drive from "utils/driveClient";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -9,7 +8,7 @@ export default async function handler(
 ) {
   try {
     const fetchReadme = await drive.files.list({
-      q: buildQuery({ extraQuery: ["name = 'readme.md'"] }),
+      q: "",
       fields: "files(id, name, mimeType, size)",
       orderBy: "modifiedTime desc",
     });

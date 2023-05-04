@@ -1,10 +1,10 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import useSWR from "swr";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import ErrorFeedback from "@components/APIFeedback/Error";
-import MarkdownRender from "@components/utility/MarkdownRender";
-import fetcher from "@utils/swrFetch";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import ErrorFeedback from "components/APIFeedback/Error";
+import MarkdownRender from "components/utility/MarkdownRender";
+import fetcher from "utils/swrFetch";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;

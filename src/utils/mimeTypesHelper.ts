@@ -18,16 +18,15 @@ import {
   BsFileEarmarkWordFill,
   BsFileEarmarkZipFill,
 } from "react-icons/bs";
-import ModelPreview from "@components/FilePreview/ModelPreview";
-import AudioPreview from "@components/FilePreview/AudioPreview";
-import DefaultPreview from "@components/FilePreview/DefaultPreview";
-import MarkdownPreview from "@components/FilePreview/MarkdownPreview";
-import OfficePreview from "@components/FilePreview/OfficePreview";
-import PDFPreview from "@components/FilePreview/PDFPreview";
-import ImagePreview from "@components/FilePreview/ImagePreview";
-import CodePreview from "@components/FilePreview/CodePreview";
-import TextPreview from "@components/FilePreview/TextPreview";
-import VideoPreview from "@components/FilePreview/VideoPreview";
+import AudioPreview from "components/FilePreview/AudioPreview";
+import DefaultPreview from "components/FilePreview/DefaultPreview";
+import MarkdownPreview from "components/FilePreview/MarkdownPreview";
+import OfficePreview from "components/FilePreview/OfficePreview";
+import PDFPreview from "components/FilePreview/PDFPreview";
+import ImagePreview from "components/FilePreview/ImagePreview";
+import CodePreview from "components/FilePreview/CodePreview";
+import TextPreview from "components/FilePreview/TextPreview";
+import VideoPreview from "components/FilePreview/VideoPreview";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";

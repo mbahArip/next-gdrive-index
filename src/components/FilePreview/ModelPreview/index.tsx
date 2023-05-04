@@ -1,11 +1,11 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { get3DLoader } from "@utils/mimeTypesHelper";
+import { get3DLoader } from "utils/mimeTypesHelper";
 import { ReactNode, Suspense, useRef } from "react";
 import { BufferGeometry } from "three";
-import ErrorFeedback from "@components/APIFeedback/Error";
-import { Stage, OrbitControls } from "@react-three/drei";
+import ErrorFeedback from "components/APIFeedback/Error";
+import { OrbitControls, Stage } from "@react-three/drei";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;

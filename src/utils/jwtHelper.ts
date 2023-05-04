@@ -1,6 +1,6 @@
 import JWT from "jsonwebtoken";
-import { decrypt, encrypt } from "@utils/encryptionHelper";
-import { ExpiredJWTPayload, JWTPayload } from "@/types/jwt";
+import { decrypt, encrypt } from "utils/encryptionHelper";
+import { ExpiredJWTPayload, JWTPayload } from "types/jwt";
 
 export function createJWTToken(payload: any, expiresIn: string = "3h") {
   return encrypt(

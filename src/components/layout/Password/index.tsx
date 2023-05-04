@@ -1,8 +1,8 @@
 import { useState } from "react";
-import useLocalStorage from "@hooks/useLocalStorage";
+import useLocalStorage from "hooks/useLocalStorage";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLock } from "react-icons/md";
-import { hashToken } from "@utils/hashHelper";
+import { hashToken } from "utils/hashHelper";
 
 type Props = {
   folderId: string;

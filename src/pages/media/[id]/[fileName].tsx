@@ -1,7 +1,7 @@
 import { promisify } from "util";
 import { pipeline } from "stream";
 import { GetServerSideProps } from "next";
-import drive from "@utils/driveClient";
+import drive from "utils/driveClient";
 
 export default function Media() {
   return <div />;
@@ -34,8 +34,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   if (
     !(imageMetadata.mimeType as string).startsWith("image/") &&
     !(imageMetadata.mimeType as string).startsWith("video/") &&
-    !(imageMetadata.mimeType as string).startsWith("audio/") &&
-    !(imageMetadata.mimeType as string).startsWith("application/pdf")
+    !(imageMetadata.mimeType as string).startsWith("audio/")
   ) {
     return {
       notFound: true,

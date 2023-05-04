@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import driveClient from "@utils/driveClient";
+import driveClient from "utils/driveClient";
 import { promisify } from "util";
 import { pipeline } from "stream";
 

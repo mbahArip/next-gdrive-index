@@ -1,7 +1,7 @@
-import { FilesResponse } from "@/types/googleapis";
-import GridFile from "@components/File/Grid";
+import { FilesResponse } from "types/googleapis";
+import GridFile from "components/File/Grid";
 import { drive_v3 } from "googleapis";
-import EmptyFeedback from "@components/APIFeedback/Empty";
+import EmptyFeedback from "components/APIFeedback/Empty";
 
 type Props = {
   data: FilesResponse | undefined;

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import MarkdownRender from "@components/utility/MarkdownRender";
-import useLocalStorage from "@hooks/useLocalStorage";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import MarkdownRender from "components/utility/MarkdownRender";
+import useLocalStorage from "hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 
 type ConfigProps = {

@@ -1,15 +1,15 @@
 import useSWR from "swr";
-import { ErrorResponse, FileResponse, TFileParent } from "@/types/googleapis";
-import Breadcrumb from "@/components/Breadcrumb";
+import { ErrorResponse, FileResponse, TFileParent } from "types/googleapis";
+import Breadcrumb from "components/Breadcrumb";
 import { useCallback, useEffect, useState } from "react";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import ErrorFeedback from "@components/APIFeedback/Error";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import ErrorFeedback from "components/APIFeedback/Error";
 import { useRouter } from "next/router";
-import FileDetails from "@components/layout/FileDetails";
-import useLocalStorage from "@hooks/useLocalStorage";
+import FileDetails from "components/layout/FileDetails";
+import useLocalStorage from "hooks/useLocalStorage";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
-import Password from "@components/layout/Password";
+import Password from "components/layout/Password";
 import { NextSeo } from "next-seo";
 
 type Props = {

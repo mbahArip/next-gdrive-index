@@ -79,7 +79,7 @@ export interface FilesResponse extends APIResponse {
   parents?: TFileParent[];
   folders: drive_v3.Schema$File[];
   files: drive_v3.Schema$File[];
-  readmeContents?: string;
+  isReadmeExists?: boolean;
   nextPageToken?: string;
 }
 

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { encrypt } from "@utils/encryptionHelper";
+import { encrypt } from "utils/encryptionHelper";
 import Link from "next/link";
-import useLocalStorage from "@hooks/useLocalStorage";
-import MarkdownRender from "@components/utility/MarkdownRender";
+import useLocalStorage from "hooks/useLocalStorage";
+import MarkdownRender from "components/utility/MarkdownRender";
 import useSWR from "swr";
-import fetcher from "@utils/swrFetch";
-import LoadingFeedback from "@components/APIFeedback/Loading";
+import fetcher from "utils/swrFetch";
+import LoadingFeedback from "components/APIFeedback/Loading";
 
 export default function SetupGoogleCloud() {
   const [encryptionKey] = useLocalStorage("tempEncryption", "");

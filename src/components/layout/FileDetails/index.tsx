@@ -1,10 +1,10 @@
-import { TFile } from "@/types/googleapis";
+import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
-import LoadingFeedback from "@components/APIFeedback/Loading";
-import { formatBytes, formatDate, formatDuration } from "@utils/formatHelper";
+import LoadingFeedback from "components/APIFeedback/Loading";
+import { formatBytes, formatDate, formatDuration } from "utils/formatHelper";
 import { useEffect, useState } from "react";
-import DetailsButtons from "@components/layout/FileDetails/DetailsButtons";
-import { getFilePreview } from "@utils/mimeTypesHelper";
+import DetailsButtons from "components/layout/FileDetails/DetailsButtons";
+import { getFilePreview } from "utils/mimeTypesHelper";
 
 type Props = {
   data: TFile | drive_v3.Schema$File;
