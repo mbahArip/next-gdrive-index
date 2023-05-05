@@ -3,13 +3,13 @@ import { BsDiscord, BsGithub, BsPaypal } from "react-icons/bs";
 const config = {
   /* Site MetaData */
   // The name of the site
-  siteName: "My Drive Linker",
+  siteName: "mbahArip Stash",
   // The description of the site
   // Used in meta tags and document head
-  siteDescription: "My Drive Linker",
+  siteDescription: "Personal Stash of mbahArip, a place to store my files.",
   // Fav icon of the site
   // Also used as the logo of the site on the navbar
-  siteIcon: "/favicon.ico",
+  siteIcon: "/favicon.svg",
   // Navbar menu links
   navbarLinks: [
     {
@@ -38,8 +38,8 @@ const config = {
   ],
   // Footer text
   // It will be rendered as
-  // {year} {footerText} - Powered by guDora-index {version} ❤️
-  footerText: "gDrive Linker",
+  // {year} {footerText} - Powered by next-gdrive-index ❤️
+  footerText: "mbahArip Stash",
 
   /* Experimental: Render Banner */
   banner: {

@@ -1,4 +1,4 @@
-// LOGO OR BANNER GOES HERE
+![next-gdrive-index](./public/og.png)
 
 ## Status
 ### Project halted at the moment.
@@ -13,7 +13,7 @@ I'm currently working on a workaround for this, but it's not a priority for me a
 ~~You can check the demo [here](https://drive.mbaharip.com).~~
 
 ## What is this?
-gudora-index is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
+`next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
 It's aim to simplify the process of sharing files using Google Drive, and also implements some features that I think is useful for sharing files.
 
 This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo.
@@ -46,7 +46,7 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 ## TODO
 - [ ] Aim for max 1.5s response time for every API routes
   - Fetch all routes - 600~900ms
-  - Fetch file or folder - 
+  - Fetch file or folder - 700~1400ms
 - [x] Navigate through folders
 - [ ] File preview
   - [x] Audio

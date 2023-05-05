@@ -39,7 +39,10 @@ export default async function handler(
         searchFile.data.files
           ?.filter(
             (item) =>
-              !hiddenFiles.includes(item.name as string) &&
+              // !hiddenFiles.includes(item.name as string),
+              !hiddenFiles.some((hiddenFile) =>
+                item.name?.startsWith(hiddenFile),
+              ) &&
               (!item.mimeType?.startsWith("application/vnd.google-apps") ||
                 item.mimeType === "application/vnd.google-apps.folder"),
           )

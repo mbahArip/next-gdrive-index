@@ -51,9 +51,10 @@ export default function App({ Component, pageProps }: AppProps) {
       type: "website",
       title: config.siteName,
       description: config.siteDescription,
+      url: process.env.NEXT_PUBLIC_DOMAIN,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_DOMAIN}/og-image.png`,
+          url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/og`,
           width: 1200,
           height: 630,
           alt: config.siteName,

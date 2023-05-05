@@ -47,7 +47,10 @@ export default initMiddleware(async function handler(
         ?.filter(
           (item) =>
             !item.mimeType?.startsWith("application/vnd.google-apps") &&
-            !hiddenFiles.includes(item.name as string),
+            // !hiddenFiles.includes(item.name as string),
+            !hiddenFiles.some((hiddenFile) =>
+              item.name?.startsWith(hiddenFile),
+            ),
         )
         .map((item) => ({
           ...item,

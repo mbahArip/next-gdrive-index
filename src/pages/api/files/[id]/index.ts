@@ -16,7 +16,7 @@ export default initMiddleware(async function handler(
   const _start = Date.now();
 
   try {
-    const { id, pageToken, download } = request.query;
+    const { id, pageToken, download, thumbnail, banner } = request.query;
 
     const [name, partialId] = (id as string).split(":");
 
@@ -49,6 +49,9 @@ export default initMiddleware(async function handler(
     response.setHeader("Cache-Control", apiConfig.cache);
 
     if (file.mimeType !== "application/vnd.google-apps.folder") {
+      if (thumbnail === "1") {
+        return response.status(301).redirect(file.thumbnailLink as string);
+      }
       if (download === "1") {
         // Check size
         if (Number(file.size as string) > apiConfig.maxResponseSize) {
@@ -109,6 +112,38 @@ export default initMiddleware(async function handler(
     const isReadmeExists = !!fetchFolderContents.data.files?.find(
       (file) => file.name === ".readme.md",
     );
+    const isBannerExists = !!fetchFolderContents.data.files?.find((file) =>
+      file.name?.startsWith(".banner"),
+    );
+
+    if (banner === "1") {
+      if (!isBannerExists) {
+        throw new ExtendedError("Banner not found.", 404, "notFound");
+      }
+      const bannerFile = fetchFolderContents.data.files?.find((file) =>
+        file.name?.startsWith(".banner"),
+      );
+      const bannerFileStream = await driveClient.files.get(
+        {
+          fileId: bannerFile?.id as string,
+          alt: "media",
+        },
+        { responseType: "stream" },
+      );
+      response.setHeader(
+        "Content-Type",
+        bannerFile?.mimeType || "application/octet-stream",
+      );
+      response.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${encodeURIComponent(
+          bannerFile?.name as string,
+        )}`,
+      );
+      response.setHeader("Content-Length", bannerFile?.size as string);
+      return response.status(200).send(bannerFileStream.data);
+    }
+
     // Get only folder, since we order the folder to be first, we can just get all the folder first
     const folderList =
       fetchFolderContents.data.files
@@ -126,7 +161,10 @@ export default initMiddleware(async function handler(
         ?.filter(
           (item) =>
             !item.mimeType?.startsWith("application/vnd.google-apps") &&
-            !hiddenFiles.includes(item.name as string),
+            // !hiddenFiles.includes(item.name as string),
+            !hiddenFiles.some((hiddenFile) =>
+              item.name?.startsWith(hiddenFile),
+            ),
         )
         .map((item) => ({
           ...item,

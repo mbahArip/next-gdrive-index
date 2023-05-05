@@ -1,4 +1,4 @@
-export const hiddenFiles = [".password", ".readme.md"];
+export const hiddenFiles = [".password", ".readme.md", ".banner"];
 
 export class ExtendedError extends Error {
   code?: number;
