@@ -36,7 +36,6 @@ type Props = {
 };
 export default function Navbar({ isUnlocked, setIsUnlocked }: Props) {
   const { theme, setTheme } = useContext<TThemeContext>(ThemeContext);
-  const [_, startTransition] = useTransition();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
@@ -348,10 +347,8 @@ export default function Navbar({ isUnlocked, setIsUnlocked }: Props) {
               onClick={() => {
                 if (typeof window !== "undefined") {
                   window.localStorage.removeItem("sitePassword");
-                  startTransition(() => {
-                    setIsLogoutOpen(false);
-                    setIsUnlocked(false);
-                  });
+                  setIsLogoutOpen(false);
+                  setIsUnlocked(false);
                 }
               }}
               className={"primary flex-grow"}
