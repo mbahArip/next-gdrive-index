@@ -1,51 +1,48 @@
-import { ErrorResponse } from "types/googleapis";
-import drive from "utils/driveClient";
+import { BannerResponse, ErrorResponse } from "types/googleapis";
 import { NextApiRequest, NextApiResponse } from "next";
 import initMiddleware from "utils/apiMiddleware";
 import apiConfig from "config/api.config";
-import { ExtendedError } from "utils/driveHelper";
+import driveClient from "utils/driveClient";
+import { urlEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
-  response: NextApiResponse,
+  response: NextApiResponse<BannerResponse | ErrorResponse>,
 ) {
   const _start = Date.now();
 
   try {
     const query: string[] = [
-      "name = '.readme.md'",
+      "name contains '.banner'",
       `parents = '${apiConfig.files.rootFolder}'`,
       "trashed = false",
       "'me' in owners",
     ];
-    const getRootReadme = await drive.files.list({
+    const getRootBanner = await driveClient.files.list({
       q: query.join(" and "),
       fields: "files(id, name, mimeType)",
     });
-    const readme = getRootReadme.data.files?.[0];
-    if (!readme) {
-      throw new ExtendedError("Readme not found.", 404, "notFound");
+
+    const payload: BannerResponse = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      responseTime: Date.now() - _start,
+    };
+
+    const banner = getRootBanner.data.files?.filter((item) =>
+      item.name?.startsWith(".banner"),
+    )[0];
+    if (!banner || !banner.mimeType?.startsWith("image")) {
+      payload.success = false;
+      return response.status(200).json(payload);
     }
 
-    const readmeStream = await drive.files.get(
-      {
-        fileId: readme.id as string,
-        alt: "media",
-      },
-      { responseType: "text" },
-    );
+    payload.banner = {
+      id: urlEncrypt(banner.id as string),
+      name: banner.name as string,
+    };
 
-    response.setHeader(
-      "Content-Type",
-      readme.mimeType || "application/octet-stream",
-    );
-    response.setHeader(
-      "Content-Disposition",
-      `inline; filename="${readme.name}"`,
-    );
-    response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-
-    return response.status(200).send(readmeStream.data);
+    return response.status(200).json(payload);
   } catch (error: any) {
     const payload: ErrorResponse = {
       success: false,

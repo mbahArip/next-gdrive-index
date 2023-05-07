@@ -4,6 +4,7 @@
   .markdown {
     @apply leading-normal text-inherit bg-inherit;
   }
+
   
   .markdown p {
     @apply leading-loose;

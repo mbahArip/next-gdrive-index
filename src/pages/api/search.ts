@@ -27,7 +27,7 @@ export default async function handler(
       q: `name contains '${q}' and 'me' in owners and trashed = false`,
       fields:
         "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size)",
-      pageSize: apiConfig.files.itemsPerPage,
+      pageSize: apiConfig.files.searchResult,
       orderBy: "modifiedTime desc",
     });
 

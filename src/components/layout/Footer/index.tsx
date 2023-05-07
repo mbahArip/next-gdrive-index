@@ -9,11 +9,11 @@ export default function Footer() {
         {currentYear} {siteConfig.footerText} - Powered by{" "}
         <a
           className={"link"}
-          href={"https://www.github.com/mbaharip/gudora-index"}
+          href={"https://www.github.com/mbaharip/next-gdrive-index"}
           target={"blank"}
           rel={"noreferrer noopener"}
         >
-          gudora-index
+          next-gdrive-index
         </a>{" "}
         ❤️
       </span>

@@ -25,7 +25,7 @@
   --syntax-gutter-background-color-selected: hsl(230, 1%, 90%);
   --syntax-cursor-line: hsla(230, 8%, 24%, 0.05);
 }
-html.dark {
+body.dark {
   /**
   * One Dark theme for prism.js
   * Based on Atom's One Dark theme: https://github.com/atom/atom/tree/master/packages/one-dark-syntax

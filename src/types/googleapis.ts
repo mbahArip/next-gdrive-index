@@ -80,6 +80,8 @@ export interface FilesResponse extends APIResponse {
   folders: drive_v3.Schema$File[];
   files: drive_v3.Schema$File[];
   isReadmeExists?: boolean;
+  isBannerExists?: boolean;
+  isPasswordExists?: boolean;
   nextPageToken?: string;
 }
 
@@ -93,6 +95,14 @@ export interface FileResponse extends APIResponse {
 
 export interface SearchResponse extends APIResponse {
   files: drive_v3.Schema$File[];
+}
+export interface BreadCrumbsResponse extends APIResponse {
+  breadcrumbs: TFileParent[];
+  isLimitReached: boolean;
+}
+
+export interface BannerResponse extends APIResponse {
+  banner?: drive_v3.Schema$File;
 }
 
 export interface ErrorResponse extends APIResponse {

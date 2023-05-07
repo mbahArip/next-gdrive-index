@@ -2,25 +2,30 @@ import { MdWarning } from "react-icons/md";
 
 type Props = {
   message?: string;
-  useContainer?: boolean;
 };
 
-export default function ErrorFeedback({ message, useContainer = true }: Props) {
+export default function ErrorFeedback({ message }: Props) {
+  const errorMessage: string = `An error occurred while processing your request.
+Please check the following details and try again:`;
+
   return (
-    <>
-      {useContainer ? (
-        <div className='card w-full'>
-          <div className='fillCard flex w-full items-center justify-center gap-2'>
-            <MdWarning className={"text-red-500 dark:text-red-400"} /> Error -{" "}
-            {message || "Something went wrong"}
-          </div>
-        </div>
-      ) : (
-        <div className='fillCard flex w-full items-center justify-center gap-2'>
-          <MdWarning className={"text-red-500 dark:text-red-400"} /> Error -{" "}
-          {message || "Something went wrong"}
-        </div>
-      )}
-    </>
+    <div className={"flex flex-col"}>
+      <div className={"mx-auto flex items-center justify-center gap-4"}>
+        <MdWarning className={"h-8 w-8 text-red-500 dark:text-red-400"} />
+        <p className={"text-start"}>{errorMessage}</p>
+      </div>
+
+      <div className={"divider-horizontal"} />
+      <div
+        className={
+          "mx-auto flex w-full max-w-[50%] flex-col items-start justify-center"
+        }
+      >
+        <span>Error details:</span>
+        <pre className={"w-full py-2"}>
+          <code>{message || "Internal server error"}</code>
+        </pre>
+      </div>
+    </div>
   );
 }

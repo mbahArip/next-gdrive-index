@@ -2,38 +2,20 @@ import ReactLoading from "react-loading";
 
 type Props = {
   message?: string;
-  useContainer?: boolean;
 };
 
-export default function LoadingFeedback({
-  message,
-  useContainer = true,
-}: Props) {
+export default function LoadingFeedback({ message }: Props) {
   return (
-    <>
-      {useContainer ? (
-        <div className='card w-full'>
-          <div className='fillCard flex w-full items-center justify-center gap-2'>
-            <ReactLoading
-              type='spin'
-              width={20}
-              height={20}
-              className={"loading"}
-            />{" "}
-            {message || "Loading..."}
-          </div>
-        </div>
-      ) : (
-        <div className='fillCard flex w-full items-center justify-center gap-2'>
-          <ReactLoading
-            type='spin'
-            width={20}
-            height={20}
-            className={"loading"}
-          />{" "}
-          {message || "Loading..."}
-        </div>
-      )}
-    </>
+    <div className={"flex flex-col"}>
+      <div className={"mx-auto flex items-center justify-center gap-4"}>
+        <ReactLoading
+          type='spin'
+          width={20}
+          height={20}
+          className={"loading"}
+        />
+        <span>{message || "Loading..."}</span>
+      </div>
+    </div>
   );
 }

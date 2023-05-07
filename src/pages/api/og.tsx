@@ -30,34 +30,30 @@ export default async function handler(request: NextRequest) {
       fileExt || "",
     );
 
-    console.log("Creating og image for", fileName);
-    console.log(fileId, isImage);
-
     let fileImage;
     if (fileId && isImage) {
       fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`;
     } else if (fileId && !isImage) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`,
-      )
-        .then((res) => {
-          if (res.headers.get("content-type")?.startsWith("image")) {
-            return { success: true };
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (!data.success) {
-            throw new Error("File not found");
-          }
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
       fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`;
     } else {
       throw new Error("Default image");
     }
+
+    await fetch(fileImage)
+      .then((res) => {
+        if (res.headers.get("content-type")?.startsWith("image")) {
+          return { success: true };
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.success) {
+          throw new Error("File not found");
+        }
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
 
     return new ImageResponse(
       (
@@ -102,7 +98,7 @@ export default async function handler(request: NextRequest) {
               {siteName}
             </div>
             <div
-              tw='text-xl py-8'
+              tw='text-3xl py-8'
               style={{
                 letterSpacing: "0",
                 display: "flex",

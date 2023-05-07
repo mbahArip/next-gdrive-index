@@ -1,218 +1,184 @@
-import useSWR from "swr";
+import { useContext, useEffect, useState } from "react";
+import DefaultLayout from "components/layout/DefaultLayout";
+import { LayoutContext, TLayoutContext } from "context/layoutContext";
 import useSWRInfinite from "swr/infinite";
-import fetcher, { buildNextKey } from "utils/swrFetch";
-import { ErrorResponse, FilesResponse, TFile } from "types/googleapis";
-import Breadcrumb from "components/Breadcrumb";
+import { buildNextKey } from "utils/swrFetch";
+import axios, { AxiosHeaders } from "axios";
+import { BannerResponse, ErrorResponse, FilesResponse } from "types/googleapis";
+import SWRLayout from "components/layout/SWRLayout";
 import { drive_v3 } from "googleapis";
-import { useCallback, useEffect, useState } from "react";
-import MarkdownRender from "components/utility/MarkdownRender";
-import config from "config/site.config";
+import siteConfig from "config/site.config";
+import Readme from "components/layout/Readme";
 import GridLayout from "components/layout/Files/GridLayout";
-import useLocalStorage from "hooks/useLocalStorage";
-import SwitchLayout from "components/utility/SwitchLayout";
 import ListLayout from "components/layout/Files/ListLayout";
-import LoadingFeedback from "components/APIFeedback/Loading";
-import ErrorFeedback from "components/APIFeedback/Error";
-import axios from "axios";
-import Password from "components/layout/Password";
+import { createFileId } from "utils/driveHelper";
+import { NextSeo } from "next-seo";
+import { GetStaticProps } from "next";
 
-export default function Home() {
+type Props = {
+  bannerFileId?: string;
+};
+export default function Home({ bannerFileId }: Props) {
+  const { layout } = useContext<TLayoutContext>(LayoutContext);
   const [data, setData] = useState<FilesResponse>();
+
   const [isReadmeExists, setIsReadmeExists] = useState<boolean>(false);
-  const [renderStyle] = useLocalStorage<"grid" | "list">("renderStyle", "grid");
-  const [layoutStyle, setLayoutStyle] = useState<"grid" | "list">(renderStyle);
-  const [globalLoading, setGlobalLoading] = useState<boolean>(true);
+  const [isReadmeLoading, setIsReadmeLoading] = useState<boolean>(false);
+  const [readmeData, setReadmeData] = useState<string>();
 
-  const [passwordStorage, setPasswordStorage] = useLocalStorage<{
-    [key: string]: string;
-  }>("passwordStorage", {});
-  const [password, setPassword] = useState<{ [p: string]: string }>(
-    passwordStorage,
-  );
-
-  const getNextKey = buildNextKey("/api/files/");
+  /**
+   * ===========================
+   * START - fetch file data
+   * ===========================
+   * **/
+  const getNextKey = buildNextKey("/api/files");
   const {
     data: swrData,
     error,
     isLoading,
     size,
     setSize,
-    isValidating,
-    mutate,
   } = useSWRInfinite<FilesResponse, ErrorResponse>(
     getNextKey,
-    (url, headers) =>
+    (url: string, headers: AxiosHeaders) =>
       axios
         .get<FilesResponse>(url, {
           headers: {
-            Authorization: `Bearer ${
-              passwordStorage?.[config.files.rootFolder] || ""
-            }`,
+            Authorization: `Bearer TODO:ADD`,
             ...headers,
           },
         })
         .then((res) => res.data),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-      shouldRetryOnError: false,
-      revalidateIfStale: true,
-    },
   );
-  const {
-    data: readmeData,
-    error: readmeError,
-    isLoading: readmeLoading,
-  } = useSWR("/api/readme/", fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    refreshWhenOffline: false,
-    refreshWhenHidden: false,
-    refreshInterval: 0,
-    shouldRetryOnError: false,
-  });
 
-  const isLoadingInitialData = !swrData && !error;
-  const isLoadingMore =
-    isLoadingInitialData ||
-    (size > 0 && swrData && typeof swrData[size - 1] === "undefined");
-  const isEmpty =
-    swrData?.[0]?.files?.length === 0 && swrData?.[0]?.folders?.length === 0;
-  const isReachingEnd =
-    isEmpty ||
-    (swrData &&
-      typeof swrData[swrData.length - 1]?.nextPageToken === "undefined");
+  const filePagination = {
+    isLoadingInitialData: !swrData && !error,
+    isLoadingMore:
+      (!swrData && !error) ||
+      (size > 0 && swrData && typeof swrData[size - 1] === "undefined"),
+    isEmpty: swrData?.[0]?.files?.length === 0,
+    isReachingEnd:
+      swrData && swrData[swrData.length - 1]?.nextPageToken === undefined,
+  };
 
+  // Since SWRInfinite returning array of response, we need to flatten it.
   useEffect(() => {
-    setGlobalLoading(true);
-    const files: (TFile | drive_v3.Schema$File)[] | undefined =
-      swrData?.flatMap((item: FilesResponse) => item.files);
-    const folders: (TFile | drive_v3.Schema$File)[] | undefined =
-      swrData?.flatMap((item: FilesResponse) => item.folders);
-    const newData: FilesResponse = {
-      ...(swrData?.[size - 1] as FilesResponse),
-      files: (files as drive_v3.Schema$File[]) || [],
-      folders: (folders as drive_v3.Schema$File[]) || [],
-    };
-    setData(newData);
-    if (newData.isReadmeExists) setIsReadmeExists(true);
-    setGlobalLoading(false);
+    if (swrData) {
+      // Flatten files and folders, in case someone have more folders too.
+      const files: drive_v3.Schema$File[] = swrData.flatMap(
+        (item) => item.files,
+      );
+      const folders: drive_v3.Schema$File[] = swrData.flatMap(
+        (item) => item.folders,
+      );
+      const flattenData: FilesResponse = {
+        ...swrData[size - 1],
+        files,
+        folders,
+      };
+      setData(flattenData);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [swrData, error, isLoading, size, isValidating, password]);
-
-  useEffect(() => {
-    if (!isLoading && !isValidating) {
-      setGlobalLoading(false);
-    } else {
-      setGlobalLoading(true);
+      if (flattenData.isReadmeExists) {
+        setIsReadmeExists(true);
+        setIsReadmeLoading(true);
+        // Since it's on root folder, we can fetch from readme api without id.
+        axios
+          .get<string>(`/api/readme`)
+          .then((res) => {
+            setReadmeData(res.data);
+          })
+          .finally(() => {
+            setIsReadmeLoading(false);
+          });
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isValidating]);
-
-  useEffect(() => {
-    mutate(swrData, {
-      revalidate: true,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [password]);
-
-  const inputPassCallback = useCallback(
-    (data: { [p: string]: string }) => {
-      setGlobalLoading(true);
-      setPasswordStorage(data);
-      setPassword(data);
-    },
-    [setPasswordStorage],
-  );
+  }, [swrData, size]);
+  /**
+   * ===========================
+   * END - fetch file data
+   * ===========================
+   * **/
 
   return (
-    <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
-      <div className='flex items-center justify-between'>
-        <Breadcrumb
-          data={data?.parents || []}
-          isLoading={globalLoading}
-        />
-        <SwitchLayout setLayoutStyle={setLayoutStyle} />
-      </div>
-
-      {globalLoading && <LoadingFeedback message={"Loading file..."} />}
-      {!globalLoading && error && (
-        <ErrorFeedback message={error.errors?.message || "Unknown error"} />
-      )}
-      {!globalLoading && !error && data && (
-        <>
-          {/* If the root folder have password and the password isn't validated, show password input */}
-          {data.passwordRequired && !data.passwordValidated && (
-            <Password
-              folderId={config.files.rootFolder}
-              inputCallback={inputPassCallback}
+    <DefaultLayout fileId={"root"}>
+      <NextSeo
+        openGraph={{
+          images: [
+            {
+              url: `${
+                process.env.NEXT_PUBLIC_DOMAIN
+              }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`,
+              alt: siteConfig.siteName,
+              width: 1200,
+              height: 630,
+            },
+          ],
+        }}
+      />
+      <SWRLayout
+        data={data}
+        error={error}
+        isLoading={isLoading}
+      >
+        {siteConfig.readme.position === "start" && (
+          <Readme
+            isReadmeExist={isReadmeExists}
+            isReadmeLoading={isReadmeLoading}
+            readmeData={readmeData}
+          />
+        )}
+        <div className={"card"}>
+          {layout === "grid" && (
+            <GridLayout
+              data={data}
+              pagination={{
+                swrData,
+                size,
+                setSize,
+                isLoadingMore: filePagination.isLoadingMore,
+                isReachingEnd: filePagination.isReachingEnd,
+              }}
             />
           )}
-          {/* If password is validated or the root folder doesn't require password, show the files */}
-          {(data.passwordValidated || !data.passwordRequired) && (
-            <>
-              {isReadmeExists && config.readme.position === "start" && (
-                <div className='card w-full'>
-                  {readmeLoading && (
-                    <LoadingFeedback message={"Loading readme..."} />
-                  )}
-                  {readmeError && !readmeLoading && (
-                    <ErrorFeedback message={readmeError.errors?.message} />
-                  )}
-                  {readmeData && !readmeLoading && (
-                    <MarkdownRender content={readmeData as string} />
-                  )}
-                </div>
-              )}
-
-              <div className={"card"}>
-                {layoutStyle === "list" && (
-                  <ListLayout
-                    data={data}
-                    pagination={{
-                      swrData,
-                      isLoadingMore,
-                      isReachingEnd,
-                      size,
-                      setSize,
-                    }}
-                  />
-                )}
-                {layoutStyle === "grid" && (
-                  <GridLayout
-                    data={data}
-                    pagination={{
-                      swrData,
-                      isLoadingMore,
-                      isReachingEnd,
-                      size,
-                      setSize,
-                    }}
-                  />
-                )}
-              </div>
-
-              {isReadmeExists && config.readme.position === "end" && (
-                <div className='card w-full'>
-                  {readmeLoading && (
-                    <LoadingFeedback message={"Loading readme..."} />
-                  )}
-                  {readmeError && !readmeLoading && (
-                    <ErrorFeedback message={readmeError.errors?.message} />
-                  )}
-                  {readmeData && !readmeLoading && (
-                    <MarkdownRender content={readmeData as string} />
-                  )}
-                </div>
-              )}
-            </>
+          {layout === "list" && (
+            <ListLayout
+              data={data}
+              pagination={{
+                swrData,
+                size,
+                setSize,
+                isLoadingMore: filePagination.isLoadingMore,
+                isReachingEnd: filePagination.isReachingEnd,
+              }}
+            />
           )}
-        </>
-      )}
-    </div>
+        </div>
+        {siteConfig.readme.position === "end" && (
+          <Readme
+            isReadmeExist={isReadmeExists}
+            isReadmeLoading={isReadmeLoading}
+            readmeData={readmeData}
+          />
+        )}
+      </SWRLayout>
+    </DefaultLayout>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const fetchBanner = await axios.get<BannerResponse>(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner`,
+  );
+  if (!fetchBanner.data.banner) {
+    return {
+      props: {},
+    };
+  }
+
+  const bannerFileId = createFileId(fetchBanner.data.banner, true);
+  return {
+    props: {
+      bannerFileId,
+    },
+  };
+};

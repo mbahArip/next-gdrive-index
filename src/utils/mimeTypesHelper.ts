@@ -202,7 +202,8 @@ export function getFilePreview(extension: string, mimeType?: string) {
       return VideoPreview;
     }
   }
-  const category = extToTypeMap[extension] || type.default;
+  let category = extToTypeMap[extension] || type.default;
+
   switch (category) {
     // case type["3d"]:
     //   return ModelPreview;
@@ -236,8 +237,27 @@ export function getFileIcon(extension: string, mimeType?: string): IconType {
       return iconsForType["video"];
     }
   }
+
   const category = extToTypeMap[extension] || type.default;
   return iconsForType[category];
+}
+
+export function getFileType(extension: string, mimeType?: string): string {
+  if (overlapVideo.includes(extension)) {
+    const isVideo = !!mimeType?.startsWith("video");
+    if (isVideo) {
+      return "video";
+    }
+  }
+
+  if (mimeType) {
+    const type = mimeType.split("/")[0];
+    if (type === "video") {
+      return "video";
+    }
+  }
+
+  return extToTypeMap[extension] || type.default;
 }
 
 // Not all extensions are included here

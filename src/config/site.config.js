@@ -10,6 +10,10 @@ const config = {
   // Fav icon of the site
   // Also used as the logo of the site on the navbar
   siteIcon: "/favicon.svg",
+  //
+  privateIndex: false,
+  indexPassword:
+    "ac0f794f72d4366a57a2a4122ce04321:8b2f087de80d0d7faa89b5372df51268",
   // Navbar menu links
   navbarLinks: [
     {
@@ -41,9 +45,23 @@ const config = {
   // {year} {footerText} - Powered by next-gdrive-index ❤️
   footerText: "mbahArip Stash",
 
+  files: {
+    // Show file icon from Google Drive before the file name
+    showFileNameIcon: true,
+    // Use Google Drive file icon instead of our file icon on list view
+    listUseFileIcon: true,
+    // Show file size on mobile list view
+    listMobileShowFileSize: false,
+    // Refer type to this file:
+    // /src/utils/mimeTypesHelper.ts:40
+    allowThumbnailFileType: ["image", "video", "pdf"],
+  },
   /* Experimental: Render Banner */
   banner: {
     render: true,
+  },
+  breadcrumb: {
+    limiter: "/",
   },
   /* Config for readme file render */
   readme: {

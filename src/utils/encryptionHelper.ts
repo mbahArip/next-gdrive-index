@@ -34,7 +34,7 @@ export function createEncryptionKey(passphrase: string): Promise<string> {
 
 export function encrypt(
   data: string,
-  encryptionKey: string = process.env.ENCRYPTION_KEY as string,
+  encryptionKey: string = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string,
 ) {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
@@ -49,7 +49,7 @@ export function encrypt(
 
 export function decrypt(
   encryptedData: string,
-  encryptionKey: string = process.env.ENCRYPTION_KEY as string,
+  encryptionKey: string = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string,
 ) {
   const [ivString, encryptedString] = encryptedData.split(":");
   const iv = Buffer.from(ivString, "hex");
@@ -64,7 +64,8 @@ export function decrypt(
   return decrypted.toString();
 }
 
-const urlKey = (process.env.ENCRYPTION_KEY as string).slice(0, 16);
+const urlKey =
+  (process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string).slice(0, 16) || "";
 const urlIV = Buffer.from(urlKey);
 
 export function urlEncrypt(fileId: string): string {

@@ -1,24 +1,17 @@
-import useLocalStorage from "hooks/useLocalStorage";
 import { MdArrowDropDown, MdGridView, MdList } from "react-icons/md";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { LayoutContext, TLayoutContext } from "context/layoutContext";
 
-type Props = {
-  setLayoutStyle: (layoutStyle: "grid" | "list") => void;
-};
-export default function SwitchLayout({ setLayoutStyle }: Props) {
-  const [renderStyle, setRenderStyle] = useLocalStorage<"grid" | "list">(
-    "renderStyle",
-    "grid",
-  );
+export default function SwitchLayout() {
+  const { layout, setLayout } = useContext<TLayoutContext>(LayoutContext);
   const [isRenderGrid, setIsRenderGrid] = useState<boolean>();
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setIsRenderGrid(renderStyle === "grid");
-  }, [renderStyle]);
+    setIsRenderGrid(layout === "grid");
+  }, [layout]);
 
-  // Check if click outside dropdownRef
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -43,7 +36,7 @@ export default function SwitchLayout({ setLayoutStyle }: Props) {
         className={"layoutDropdown capitalize"}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        <div className={"flex items-center gap-2"}>
+        <div className={"flex w-16 items-center gap-2"}>
           {isRenderGrid && <MdGridView className={"h-4 w-4"} />}
           {!isRenderGrid && <MdList className={"h-4 w-4"} />}
           <span>{isRenderGrid ? "Grid" : "List"}</span>
@@ -51,18 +44,17 @@ export default function SwitchLayout({ setLayoutStyle }: Props) {
         <MdArrowDropDown />
       </div>
       <div
-        className={`layoutOption absolute left-0 right-0 top-0 z-10 flex flex-col ${
+        className={`layoutOption absolute left-0 right-0 top-0 z-10 flex ${
           isDropdownOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
-        }`}
+        } ${isRenderGrid ? "flex-col" : "flex-col-reverse"}`}
       >
         <div
           data-active={isRenderGrid}
           className={"layoutItem"}
           onClick={() => {
-            setLayoutStyle("grid");
-            setRenderStyle("grid");
+            setLayout("grid");
             setIsRenderGrid(true);
             setIsDropdownOpen(false);
           }}
@@ -74,8 +66,7 @@ export default function SwitchLayout({ setLayoutStyle }: Props) {
           data-active={!isRenderGrid}
           className={"layoutItem"}
           onClick={() => {
-            setLayoutStyle("list");
-            setRenderStyle("list");
+            setLayout("list");
             setIsRenderGrid(false);
             setIsDropdownOpen(false);
           }}

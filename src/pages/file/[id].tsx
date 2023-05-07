@@ -11,6 +11,7 @@ import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Password from "components/layout/Password";
 import { NextSeo } from "next-seo";
+import config from "config/site.config";
 
 type Props = {
   passwordParent?: string;
@@ -112,7 +113,24 @@ export default function File({ passwordParent, fileName }: Props) {
 
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
-      <NextSeo title={fileName || "File preview"} />
+      <NextSeo
+        title={fileName || "File preview"}
+        openGraph={{
+          type: "website",
+          title: `${(id as string).split(":")[0]} @${config.siteName}`,
+          description: config.siteDescription,
+          url: `${process.env.NEXT_PUBLIC_DOMAIN}/file/${id}`,
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/og?fileId=${id}`,
+              width: 1200,
+              height: 630,
+              alt: config.siteName,
+            },
+          ],
+          siteName: config.siteName,
+        }}
+      />
 
       <div className='flex items-center justify-between'>
         <Breadcrumb

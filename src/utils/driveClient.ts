@@ -4,11 +4,11 @@ import { decrypt } from "utils/encryptionHelper";
 
 const decryptedSecret: string = decrypt(
   apiConfig.client_secret,
-  process.env.ENCRYPTION_KEY as string,
+  process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string,
 );
 const decryptedRefreshToken: string = decrypt(
   apiConfig.refresh_token,
-  process.env.ENCRYPTION_KEY as string,
+  process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string,
 );
 
 const oauth2Client = new google.auth.OAuth2(

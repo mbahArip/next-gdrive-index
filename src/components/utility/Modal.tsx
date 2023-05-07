@@ -18,7 +18,7 @@ export default function Modal({
 }: Props) {
   return (
     <div
-      className={`fixed left-0 top-0 z-[1001] flex h-full w-full justify-center bg-zinc-200/75 text-inherit transition-all duration-300 dark:bg-zinc-900/75 ${
+      className={`fixed left-0 top-0 z-[1001] flex h-full w-full justify-center bg-zinc-500/75 text-inherit transition-all duration-300 dark:bg-zinc-900/75 ${
         isOpen
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
@@ -28,7 +28,7 @@ export default function Modal({
       }}
     >
       <div
-        className={`relative flex w-full min-w-[320px] max-w-sm flex-col gap-4 rounded-lg bg-zinc-200 p-4 drop-shadow-lg dark:bg-zinc-700 tablet:max-w-screen-tablet ${
+        className={`relative flex w-full min-w-[320px] max-w-sm flex-col gap-4 rounded-lg bg-zinc-100 p-4 drop-shadow-lg dark:bg-zinc-700 tablet:max-w-screen-tablet ${
           isOpen ? "top-0" : "-top-12"
         } transition-all duration-300`}
         onClick={(e) => {

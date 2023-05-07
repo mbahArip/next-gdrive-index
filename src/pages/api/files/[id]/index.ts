@@ -31,7 +31,7 @@ export default initMiddleware(async function handler(
     const searchForFile = await driveClient.files.list({
       q: `name contains '${name}' and trashed = false and 'me' in owners`,
       fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink)",
+        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, iconLink)",
     });
 
     const file = searchForFile.data.files?.find(
@@ -65,6 +65,8 @@ export default initMiddleware(async function handler(
           },
           { responseType: "stream" },
         );
+
+        console.log(file);
 
         response.setHeader(
           "Content-Type",
@@ -103,7 +105,7 @@ export default initMiddleware(async function handler(
     const fetchFolderContents = await driveClient.files.list({
       q: `${query.join(" and ")}`,
       fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink), nextPageToken",
+        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, iconLink), nextPageToken",
       orderBy: "folder, name asc, createdTime",
       pageSize: apiConfig.files.itemsPerPage,
       pageToken: (pageToken as string) || undefined,

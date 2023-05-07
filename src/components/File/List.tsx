@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import { MdContentCopy, MdDownload } from "react-icons/md";
 import { getFileIcon } from "utils/mimeTypesHelper";
 import { BsFolderFill } from "react-icons/bs";
+import siteConfig from "config/site.config";
+import { createFileId } from "utils/driveHelper";
 
 type Props = {
   data: drive_v3.Schema$File;
@@ -73,17 +75,45 @@ export default function ListFile({ data }: Props) {
 
   return (
     <Link
-      href={isFolder ? `/folder/${data.id}` : `/file/${data.id}`}
+      href={
+        isFolder
+          ? `/folder/${createFileId(data, true)}`
+          : `/file/${createFileId(data, true)}`
+      }
       key={data.id}
       className={
         "col-span-full grid grid-cols-1 gap-2 rounded-lg px-4 py-2 hover:bg-zinc-300 dark:hover:bg-zinc-700 tablet:grid-cols-8"
       }
     >
       <div className={"flex w-full items-center gap-4 tablet:col-span-4"}>
-        <Icon className={"h-4 w-4 flex-shrink-0"} />
-        <span className={"line-clamp-1 block w-auto flex-grow-0"}>
-          {data.name}
-        </span>
+        {siteConfig.files.listUseFileIcon ? (
+          <img
+            src={data.iconLink as string}
+            alt={"icon"}
+            className={"h-4 w-4 flex-shrink-0 flex-grow-0"}
+          />
+        ) : (
+          <Icon className={"h-4 w-4 flex-shrink-0 flex-grow-0"} />
+        )}
+        <div className={"line-clamp-1 flex w-full flex-col"}>
+          <span
+            className={
+              "line-clamp-1 w-auto flex-grow-0 overflow-hidden break-words"
+            }
+          >
+            {data.name}
+          </span>
+          <div className={"flex tablet:hidden"}>
+            <span className={"text-xs"}>
+              {formatDate(new Date(data.modifiedTime as string))}
+            </span>
+            {siteConfig.files.listMobileShowFileSize && (
+              <span className={"text-xs"}>
+                {isFolder ? "" : ` ・ ${formatBytes(data.size as string)}`}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
       <div className={"hidden tablet:col-span-2 tablet:block"}>
         {formatDate(new Date(data.modifiedTime as string))}
@@ -93,7 +123,11 @@ export default function ListFile({ data }: Props) {
       </div>
       <div className={"hidden gap-2 tablet:flex"}>
         <CopyButton
-          url={isFolder ? `/folder/${data.id}` : `/file/${data.id}`}
+          url={
+            isFolder
+              ? `/folder/${createFileId(data, true)}`
+              : `/file/${createFileId(data, true)}`
+          }
           isFolder={isFolder}
         />
         {isFolder ? null : (

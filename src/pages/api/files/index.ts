@@ -1,38 +1,72 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import driveClient from "utils/driveClient";
 import apiConfig from "config/api.config";
-import { hiddenFiles } from "utils/driveHelper";
+import { ExtendedError, hiddenFiles } from "utils/driveHelper";
 import initMiddleware from "utils/apiMiddleware";
 import { ErrorResponse, FilesResponse } from "types/googleapis";
 import { urlEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<FilesResponse | ErrorResponse>,
+  response: NextApiResponse,
 ) {
   const _start = Date.now();
 
   try {
-    const { pageToken } = request.query;
+    const { pageToken, banner } = request.query;
 
-    const query = ["trashed = false", "'me' in owners"];
-    if (apiConfig.files.rootFolder === "root") {
-      query.push("parents = 'root'");
-    } else {
-      query.push(`parents = '${apiConfig.files.rootFolder}'`);
-    }
+    const query = [
+      "trashed = false",
+      "'me' in owners",
+      `parents = '${apiConfig.files.rootFolder}'`,
+    ];
     const fetchFolderContents = await driveClient.files.list({
       q: `${query.join(" and ")}`,
       fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink), nextPageToken",
+        "files(id, name, mimeType, thumbnailLink, fileExtension, fullFileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, iconLink), nextPageToken",
       orderBy: "folder, name asc, createdTime",
       pageSize: apiConfig.files.itemsPerPage,
       pageToken: (pageToken as string) || undefined,
     });
 
-    const isReadmeExists = !!fetchFolderContents.data.files?.find(
+    const isReadmeExists = fetchFolderContents.data.files?.find(
       (file) => file.name === ".readme.md",
     );
+    const isBannerExists = fetchFolderContents.data.files?.find((file) =>
+      file.name?.startsWith(".banner"),
+    );
+    const isPasswordExists = fetchFolderContents.data.files?.find((file) =>
+      file.name?.startsWith(".password"),
+    );
+
+    if (banner === "1") {
+      if (!isBannerExists) {
+        throw new ExtendedError("Banner not found.", 404, "notFound");
+      }
+      const bannerFile = fetchFolderContents.data.files?.find((file) =>
+        file.name?.startsWith(".banner"),
+      );
+      const bannerFileStream = await driveClient.files.get(
+        {
+          fileId: bannerFile?.id as string,
+          alt: "media",
+        },
+        { responseType: "stream" },
+      );
+      response.setHeader(
+        "Content-Type",
+        bannerFile?.mimeType || "application/octet-stream",
+      );
+      response.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${encodeURIComponent(
+          bannerFile?.name as string,
+        )}`,
+      );
+      response.setHeader("Content-Length", bannerFile?.size as string);
+      return response.status(200).send(bannerFileStream.data);
+    }
+
     const folderList =
       fetchFolderContents.data.files
         ?.filter(
@@ -66,7 +100,9 @@ export default initMiddleware(async function handler(
       responseTime: Date.now() - _start,
       folders: folderList,
       files: fileList,
-      isReadmeExists: isReadmeExists,
+      isReadmeExists: !!isReadmeExists,
+      isBannerExists: !!isBannerExists,
+      isPasswordExists: !!isPasswordExists,
       nextPageToken: fetchFolderContents.data.nextPageToken || undefined,
     };
 

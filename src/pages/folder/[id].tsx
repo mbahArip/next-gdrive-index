@@ -146,7 +146,24 @@ export default function Folder({ passwordParent, folderName }: Props) {
 
   return (
     <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
-      <NextSeo title={folderName || "Folder"} />
+      <NextSeo
+        title={folderName || "Folder"}
+        openGraph={{
+          type: "website",
+          title: `${(id as string).split(":")[0]} @${config.siteName}`,
+          description: config.siteDescription,
+          url: `${process.env.NEXT_PUBLIC_DOMAIN}/folder/${id}`,
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/og-folder?fileId=${id}`,
+              width: 1200,
+              height: 630,
+              alt: config.siteName,
+            },
+          ],
+          siteName: config.siteName,
+        }}
+      />
 
       <div className='flex items-center justify-between'>
         <Breadcrumb

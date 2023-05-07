@@ -16,6 +16,7 @@ type Props = {
 
 export default function GridLayout({ data, pagination }: Props) {
   const { swrData, isLoadingMore, isReachingEnd, size, setSize } = pagination;
+
   return (
     <>
       {data?.folders.length === 0 && data?.files.length === 0 && (

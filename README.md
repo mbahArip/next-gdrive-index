@@ -45,9 +45,13 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 
 ## TODO
 - [ ] Aim for max 1.5s response time for every API routes
-  - Fetch all routes - 600~900ms
-  - Fetch file or folder - 700~1400ms
+  - Fetch all routes - 600~900ms (OK)
+  - Fetch file or folder - 700~1400ms (OK)
+  - Breadcrumb - 900~1400ms (OK)
+  - Readme - 1100~1200ms (OK)
+  - Banner - 500~800ms (OK)
 - [x] Navigate through folders
+- [ ] Use banner for OG image
 - [ ] File preview
   - [x] Audio
   - [x] Code
@@ -63,7 +67,7 @@ I know there are a lot of people selling cheap edu account for Google Drive and 
 - [x] Direct view the files
 - [x] Download files
 - [x] Render Readme file
-- [x] Password protection
-  - [x] Create token hash for sharing protected ~~files that valid for x hours~~ 
+- [ ] Password protection
+  - [ ] Create token hash for sharing protected ~~files that valid for x hours~~ 
   - [ ] Implement time limit for token
 - [x] ~~Pretty path URL~~ ~~(Not possible, since Google Drive allowing multiple files with same name)~~ (Kinda pretty now, it consist of the file name, then 8 character of file id for security) 

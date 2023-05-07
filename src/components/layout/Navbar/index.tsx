@@ -1,47 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import siteConfig from "config/site.config";
-import useLocalStorage from "hooks/useLocalStorage";
 import Link from "next/link";
 import Image from "next/image";
 import {
   MdClose,
   MdDarkMode,
   MdLightMode,
+  MdLogout,
   MdMenu,
   MdSearch,
 } from "react-icons/md";
 import Modal from "components/utility/Modal";
-import { formatBytes } from "utils/formatHelper";
+import { formatBytes, formatDate } from "utils/formatHelper";
 import { ErrorResponse, SearchResponse } from "types/googleapis";
 import useSWR from "swr";
-import fetcher from "utils/swrFetch";
 import { drive_v3 } from "googleapis";
 import LoadingFeedback from "components/APIFeedback/Loading";
 import ErrorFeedback from "components/APIFeedback/Error";
 import EmptyFeedback from "components/APIFeedback/Empty";
 import { BsFolderFill } from "react-icons/bs";
 import { getFileIcon } from "utils/mimeTypesHelper";
+import { ThemeContext, TThemeContext } from "context/themeContext";
+import { createFileId } from "utils/driveHelper";
 
-export default function Navbar() {
-  const [isDarkMode, setIsDarkMode] = useLocalStorage("isDarkMode", "false");
-  const [isDark, setIsDark] = useState<boolean>(false);
+type Props = {
+  isUnlocked: boolean;
+  setIsUnlocked: (isUnlocked: boolean) => void;
+};
+export default function Navbar({ isUnlocked, setIsUnlocked }: Props) {
+  const { theme, setTheme } = useContext<TThemeContext>(ThemeContext);
+  const [_, startTransition] = useTransition();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<drive_v3.Schema$File[]>(); // [
   const [isSearching, setIsSearching] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode === "true") {
-      document.querySelector("html")?.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.querySelector("html")?.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, [isDarkMode]);
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -54,17 +58,7 @@ export default function Navbar() {
   }, [searchQuery]);
 
   const { data, error, isLoading } = useSWR<SearchResponse, ErrorResponse>(
-    `/api/search?query=${debouncedSearchQuery}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-      shouldRetryOnError: false,
-      revalidateIfStale: true,
-    },
+    `/api/search?q=${debouncedSearchQuery}`,
   );
 
   useEffect(() => {
@@ -73,23 +67,20 @@ export default function Navbar() {
     }
   }, [data, isLoading]);
 
-  const handleDarkMode = useCallback(() => {
-    const darkMode = document.querySelector("html")?.classList.contains("dark");
-    if (darkMode) {
-      document.querySelector("html")?.classList.remove("dark");
-      setIsDarkMode("false");
-      setIsDark(false);
-    } else {
-      document.querySelector("html")?.classList.add("dark");
-      setIsDarkMode("true");
-      setIsDark(true);
-    }
-  }, [setIsDarkMode]);
-
   const handleCloseSearch = useCallback(() => {
     setIsSearching(false);
-    setSearchQuery("");
-    setSearchResults([]);
+    const timeout = setTimeout(() => {
+      setSearchQuery("");
+      setSearchResults([]);
+    }, 150);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  const handleCloseLogout = useCallback(() => {
+    setIsLogoutOpen(false);
   }, []);
 
   return (
@@ -117,38 +108,46 @@ export default function Navbar() {
         <div className='flex-grow'></div>
 
         {/* Search */}
-        <div
-          id={"search-modal-toggle"}
-          className='interactive flex items-center gap-2'
-          role={"button"}
-        >
+        {(siteConfig.privateIndex && isUnlocked) || !siteConfig.privateIndex ? (
           <div
-            className='relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
-            onClick={() => {
-              setIsSearching(true);
-              searchInputRef.current?.focus();
-            }}
+            id={"search-modal-toggle"}
+            className='interactive flex items-center gap-2'
+            role={"button"}
+            title={"Search"}
           >
-            <MdSearch className='h-full w-full' />
+            <div
+              className='relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
+              onClick={() => {
+                setIsSearching(true);
+                searchInputRef.current?.focus();
+              }}
+            >
+              <MdSearch className='h-full w-full' />
+            </div>
           </div>
-        </div>
+        ) : (
+          <></>
+        )}
         {/* Dark mode */}
         <div
           id={"btn-theme-toggle"}
           className='interactive relative flex aspect-square h-6 w-6 cursor-pointer items-center justify-center text-inherit'
-          onClick={handleDarkMode}
+          onClick={() => {
+            setTheme(theme === "dark" ? "light" : "dark");
+          }}
           role={"button"}
+          title={"Toggle theme"}
         >
           <MdDarkMode
-            className={`absolute left-0 h-full w-full transition-all duration-150 ${
-              isDark
+            className={`absolute left-0 h-full w-full transition-all duration-75 ${
+              theme === "dark"
                 ? "pointer-events-none rotate-90 opacity-0"
                 : "pointer-events-auto rotate-0 opacity-100"
             }`}
           />
           <MdLightMode
-            className={`absolute left-0 h-full w-full transition-all duration-150 ${
-              isDark
+            className={`absolute left-0 h-full w-full transition-all duration-75 ${
+              theme === "dark"
                 ? "pointer-events-auto rotate-0 opacity-100"
                 : "pointer-events-none rotate-90 opacity-0"
             }`}
@@ -170,6 +169,20 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
+
+        {/* Remove password / logout */}
+        {siteConfig.privateIndex && isUnlocked && (
+          <div
+            id={"btn-logout"}
+            className={"interactive flex items-center gap-2"}
+            role={"button"}
+            title={"Logout"}
+            onClick={() => setIsLogoutOpen(true)}
+          >
+            <MdLogout className={"h-full w-full"} />
+            <span className={"max-tablet:hidden"}>Logout</span>
+          </div>
+        )}
 
         {/* Menu mobile */}
         <div
@@ -216,9 +229,7 @@ export default function Navbar() {
       {/* Search Modal */}
       <Modal
         title={
-          <span className='flex items-center gap-2 text-lg'>
-            <MdSearch /> Search files
-          </span>
+          <span className='flex items-center gap-2 text-lg'>Search files</span>
         }
         isOpen={isSearching}
         isCentered={false}
@@ -239,17 +250,9 @@ export default function Navbar() {
         <div className='divider-horizontal' />
         {/* Result */}
         <div className='flex max-h-96 w-full flex-col overflow-auto'>
-          {isLoading && (
-            <LoadingFeedback
-              message={"Searching..."}
-              useContainer={false}
-            />
-          )}
+          {isLoading && <LoadingFeedback message={"Searching..."} />}
           {!isLoading && error && (
-            <ErrorFeedback
-              message={error?.errors.message}
-              useContainer={false}
-            />
+            <ErrorFeedback message={error?.errors.message} />
           )}
           {!isLoading && searchResults?.length === 0 && (
             <EmptyFeedback
@@ -274,7 +277,11 @@ export default function Navbar() {
 
                 return (
                   <Link
-                    href={isFolder ? `/folder/${item.id}` : `/file/${item.id}`}
+                    href={
+                      isFolder
+                        ? `/folder/${createFileId(item)}`
+                        : `/file/${createFileId(item)}`
+                    }
                     key={item.id}
                     className='rounded-lg py-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 tablet:px-2 tablet:py-2'
                     onClick={handleCloseSearch}
@@ -282,10 +289,13 @@ export default function Navbar() {
                     <div className='flex items-center gap-4'>
                       <div className='flex aspect-square h-10 w-10 flex-shrink-0 flex-grow-0 items-center justify-center overflow-hidden rounded-lg tablet:h-12 tablet:w-12'>
                         {item.thumbnailLink ? (
-                          <img
+                          <Image
+                            priority={true}
                             src={item.thumbnailLink}
                             alt={item.name as string}
                             className='h-full w-full object-cover'
+                            width={64}
+                            height={64}
                           />
                         ) : (
                           <Icon className='h-full w-full' />
@@ -299,7 +309,7 @@ export default function Navbar() {
                           </span>
                         </div>
                         <span className='text-xs text-gray-500'>
-                          {item.mimeType}
+                          {formatDate(new Date(item.modifiedTime as string))}
                           {!isFolder
                             ? ` ・ ${formatBytes(item.size as string)}`
                             : ""}
@@ -311,6 +321,44 @@ export default function Navbar() {
               })}
             </>
           )}
+        </div>
+      </Modal>
+
+      {/* Logout Modal */}
+      <Modal
+        title={<span className={"text-lg"}>Logout</span>}
+        isOpen={isLogoutOpen}
+        isCentered={true}
+        onClose={handleCloseLogout}
+      >
+        <div className={"flex flex-col gap-4"}>
+          <span>Are you sure you want to logout?</span>
+          <span>
+            It will remove all your data from this device and you will need to
+            login again.
+          </span>
+          <div className={"flex gap-4"}>
+            <button
+              onClick={handleCloseLogout}
+              className={"secondary flex-grow"}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.localStorage.removeItem("sitePassword");
+                  startTransition(() => {
+                    setIsLogoutOpen(false);
+                    setIsUnlocked(false);
+                  });
+                }
+              }}
+              className={"primary flex-grow"}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </Modal>
     </>
