@@ -10,10 +10,12 @@ const config = {
   // Fav icon of the site
   // Also used as the logo of the site on the navbar
   siteIcon: "/favicon.svg",
-  //
-  privateIndex: false,
+  // Add site page password protection
+  // If this is set, the site will be protected with the password
+  // NOTE: The files are still accessible via direct link, but the site is not.
+  privateIndex: true,
   indexPassword:
-    "ac0f794f72d4366a57a2a4122ce04321:8b2f087de80d0d7faa89b5372df51268",
+    "640e3e38dd31aec254f214ba38541a82ddb615e73ce9c6129f33ef549b154ab9",
   // Navbar menu links
   navbarLinks: [
     {

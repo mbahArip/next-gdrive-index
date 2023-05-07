@@ -19,7 +19,7 @@ import { LayoutContext } from "context/layoutContext";
 import { ThemeContext } from "context/themeContext";
 import fetcher from "utils/swrFetch";
 import siteConfig from "config/site.config";
-import { decrypt, encrypt } from "utils/encryptionHelper";
+import { hashToken, verifyHash } from "utils/hashHelper";
 
 const exo2 = Exo_2({
   weight: ["300", "400", "600", "700"],
@@ -57,14 +57,8 @@ export default function App({ Component, pageProps }: AppProps) {
       const adminPassword = localStorage.getItem("sitePassword");
 
       if (siteConfig.privateIndex) {
-        const sitePassword = decrypt(siteConfig.indexPassword);
-        if (adminPassword) {
-          const decryptedPassword = decrypt(adminPassword);
-          if (decryptedPassword === sitePassword) {
-            setIsUnlocked(true);
-          } else {
-            setIsUnlocked(false);
-          }
+        if (adminPassword === siteConfig.indexPassword) {
+          setIsUnlocked(true);
         } else {
           setIsUnlocked(false);
         }
@@ -205,15 +199,16 @@ export default function App({ Component, pageProps }: AppProps) {
                       <form
                         onSubmit={(e) => {
                           e.preventDefault();
-                          const sitePassword = decrypt(
+                          const verify = verifyHash(
+                            passwordInput,
                             siteConfig.indexPassword,
                           );
-                          if (passwordInput === sitePassword) {
+                          if (verify) {
                             toast("Welcome back!");
                             setIsUnlocked(true);
                             localStorage.setItem(
                               "sitePassword",
-                              encrypt(passwordInput),
+                              hashToken(passwordInput),
                             );
                             setPasswordInput("");
                           } else {
