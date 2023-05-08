@@ -8,7 +8,12 @@ import DefaultLayout from "components/layout/DefaultLayout";
 import { NextSeo } from "next-seo";
 import SWRLayout from "components/layout/SWRLayout";
 import { getFilePreview, getFileType } from "utils/mimeTypesHelper";
-import { capitalize, formatBytes, formatDate } from "utils/formatHelper";
+import {
+  capitalize,
+  formatBytes,
+  formatDate,
+  formatDuration,
+} from "utils/formatHelper";
 import Link from "next/link";
 import useCopyText from "hooks/useCopyText";
 
@@ -101,7 +106,9 @@ export default function File({ id, fileName }: Props) {
       if (data.file.videoMediaMetadata) {
         defaultMetadata.push({
           label: "Duration",
-          value: `${data.file.videoMediaMetadata.durationMillis} ms`,
+          value: formatDuration(
+            data.file.videoMediaMetadata.durationMillis as string,
+          ),
         });
       }
       setMetadata(defaultMetadata);
