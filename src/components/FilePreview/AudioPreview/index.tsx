@@ -45,6 +45,7 @@ export default function AudioPreview({ data }: Props) {
         data={data}
         error={errorMessage}
         isLoading={isLoading}
+        useCard={false}
       >
         <div className={"preview-audio w-full"}>
           <H5AudioPlayer

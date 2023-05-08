@@ -6,10 +6,17 @@ type Props = {
   data: unknown;
   error: unknown;
   isLoading: boolean;
+  useCard?: boolean;
   children: React.ReactNode;
 };
 
-export default function SWRLayout({ data, error, isLoading, children }: Props) {
+export default function SWRLayout({
+  data,
+  error,
+  isLoading,
+  useCard = true,
+  children,
+}: Props) {
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -21,12 +28,12 @@ export default function SWRLayout({ data, error, isLoading, children }: Props) {
   return (
     <>
       {isLoading && (
-        <div className={"card"}>
+        <div className={useCard ? "card" : ""}>
           <LoadingFeedback />
         </div>
       )}
       {!isLoading && error && (
-        <div className={"card"}>
+        <div className={useCard ? "card" : ""}>
           <ErrorFeedback />
         </div>
       )}

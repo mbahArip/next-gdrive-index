@@ -22,6 +22,7 @@ export default function TextPreview({ data }: Props) {
         data={swrData}
         error={error}
         isLoading={isLoading}
+        useCard={false}
       >
         <div className={"w-full"}>
           <MarkdownRender content={swrData as string} />

@@ -1,76 +1,24 @@
 import { drive_v3 } from "googleapis";
 import Link from "next/link";
 import { formatBytes, formatDate } from "utils/formatHelper";
-import { toast } from "react-toastify";
 import { MdContentCopy, MdDownload } from "react-icons/md";
 import { getFileIcon } from "utils/mimeTypesHelper";
 import { BsFolderFill } from "react-icons/bs";
 import siteConfig from "config/site.config";
 import { createFileId } from "utils/driveHelper";
+import useCopyText from "hooks/useCopyText";
 
 type Props = {
   data: drive_v3.Schema$File;
 };
-
-function CopyButton({ url, isFolder }: { url: string; isFolder: boolean }) {
-  return (
-    <button
-      className={"p-2"}
-      title={isFolder ? "Copy folder link" : "Copy raw file link"}
-      onClick={async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!navigator.clipboard) {
-          toast.error("Your browser doesn't support clipboard API");
-          return;
-        }
-
-        try {
-          const host = window.location.host;
-          const copyUrl = isFolder ? host + url : host + url + "/view";
-          await navigator.clipboard.writeText(copyUrl);
-          toast.success(
-            isFolder ? "Folder link copied" : "Raw file link copied",
-          );
-        } catch (error: any) {
-          toast.error("Failed to copy to clipboard");
-          console.error(error.message);
-        }
-      }}
-    >
-      <MdContentCopy />
-    </button>
-  );
-}
-function DownloadButton({
-  fileId,
-  fileName,
-}: {
-  fileId: string;
-  fileName: string;
-}) {
-  return (
-    <button
-      className={"p-2"}
-      onClick={async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        window.open(`/download/${fileId}/${fileName}`, "_self");
-        toast.info("Downloading file...");
-      }}
-    >
-      <MdDownload />
-    </button>
-  );
-}
 
 export default function ListFile({ data }: Props) {
   const isFolder = data.mimeType === "application/vnd.google-apps.folder";
   const Icon = isFolder
     ? BsFolderFill
     : getFileIcon(data.fileExtension as string, data.mimeType as string);
+  const copyText = useCopyText();
+
   if (!data) return null;
 
   return (
@@ -122,19 +70,39 @@ export default function ListFile({ data }: Props) {
         {isFolder ? "" : formatBytes(data.size as string)}
       </div>
       <div className={"hidden gap-2 tablet:flex"}>
-        <CopyButton
-          url={
-            isFolder
-              ? `/folder/${createFileId(data, true)}`
-              : `/file/${createFileId(data, true)}`
-          }
-          isFolder={isFolder}
-        />
-        {isFolder ? null : (
-          <DownloadButton
-            fileId={data.id as string}
-            fileName={data.name as string}
-          />
+        <button
+          className={"p-2"}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            copyText(
+              isFolder
+                ? `${process.env.NEXT_PUBLIC_DOMAIN}/folder/${createFileId(
+                    data,
+                    true,
+                  )}`
+                : `${process.env.NEXT_PUBLIC_DOMAIN}/file/${createFileId(
+                    data,
+                    true,
+                  )}`,
+            );
+          }}
+        >
+          <MdContentCopy />
+        </button>
+        {!isFolder && (
+          <Link
+            href={`/api/files/${createFileId(data, true)}?download=1`}
+            target={"_blank"}
+            rel={"noopener noreferrer"}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <button className={"p-2"}>
+              <MdDownload />
+            </button>
+          </Link>
         )}
       </div>
     </Link>

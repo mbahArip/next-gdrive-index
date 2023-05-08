@@ -33,6 +33,7 @@ export default function PDFPreview({ data }: Props) {
         data={data}
         error={errorMessage}
         isLoading={isLoading}
+        useCard={false}
       >
         <></>
       </SWRLayout>

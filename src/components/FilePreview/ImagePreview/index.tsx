@@ -1,12 +1,12 @@
-import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import { useEffect, useState } from "react";
 import config from "config/site.config";
 import { reverseString } from "utils/hashHelper";
 import SWRLayout from "components/layout/SWRLayout";
+import { createFileId } from "utils/driveHelper";
 
 type Props = {
-  data: TFile | drive_v3.Schema$File;
+  data: drive_v3.Schema$File;
   hash?: string;
 };
 
@@ -21,7 +21,7 @@ export default function ImagePreview({ data, hash }: Props) {
       setIsLoading(false);
     }, config.preview.timeout);
     const image = new Image();
-    image.src = `/media/${data.id}/${data.name}`;
+    image.src = `/api/files/${createFileId(data)}?download=1`;
     image.onload = () => {
       setImageSrc(image.src);
       setIsLoading(false);
@@ -36,7 +36,7 @@ export default function ImagePreview({ data, hash }: Props) {
     return () => {
       clearTimeout(timeout);
     };
-  }, [data.id, data.name]);
+  }, [data]);
 
   return (
     <div className='flex w-full items-center justify-center'>
@@ -44,6 +44,7 @@ export default function ImagePreview({ data, hash }: Props) {
         data={data}
         error={errorMessage}
         isLoading={isLoading}
+        useCard={false}
       >
         <img
           src={imageSrc}

@@ -110,7 +110,7 @@ export default function Home({ id, folderName, bannerFileId }: Props) {
         openGraph={{
           title: folderName,
           url: `${process.env.NEXT_PUBLIC_DOMAIN}/folder/${id}`,
-          description: `Exploring ${folderName}}`,
+          description: `Exploring ${folderName}`,
           images: [
             {
               url: bannerFileId

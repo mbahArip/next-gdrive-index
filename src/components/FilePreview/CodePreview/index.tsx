@@ -37,6 +37,7 @@ export default function CodePreview({ data }: Props) {
         data={codeContent}
         error={error}
         isLoading={isLoading}
+        useCard={false}
       >
         <div className={"w-full"}>
           <MarkdownRender content={codeContent} />
