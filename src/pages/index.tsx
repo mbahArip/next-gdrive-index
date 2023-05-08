@@ -105,9 +105,11 @@ export default function Home({ bannerFileId }: Props) {
         openGraph={{
           images: [
             {
-              url: `${
-                process.env.NEXT_PUBLIC_DOMAIN
-              }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`,
+              url: bannerFileId
+                ? `${
+                    process.env.NEXT_PUBLIC_DOMAIN
+                  }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`
+                : `${process.env.NEXT_PUBLIC_DOMAIN}/api/og`,
               alt: siteConfig.siteName,
               width: 1200,
               height: 630,

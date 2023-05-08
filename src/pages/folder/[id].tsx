@@ -110,11 +110,14 @@ export default function Home({ id, folderName, bannerFileId }: Props) {
         openGraph={{
           title: folderName,
           url: `${process.env.NEXT_PUBLIC_DOMAIN}/folder/${id}`,
+          description: `Exploring ${folderName}}`,
           images: [
             {
-              url: `${
-                process.env.NEXT_PUBLIC_DOMAIN
-              }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`,
+              url: bannerFileId
+                ? `${
+                    process.env.NEXT_PUBLIC_DOMAIN
+                  }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`
+                : `${process.env.NEXT_PUBLIC_DOMAIN}/api/og`,
               alt: siteConfig.siteName,
               width: 1200,
               height: 630,

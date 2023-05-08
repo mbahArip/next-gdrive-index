@@ -124,6 +124,7 @@ export default function File({ id, fileName }: Props) {
         title={`Viewing ${fileName.split(".").slice(0, -1).join(".")}`}
         openGraph={{
           title: fileName.split(".").slice(0, -1).join("."),
+          description: `Viewing ${fileName.split(".").slice(0, -1).join(".")}`,
           url: `${process.env.NEXT_PUBLIC_DOMAIN}/file/${encodeURIComponent(
             id,
           )}`,
