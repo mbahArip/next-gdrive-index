@@ -13,10 +13,10 @@ const decryptedRefreshToken: string = decrypt(
 
 const oauth2Client = new google.auth.OAuth2(
   apiConfig.client_id,
-  decryptedSecret,
+  process.env.DRIVE_CLIENT_SECRET as string,
 );
 oauth2Client.setCredentials({
-  refresh_token: decodeURIComponent(decryptedRefreshToken),
+  refresh_token: process.env.DRIVE_REFRESH_TOKEN as string,
 });
 
 let gdriveInstance;
