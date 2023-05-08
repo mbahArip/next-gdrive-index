@@ -30,45 +30,15 @@ export default async function handler(request: NextRequest) {
       fileExt || "",
     );
 
+    if (!fileId) {
+      throw new Error("No file ID");
+    }
+
     let fileImage;
     if (fileId && isImage) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`,
-      )
-        .then((res) => {
-          if (res.headers.get("content-type")?.startsWith("image")) {
-            return { success: true };
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (!data.success) {
-            throw new Error("File not found");
-          }
-          fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`;
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
+      fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`;
     } else if (fileId && !isImage) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`,
-      )
-        .then((res) => {
-          if (res.headers.get("content-type")?.startsWith("image")) {
-            return { success: true };
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (!data.success) {
-            throw new Error("File not found");
-          }
-          fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`;
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
+      fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`;
     } else {
       throw new Error("Default image");
     }
