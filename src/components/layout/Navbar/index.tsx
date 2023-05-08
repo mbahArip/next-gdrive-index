@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import siteConfig from "config/site.config";
 import Link from "next/link";
 import Image from "next/image";
@@ -278,8 +271,8 @@ export default function Navbar({ isUnlocked, setIsUnlocked }: Props) {
                   <Link
                     href={
                       isFolder
-                        ? `/folder/${createFileId(item)}`
-                        : `/file/${createFileId(item)}`
+                        ? `/folder/${createFileId(item, true)}`
+                        : `/file/${createFileId(item, true)}`
                     }
                     key={item.id}
                     className='rounded-lg py-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 tablet:px-2 tablet:py-2'
@@ -288,13 +281,10 @@ export default function Navbar({ isUnlocked, setIsUnlocked }: Props) {
                     <div className='flex items-center gap-4'>
                       <div className='flex aspect-square h-10 w-10 flex-shrink-0 flex-grow-0 items-center justify-center overflow-hidden rounded-lg tablet:h-12 tablet:w-12'>
                         {item.thumbnailLink ? (
-                          <Image
-                            priority={true}
+                          <img
                             src={item.thumbnailLink}
                             alt={item.name as string}
                             className='h-full w-full object-cover'
-                            width={64}
-                            height={64}
                           />
                         ) : (
                           <Icon className='h-full w-full' />
