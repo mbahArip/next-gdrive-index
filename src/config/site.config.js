@@ -13,7 +13,7 @@ const config = {
   // Add site page password protection
   // If this is set, the site will be protected with the password
   // NOTE: The files are still accessible via direct link, but the site is not.
-  privateIndex: true,
+  privateIndex: false,
   indexPassword:
     "640e3e38dd31aec254f214ba38541a82ddb615e73ce9c6129f33ef549b154ab9",
   // Navbar menu links
