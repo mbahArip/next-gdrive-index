@@ -58,7 +58,9 @@ Since Google Drive direct download need the file to be public, I implement the `
   - [x] Fetch file or folder `700~1400ms`
   - [x] Fetch breadcrumb `900~1500ms`
   - [x] Fetch readme `1100~1200ms`
-  - [x] Fetch banner `500-900ms`
+    - [ ] Fetch readme from specific folder `1200~1600ms`
+  - [x] Fetch banner `500-800ms`
+    - [x] Fetch banner from specific folder `500~800ms`
   - [ ] Protect folder
 
 ### Fetch files `/api/files` | `14/17 Completed`

@@ -29,7 +29,7 @@ export default function SwitchLayout() {
 
   return (
     <div
-      className={"relative flex w-fit flex-col"}
+      className={"relative flex w-fit flex-shrink-0 flex-grow-0 flex-col"}
       ref={dropdownRef}
     >
       <div

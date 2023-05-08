@@ -1,4 +1,3 @@
-import mime from "mime-types";
 import { IconType } from "react-icons";
 import {
   BsBoxFill,
@@ -32,10 +31,6 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
-
-function findMimeType(extension: string): string {
-  return mime.lookup(extension) || "application/octet-stream";
-}
 
 const type = {
   "3d": "3d", // model preview
@@ -95,12 +90,12 @@ const extToTypeMap: { [key: string]: string } = {
   "wav": type.audio,
 
   // Archives
-  "7z": type.default,
-  "bz2": type.default,
-  "gz": type.default,
-  "rar": type.default,
-  "tar": type.default,
-  "zip": type.default,
+  "7z": type.archive,
+  "bz2": type.archive,
+  "gz": type.archive,
+  "rar": type.archive,
+  "tar": type.archive,
+  "zip": type.archive,
 
   // Rich text
   "md": type.rich_text,
@@ -254,6 +249,9 @@ export function getFileType(extension: string, mimeType?: string): string {
     const type = mimeType.split("/")[0];
     if (type === "video") {
       return "video";
+    }
+    if (type === "image") {
+      return "image";
     }
   }
 

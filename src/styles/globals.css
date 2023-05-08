@@ -254,10 +254,10 @@ html, body {
   }
 
   div.divider-horizontal { 
-    @apply w-full h-px my-2 bg-zinc-400 dark:bg-zinc-500 tablet:my-4;
+    @apply w-full h-px my-2 bg-zinc-400 dark:bg-zinc-500 tablet:my-2;
   }
   div.divider-vertical {
-    @apply h-full w-px mx-2 bg-zinc-400 dark:bg-zinc-500 tablet:mx-4;
+    @apply h-full w-px mx-2 bg-zinc-400 dark:bg-zinc-500 tablet:mx-2;
   }
 
   .grid-auto-fit {

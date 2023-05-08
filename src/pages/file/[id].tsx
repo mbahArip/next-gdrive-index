@@ -1,193 +1,236 @@
-import useSWR from "swr";
-import { ErrorResponse, FileResponse, TFileParent } from "types/googleapis";
-import Breadcrumb from "components/Breadcrumb";
-import { useCallback, useEffect, useState } from "react";
-import LoadingFeedback from "components/APIFeedback/Loading";
-import ErrorFeedback from "components/APIFeedback/Error";
-import { useRouter } from "next/router";
-import FileDetails from "components/layout/FileDetails";
-import useLocalStorage from "hooks/useLocalStorage";
+import { GetServerSideProps } from "next";
 import axios from "axios";
-import { GetServerSidePropsContext } from "next";
-import Password from "components/layout/Password";
+import { ErrorResponse, FileResponse } from "types/googleapis";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { urlDecrypt } from "utils/encryptionHelper";
+import DefaultLayout from "components/layout/DefaultLayout";
 import { NextSeo } from "next-seo";
-import config from "config/site.config";
+import SWRLayout from "components/layout/SWRLayout";
+import { getFilePreview, getFileType } from "utils/mimeTypesHelper";
+import { capitalize, formatBytes, formatDate } from "utils/formatHelper";
+import Link from "next/link";
+import useCopyText from "hooks/useCopyText";
 
 type Props = {
-  passwordParent?: string;
-  fileName?: string;
+  id: string;
+  fileName: string;
 };
-export default function File({ passwordParent, fileName }: Props) {
-  const router = useRouter();
-  const { id } = router.query;
-
+type Metadata = {
+  label: string;
+  value: string;
+};
+export default function File({ id, fileName }: Props) {
   const [data, setData] = useState<FileResponse>();
-  const [globalLoading, setGlobalLoading] = useState<boolean>(true);
+  const [PreviewComponent, setPreviewComponent] = useState<JSX.Element>();
+  const [metadata, setMetadata] = useState<Metadata[]>([]);
 
-  const [passwordStorage, setPasswordStorage] = useLocalStorage<{
-    [key: string]: string;
-  }>("passwordStorage", {});
-  const [password, setPassword] = useState<{ [p: string]: string }>(
-    passwordStorage,
-  );
+  const copyLink = useCopyText();
 
+  /**
+   * ===========================
+   * START - fetch file data
+   * ===========================
+   */
   const {
     data: swrData,
     error,
     isLoading,
-    isValidating,
-    mutate,
-  } = useSWR<FileResponse, ErrorResponse>(
-    `/api/files/${id}`,
-    (url, headers) =>
-      axios
-        .get<FileResponse>(url, {
-          headers: {
-            Authorization: `Bearer ${
-              password?.[passwordParent as string] ||
-              password?.[id as string] ||
-              passwordStorage?.[passwordParent as string] ||
-              passwordStorage?.[id as string] ||
-              ""
-            }`,
-            ...headers,
-          },
-        })
-        .then((res) => res.data),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshWhenOffline: false,
-      refreshWhenHidden: false,
-      refreshInterval: 0,
-      shouldRetryOnError: false,
-      revalidateIfStale: true,
-    },
-  );
+  } = useSWR<FileResponse, ErrorResponse>(`/api/files/${id}`);
 
   useEffect(() => {
-    setGlobalLoading(true);
     if (swrData) {
-      const parentsArray: TFileParent[] | undefined = swrData.parents;
-      parentsArray?.unshift({
-        id: swrData.file.id as string,
-        name: swrData.file.name as string,
-      });
-      const payload: FileResponse = {
-        parents: parentsArray,
+      const decryptedData: FileResponse = {
         ...swrData,
+        file: {
+          ...swrData.file,
+          id: urlDecrypt(swrData.file.id as string),
+          webContentLink: urlDecrypt(swrData.file.webContentLink as string),
+        },
       };
-      setData(payload);
-      setGlobalLoading(false);
+      setData(decryptedData);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [swrData, error, isLoading, isValidating, password]);
+  }, [swrData]);
+  /**
+   * ===========================
+   * END - fetch file data
+   * ===========================
+   */
 
   useEffect(() => {
-    if (!isLoading && !isValidating) {
-      setGlobalLoading(false);
-    } else {
-      setGlobalLoading(true);
+    if (data) {
+      const Preview = getFilePreview(
+        data.file.fileExtension as string,
+        data.file.mimeType as string,
+      );
+      setPreviewComponent(<Preview data={data.file} />);
+
+      const defaultMetadata: Metadata[] = [
+        {
+          label: "Name",
+          value: data.file.name as string,
+        },
+        {
+          label: "Type",
+          value: capitalize(
+            getFileType(
+              data.file.fileExtension as string,
+              data.file.mimeType as string,
+            ),
+          ),
+        },
+        {
+          label: "Size",
+          value: formatBytes(data.file.size as string),
+        },
+        {
+          label: "Created",
+          value: formatDate(new Date(data.file.createdTime as string)),
+        },
+        {
+          label: "Modified",
+          value: formatDate(new Date(data.file.modifiedTime as string)),
+        },
+      ];
+      if (data.file.imageMediaMetadata) {
+        defaultMetadata.push({
+          label: "Dimensions",
+          value: `${data.file.imageMediaMetadata.width} x ${data.file.imageMediaMetadata.height}`,
+        });
+      }
+      if (data.file.videoMediaMetadata) {
+        defaultMetadata.push({
+          label: "Duration",
+          value: `${data.file.videoMediaMetadata.durationMillis} ms`,
+        });
+      }
+      setMetadata(defaultMetadata);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isValidating]);
-
-  useEffect(() => {
-    mutate(swrData, {
-      revalidate: true,
-    }).then((r) => {
-      return r;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [password]);
-
-  const inputPassCallback = useCallback(
-    (data: { [p: string]: string }) => {
-      setGlobalLoading(true);
-      setPasswordStorage(data);
-      setPassword(data);
-    },
-    [setPasswordStorage],
-  );
+  }, [data]);
 
   return (
-    <div className='mx-auto flex max-w-screen-xl flex-col gap-4'>
+    <DefaultLayout
+      fileId={id}
+      renderSwitchLayout={false}
+    >
       <NextSeo
-        title={fileName || "File preview"}
+        title={`Viewing ${fileName.split(".").slice(0, -1).join(".")}`}
         openGraph={{
-          type: "website",
-          title: `${(id as string).split(":")[0]} @${config.siteName}`,
-          description: config.siteDescription,
-          url: `${process.env.NEXT_PUBLIC_DOMAIN}/file/${id}`,
+          title: fileName.split(".").slice(0, -1).join("."),
+          url: `${process.env.NEXT_PUBLIC_DOMAIN}/file/${encodeURIComponent(
+            id,
+          )}`,
           images: [
             {
-              url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/og?fileId=${id}`,
+              url: `${
+                process.env.NEXT_PUBLIC_DOMAIN
+              }/api/og?fileId=${encodeURIComponent(id)}`,
+              alt: fileName,
               width: 1200,
               height: 630,
-              alt: config.siteName,
             },
           ],
-          siteName: config.siteName,
         }}
       />
+      <SWRLayout
+        data={data}
+        error={error}
+        isLoading={isLoading}
+      >
+        <div
+          className={
+            "relative grid grid-cols-1 gap-2 tablet:grid-cols-4 tablet:gap-4"
+          }
+        >
+          {/*  File Preview  */}
+          <div className={"card h-fit tablet:col-span-3"}>
+            <div className='flex w-full items-center justify-between rounded-lg'>
+              <span className='font-bold'>Preview</span>
+            </div>
 
-      <div className='flex items-center justify-between'>
-        <Breadcrumb
-          data={data?.parents || []}
-          isLoading={globalLoading}
-        />
-      </div>
-      {globalLoading && <LoadingFeedback message={"Loading file details..."} />}
-      {!globalLoading && error && (
-        <ErrorFeedback message={error.errors?.message} />
-      )}
-      {!globalLoading && !error && data && (
-        <>
-          {data.passwordRequired && !data.passwordValidated && (
-            <Password
-              folderId={(passwordParent as string) || (id as string)}
-              inputCallback={inputPassCallback}
-            />
-          )}
-          {(data.passwordValidated || !data.passwordRequired) && (
-            <>
-              <FileDetails
-                data={data.file}
-                hash={passwordStorage?.[passwordParent as string] || ""}
-              />
-            </>
-          )}
-        </>
-      )}
-    </div>
+            <div className={"divider-horizontal"} />
+
+            {PreviewComponent}
+          </div>
+
+          {/*  Details and download  */}
+          <div
+            className={
+              "sticky top-16 flex h-fit flex-col gap-2 max-tablet:flex-col-reverse tablet:col-span-1 tablet:gap-4"
+            }
+          >
+            <div className={"card"}>
+              <div className='flex w-full items-center justify-between rounded-lg'>
+                <span className='font-bold'>Details</span>
+              </div>
+
+              <div className={"divider-horizontal"} />
+
+              {metadata.map((item, index) => (
+                <div
+                  key={`fileDetails-${index}`}
+                  className={"mb-2 flex w-full flex-col justify-center"}
+                >
+                  <span className={"font-bold text-inherit"}>{item.label}</span>
+                  <span
+                    className={"whitespace-pre-wrap break-words text-inherit"}
+                  >
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className={"card"}>
+              <div className='flex w-full items-center justify-between rounded-lg'>
+                <span className='font-bold'>Download</span>
+              </div>
+
+              <div className={"divider-horizontal"} />
+
+              <div className={"flex w-full flex-col justify-center gap-2"}>
+                <Link
+                  href={`/api/files/${id}?download=1`}
+                  className={"w-full"}
+                  target={"_blank"}
+                  rel={"noopener noreferrer"}
+                >
+                  <button className={"primary w-full"}>Download</button>
+                </Link>
+                <button
+                  className={"secondary"}
+                  onClick={() => {
+                    copyLink(
+                      `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}?download=1`,
+                    );
+                  }}
+                >
+                  Copy direct link
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SWRLayout>
+    </DefaultLayout>
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.query;
-  const data = await axios.get(
+
+  const fetchFileMetadata = await axios.get<FileResponse>(
     `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
   );
-
-  context.res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=10, stale-while-revalidate=59",
-  );
-
-  if (data) {
+  if (!fetchFileMetadata.data.success) {
     return {
-      props: {
-        passwordParent: data.data.protectedId || null,
-        fileName: data.data.file.name,
-      },
-    };
-  } else {
-    return {
-      props: {
-        passwordParent: "",
-        fileName: "",
-      },
+      notFound: true,
     };
   }
-}
+
+  return {
+    props: {
+      id,
+      fileName: fetchFileMetadata.data.file.name,
+    },
+  };
+};

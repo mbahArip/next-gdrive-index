@@ -66,8 +66,6 @@ export default initMiddleware(async function handler(
           { responseType: "stream" },
         );
 
-        console.log(file);
-
         response.setHeader(
           "Content-Type",
           file.mimeType || "application/octet-stream",

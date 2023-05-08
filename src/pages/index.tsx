@@ -13,7 +13,7 @@ import GridLayout from "components/layout/Files/GridLayout";
 import ListLayout from "components/layout/Files/ListLayout";
 import { createFileId } from "utils/driveHelper";
 import { NextSeo } from "next-seo";
-import { GetStaticProps } from "next";
+import { GetServerSideProps } from "next";
 
 type Props = {
   bannerFileId?: string;
@@ -165,7 +165,7 @@ export default function Home({ bannerFileId }: Props) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const fetchBanner = await axios.get<BannerResponse>(
     `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner`,
   );

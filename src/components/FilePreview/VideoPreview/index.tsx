@@ -1,51 +1,22 @@
-import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import ReactPlayer from "react-player";
-import { useState } from "react";
-import LoadingFeedback from "components/APIFeedback/Loading";
-import ErrorFeedback from "components/APIFeedback/Error";
+import { createFileId } from "utils/driveHelper";
 
 type Props = {
-  data: TFile | drive_v3.Schema$File;
+  data: drive_v3.Schema$File;
 };
 
 export default function VideoPreview({ data }: Props) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const fileId = createFileId(data);
 
   return (
     <div className='flex w-full items-center justify-center'>
-      {isLoading ? (
-        <LoadingFeedback
-          message={"Loading video preview..."}
-          useContainer={false}
-        />
-      ) : isError ? (
-        <ErrorFeedback
-          message={errorMessage}
-          useContainer={false}
-        />
-      ) : (
-        <></>
-      )}
-      <div
-        className={`${
-          isLoading || isError ? "hidden" : "block"
-        } aspect-video h-full max-h-[70vh] w-full`}
-      >
+      <div className={`aspect-video h-full max-h-[70vh] w-full`}>
         <ReactPlayer
-          url={`/download/${data.id}/${data.name}`}
+          url={`/api/files/${fileId}?download=1`}
           controls={true}
           width='100%'
           height='100%'
-          onReady={() => {
-            setIsLoading(false);
-          }}
-          onError={(error) => {
-            setIsError(true);
-            setErrorMessage(error.message);
-          }}
         />
       </div>
     </div>

@@ -1,27 +1,23 @@
-import { TFile } from "types/googleapis";
 import { drive_v3 } from "googleapis";
 import { useState } from "react";
 import config from "config/site.config";
-import LoadingFeedback from "components/APIFeedback/Loading";
-import ErrorFeedback from "components/APIFeedback/Error";
+import { createFileId } from "utils/driveHelper";
+import SWRLayout from "components/layout/SWRLayout";
 
 type Props = {
-  data: TFile | drive_v3.Schema$File;
+  data: drive_v3.Schema$File;
 };
 
 export default function PDFPreview({ data }: Props) {
+  const fileId = createFileId(data);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const fileURL = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${data.id}/download`;
+  const fileURL = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`;
   let providerURL;
   switch (config.preview.pdfProvider) {
     case "google":
       providerURL = `https://drive.google.com/viewerng/viewer?embedded=true&url=${fileURL}`;
-      break;
-    case "microsoft":
-      providerURL = `https://view.officeapps.live.com/op/embed.aspx?src=${fileURL}`;
       break;
     case "mozilla":
       providerURL = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${fileURL}`;
@@ -33,34 +29,28 @@ export default function PDFPreview({ data }: Props) {
 
   return (
     <div className='flex w-full items-center justify-center'>
-      {isLoading ? (
-        <LoadingFeedback
-          message={"Loading PDF preview..."}
-          useContainer={false}
-        />
-      ) : isError ? (
-        <ErrorFeedback
-          message={errorMessage}
-          useContainer={false}
-        />
-      ) : (
+      <SWRLayout
+        data={data}
+        error={errorMessage}
+        isLoading={isLoading}
+      >
         <></>
-      )}
+      </SWRLayout>
       <div
         className={`${
-          isLoading || isError ? "hidden" : "flex"
-        } mx-auto min-h-[70vh] w-full overflow-hidden rounded-lg`}
+          isLoading ? "hidden" : "block"
+        } mx-auto h-full w-full overflow-hidden rounded-lg`}
       >
         <iframe
           width={"100%"}
-          className={"h-auto"}
+          height={"100%"}
+          className={"h-[50vh] tablet:h-[75vh]"}
           src={providerURL}
           title={data.name as string}
           onLoad={() => {
             setIsLoading(false);
           }}
           onError={(error: any) => {
-            setIsError(true);
             setErrorMessage(error.message);
             setIsLoading(false);
           }}

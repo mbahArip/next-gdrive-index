@@ -38,7 +38,7 @@ export default function GridFile({ data }: Props) {
       {/* Thumbnail */}
       <div
         className={`relative mx-auto grid h-40 w-full place-items-center overflow-hidden rounded-lg tablet:h-32 tablet:rounded-xl ${
-          !allowThumbnail && "border border-zinc-700"
+          !allowThumbnail && "border border-zinc-300 dark:border-zinc-700"
         }`}
       >
         {data.thumbnailLink && allowThumbnail ? (

@@ -20,9 +20,17 @@ export default function SWRLayout({ data, error, isLoading, children }: Props) {
 
   return (
     <>
-      {isLoading && <LoadingFeedback />}
-      {!isLoading && error && <ErrorFeedback />}
-      {isMounted && <>{children}</>}
+      {isLoading && (
+        <div className={"card"}>
+          <LoadingFeedback />
+        </div>
+      )}
+      {!isLoading && error && (
+        <div className={"card"}>
+          <ErrorFeedback />
+        </div>
+      )}
+      {!isLoading && isMounted && <>{children}</>}
     </>
   );
 }

@@ -8,9 +8,14 @@ import { BreadCrumbsResponse } from "types/googleapis";
 type Props = {
   children: ReactNode;
   fileId: string;
+  renderSwitchLayout?: boolean;
 };
 
-export default function DefaultLayout({ children, fileId }: Props) {
+export default function DefaultLayout({
+  children,
+  fileId,
+  renderSwitchLayout = true,
+}: Props) {
   const { data, isLoading } = useSWR<BreadCrumbsResponse>(
     `/api/files/${fileId}/getPath`,
     fetcher,
@@ -18,12 +23,12 @@ export default function DefaultLayout({ children, fileId }: Props) {
 
   return (
     <div className={"mx-auto flex max-w-screen-xl flex-col gap-2"}>
-      <div className={"flex items-center justify-between"}>
+      <div className={"flex w-full items-center justify-between gap-2"}>
         <Breadcrumb
           data={fileId === "root" ? undefined : data}
           isLoading={isLoading}
         />
-        <SwitchLayout />
+        {renderSwitchLayout && <SwitchLayout />}
       </div>
 
       {children}

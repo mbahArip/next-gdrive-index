@@ -17,10 +17,7 @@ export default function ModelPreview({ data }: Props) {
   if (!getLoader) {
     return (
       <div className='flex w-full items-center justify-center'>
-        <ErrorFeedback
-          message={"Failed to load model"}
-          useContainer={false}
-        />
+        <ErrorFeedback message={"Failed to load model"} />
       </div>
     );
   }

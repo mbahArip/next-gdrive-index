@@ -41,7 +41,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T) {
           const newValue = JSON.parse(event.newValue);
           setStoredValue(newValue);
         } catch (error) {
-          console.log(error);
+          console.error("Error setting localStorage:", error);
         }
       }
     };

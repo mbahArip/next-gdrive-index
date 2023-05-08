@@ -21,13 +21,18 @@ export default function Readme({
     }
   }, [isReadmeExist, isReadmeLoading, readmeData]);
 
-  if (!isMounted) return <></>;
   return (
-    <div className={"card"}>
-      {isReadmeLoading && <LoadingFeedback useContainer={false} />}
-      {!isReadmeLoading && readmeData && (
-        <MarkdownRender content={readmeData} />
+    <>
+      {isReadmeLoading && (
+        <div className={"card"}>
+          <LoadingFeedback />
+        </div>
       )}
-    </div>
+      {!isReadmeLoading && readmeData && isMounted && (
+        <div className={"card"}>
+          <MarkdownRender content={readmeData} />
+        </div>
+      )}
+    </>
   );
 }

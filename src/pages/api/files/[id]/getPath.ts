@@ -76,7 +76,7 @@ export default initMiddleware(async function handler(
 
     let tempParent: string[] = file.parents || [];
     while (tempParent.length > 0) {
-      if (breadcrumbs.length === apiConfig.files.breadcrumbDepth) {
+      if (breadcrumbs.length > apiConfig.files.breadcrumbDepth) {
         isLimitReached = true;
         break;
       }
@@ -99,7 +99,10 @@ export default initMiddleware(async function handler(
       success: true,
       timestamp: new Date().toISOString(),
       responseTime: Date.now() - _start,
-      breadcrumbs,
+      breadcrumbs:
+        breadcrumbs.length > apiConfig.files.breadcrumbDepth
+          ? breadcrumbs.slice(0, apiConfig.files.breadcrumbDepth)
+          : breadcrumbs,
       isLimitReached,
     });
   } catch (error: any) {

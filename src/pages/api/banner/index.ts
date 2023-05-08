@@ -12,27 +12,20 @@ export default initMiddleware(async function handler(
   const _start = Date.now();
 
   try {
-    const query: string[] = [
-      "name contains '.banner'",
-      `parents = '${apiConfig.files.rootFolder}'`,
-      "trashed = false",
-      "'me' in owners",
-    ];
-    const getRootBanner = await driveClient.files.list({
-      q: query.join(" and "),
-      fields: "files(id, name, mimeType)",
-    });
-
     const payload: BannerResponse = {
       success: true,
       timestamp: new Date().toISOString(),
       responseTime: Date.now() - _start,
     };
 
-    const banner = getRootBanner.data.files?.filter((item) =>
-      item.name?.startsWith(".banner"),
-    )[0];
-    if (!banner || !banner.mimeType?.startsWith("image")) {
+    const findBanner = await driveClient.files.list({
+      q: `name contains '.banner' and trashed = false and 'me' in owners and parents = '${apiConfig.files.rootFolder}'`,
+      fields: "files(id, name, mimeType, parents)",
+    });
+    const banner = findBanner.data.files?.find((file) =>
+      file.name?.startsWith(".banner"),
+    );
+    if (!banner) {
       payload.success = false;
       return response.status(200).json(payload);
     }

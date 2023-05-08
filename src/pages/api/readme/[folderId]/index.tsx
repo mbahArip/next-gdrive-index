@@ -1,13 +1,12 @@
-import initMiddleware from "utils/apiMiddleware";
+import { ErrorResponse } from "types/googleapis";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BannerResponse, ErrorResponse } from "types/googleapis";
+import initMiddleware from "utils/apiMiddleware";
 import { ExtendedError } from "utils/driveHelper";
 import driveClient from "utils/driveClient";
-import { urlEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<BannerResponse | ErrorResponse>,
+  response: NextApiResponse,
 ) {
   const _start = Date.now();
 
@@ -24,32 +23,34 @@ export default initMiddleware(async function handler(
       );
     }
 
-    const payload: BannerResponse = {
-      success: true,
-      timestamp: new Date().toISOString(),
-      responseTime: Date.now() - _start,
-    };
-
-    const findBanner = await driveClient.files.list({
-      q: `name contains '.banner' and trashed = false and 'me' in owners`,
+    const findReadme = await driveClient.files.list({
+      q: `name = '.readme.md' and trashed = false and 'me' in owners`,
       fields: "files(id, name, mimeType, parents)",
     });
-    const banner = findBanner.data.files?.find(
-      (file) =>
-        file.parents?.[0].startsWith(partialId) &&
-        file.name?.startsWith(".banner"),
+    const readme = findReadme.data.files?.find((file) =>
+      file.parents?.[0].startsWith(partialId),
     );
-    if (!banner) {
-      payload.success = false;
-      return response.status(200).json(payload);
+    if (!readme) {
+      return response.status(200);
     }
+    response.setHeader(
+      "Content-Type",
+      readme.mimeType || "application/octet-stream",
+    );
+    response.setHeader(
+      "Content-Disposition",
+      `inline; filename="${readme.name}"`,
+    );
+    response.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    const readmeStream = await driveClient.files.get(
+      {
+        fileId: readme.id as string,
+        alt: "media",
+      },
+      { responseType: "text" },
+    );
 
-    payload.banner = {
-      id: urlEncrypt(banner.id as string),
-      name: banner.name as string,
-    };
-
-    return response.status(200).json(payload);
+    return response.status(200).send(readmeStream.data);
   } catch (error: any) {
     const payload: ErrorResponse = {
       success: false,
