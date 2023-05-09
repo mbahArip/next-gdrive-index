@@ -25,29 +25,18 @@ export default async function handler(request: NextRequest) {
     const fileName =
       searchParams.get("fileName") || fileId?.split(":")[0] || null;
 
-    console.log("Creating og image for", fileName);
+    if (!fileId) {
+      throw new Error("No file ID");
+    }
 
     let fileImage;
-    if (fileId) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?banner=1`,
-      )
-        .then((res) => {
-          if (res.headers.get("content-type")?.startsWith("image")) {
-            return { success: true };
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (!data.success) {
-            throw new Error("File not found");
-          }
-          fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?banner=1`;
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
-    } else {
+    try {
+      if (fileId) {
+        fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?banner=1`;
+      } else {
+        fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files?banner=1`;
+      }
+    } catch (error: any) {
       throw new Error("Default image");
     }
 
@@ -94,7 +83,7 @@ export default async function handler(request: NextRequest) {
               {siteName}
             </div>
             <div
-              tw='text-xl py-8'
+              tw='text-3xl py-8'
               style={{
                 letterSpacing: "0",
                 display: "flex",

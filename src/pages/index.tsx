@@ -15,10 +15,10 @@ import { createFileId } from "utils/driveHelper";
 import { NextSeo } from "next-seo";
 import { GetServerSideProps } from "next";
 
-type Props = {
-  bannerFileId?: string;
-};
-export default function Home({ bannerFileId }: Props) {
+// type Props = {
+//   bannerFileId?: string;
+// };
+export default function Home() {
   const { layout } = useContext<TLayoutContext>(LayoutContext);
   const [data, setData] = useState<FilesResponse>();
 
@@ -44,7 +44,6 @@ export default function Home({ bannerFileId }: Props) {
       axios
         .get<FilesResponse>(url, {
           headers: {
-            Authorization: `Bearer TODO:ADD`,
             ...headers,
           },
         })
@@ -105,11 +104,7 @@ export default function Home({ bannerFileId }: Props) {
         openGraph={{
           images: [
             {
-              url: bannerFileId
-                ? `${
-                    process.env.NEXT_PUBLIC_DOMAIN
-                  }/api/og?fileId=${encodeURIComponent(bannerFileId as string)}`
-                : `${process.env.NEXT_PUBLIC_DOMAIN}/api/og`,
+              url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/og-folder`,
               alt: siteConfig.siteName,
               width: 1200,
               height: 630,
@@ -167,20 +162,20 @@ export default function Home({ bannerFileId }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const fetchBanner = await axios.get<BannerResponse>(
-    `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner`,
-  );
-  if (!fetchBanner.data.banner) {
-    return {
-      props: {},
-    };
-  }
-
-  const bannerFileId = createFileId(fetchBanner.data.banner, true);
-  return {
-    props: {
-      bannerFileId,
-    },
-  };
-};
+// export const getServerSideProps: GetServerSideProps = async () => {
+//   const fetchBanner = await axios.get<BannerResponse>(
+//     `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner`,
+//   );
+//   if (!fetchBanner.data.banner) {
+//     return {
+//       props: {},
+//     };
+//   }
+//
+//   const bannerFileId = createFileId(fetchBanner.data.banner, true);
+//   return {
+//     props: {
+//       bannerFileId,
+//     },
+//   };
+// };

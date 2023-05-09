@@ -225,20 +225,12 @@ export default function File({ id, fileName }: Props) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.query;
-
-  const fetchFileMetadata = await axios.get<FileResponse>(
-    `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
-  );
-  if (!fetchFileMetadata.data.success) {
-    return {
-      notFound: true,
-    };
-  }
+  const fileName = decodeURIComponent((id as string).split(":")[0]);
 
   return {
     props: {
       id,
-      fileName: fetchFileMetadata.data.file.name,
+      fileName,
     },
   };
 };
