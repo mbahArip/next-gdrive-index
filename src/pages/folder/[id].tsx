@@ -14,33 +14,19 @@ import ListLayout from "components/layout/Files/ListLayout";
 import { createFileId } from "utils/driveHelper";
 import { NextSeo } from "next-seo";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
 
-// type Props = {
-//   id: string;
-//   folderName: string;
-//   // bannerFileId?: string;
-// };
-export default function Home() {
+type Props = {
+  id: string;
+  folderName: string;
+  // bannerFileId?: string;
+};
+export default function Home({ id, folderName }: Props) {
   const { layout } = useContext<TLayoutContext>(LayoutContext);
-  const router = useRouter();
-  const [id, setId] = useState<string>(router.query.id as string);
-  const [folderName, setFolderName] = useState<string>();
   const [data, setData] = useState<FilesResponse>();
 
   const [isReadmeExists, setIsReadmeExists] = useState<boolean>(false);
   const [isReadmeLoading, setIsReadmeLoading] = useState<boolean>(false);
   const [readmeData, setReadmeData] = useState<string>();
-
-  useEffect(() => {
-    if (!id && router.query.id) {
-      setId(router.query.id as string);
-      setFolderName(
-        decodeURIComponent((router.query.id as string).split(":")[0]),
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query]);
 
   /**
    * ===========================
@@ -117,7 +103,7 @@ export default function Home() {
    * **/
 
   return (
-    <DefaultLayout fileId={id as string}>
+    <DefaultLayout fileId={id}>
       <NextSeo
         title={folderName}
         openGraph={{
@@ -184,36 +170,36 @@ export default function Home() {
   );
 }
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   const { id } = context.query;
-//
-//   // const fetchFolder = await axios.get<FilesResponse>(
-//   //   `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
-//   // );
-//   //
-//   // if (!fetchFolder.data.success) {
-//   //   return {
-//   //     notFound: true,
-//   //   };
-//   // }
-//   const folderName = decodeURIComponent((id as string).split(":")[0]);
-//
-//   // const fetchBanner = await axios.get<BannerResponse>(
-//   //   `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner/${id}`,
-//   // );
-//   //
-//   // if (!fetchBanner.data.banner) {
-//   //   return {
-//   //     props: { id, folderName },
-//   //   };
-//   // }
-//
-//   // const bannerFileId = createFileId(fetchBanner.data.banner, true);
-//   return {
-//     props: {
-//       id,
-//       folderName,
-//       // bannerFileId,
-//     },
-//   };
-// };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.query;
+
+  const fetchFolder = await axios.get<FilesResponse>(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
+  );
+
+  if (!fetchFolder.data.success) {
+    return {
+      notFound: true,
+    };
+  }
+  const folderName = decodeURIComponent((id as string).split(":")[0]);
+
+  // const fetchBanner = await axios.get<BannerResponse>(
+  //   `${process.env.NEXT_PUBLIC_DOMAIN}/api/banner/${id}`,
+  // );
+  //
+  // if (!fetchBanner.data.banner) {
+  //   return {
+  //     props: { id, folderName },
+  //   };
+  // }
+
+  // const bannerFileId = createFileId(fetchBanner.data.banner, true);
+  return {
+    props: {
+      id,
+      folderName,
+      // bannerFileId,
+    },
+  };
+};
