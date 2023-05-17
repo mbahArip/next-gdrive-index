@@ -5,6 +5,8 @@
 Basic features are working now, can be used for daily use.  
 You can check the demo [here](https://drive.mbaharip.com).
 
+**Development will be paused for a few weeks, I will resume the project as soon as possible.**
+
 ## What is this?
 `next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
 It's aim to simplify the process of sharing files using Google Drive, and also implements some features that I think is useful for sharing files.
