@@ -1,9 +1,12 @@
-import initMiddleware from "utils/apiMiddleware";
+import {
+  BannerResponse,
+  ErrorResponse,
+} from "types/googleapis";
 import { NextApiRequest, NextApiResponse } from "next";
-import { BannerResponse, ErrorResponse } from "types/googleapis";
-import { ExtendedError } from "utils/driveHelper";
+import initMiddleware from "utils/apiMiddleware";
+import apiConfig from "config/api.config";
 import driveClient from "utils/driveClient";
-import { urlEncrypt } from "utils/encryptionHelper";
+import { shortEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
@@ -12,18 +15,6 @@ export default initMiddleware(async function handler(
   const _start = Date.now();
 
   try {
-    const { folderId } = request.query;
-
-    const [name, partialId] = (folderId as string).split(":");
-
-    if (!name || !partialId || partialId.length !== 8) {
-      throw new ExtendedError(
-        "Can't resolve name and id provided.",
-        400,
-        "invalidId",
-      );
-    }
-
     const payload: BannerResponse = {
       success: true,
       timestamp: new Date().toISOString(),
@@ -31,13 +22,11 @@ export default initMiddleware(async function handler(
     };
 
     const findBanner = await driveClient.files.list({
-      q: `name contains '.banner' and trashed = false and 'me' in owners`,
+      q: `name contains '.banner' and trashed = false and 'me' in owners and parents = '${apiConfig.files.rootFolder}'`,
       fields: "files(id, name, mimeType, parents)",
     });
-    const banner = findBanner.data.files?.find(
-      (file) =>
-        file.parents?.[0].startsWith(partialId) &&
-        file.name?.startsWith(".banner"),
+    const banner = findBanner.data.files?.find((file) =>
+      file.name?.startsWith(".banner"),
     );
     if (!banner) {
       payload.success = false;
@@ -45,7 +34,7 @@ export default initMiddleware(async function handler(
     }
 
     payload.banner = {
-      id: urlEncrypt(banner.id as string),
+      id: shortEncrypt(banner.id as string),
       name: banner.name as string,
     };
 
@@ -57,11 +46,19 @@ export default initMiddleware(async function handler(
       responseTime: Date.now() - _start,
       code: error.code || 500,
       errors: {
-        message: error.errors?.[0].message || error.message || "Unknown error",
-        reason: error.errors?.[0].reason || error.cause || "internalError",
+        message:
+          error.errors?.[0].message ||
+          error.message ||
+          "Unknown error",
+        reason:
+          error.errors?.[0].reason ||
+          error.cause ||
+          "internalError",
       },
     };
 
-    return response.status(payload.code || 500).json(payload);
+    return response
+      .status(payload.code || 500)
+      .json(payload);
   }
 });

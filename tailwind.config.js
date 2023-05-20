@@ -10,6 +10,18 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      minHeight: {
+        dynamic: "100vh",
+      },
+      minWidth: {
+        dynamic: "100vw",
+      },
+      height: {
+        dynamic: "100dvh",
+      },
+      width: {
+        dynamic: "100dvw",
+      },
       fontFamily: {
         body: ["var(--font-exo2)", ...defaultTheme.fontFamily.sans],
         docs: ["var(--font-source-sans-pro", ...defaultTheme.fontFamily.sans],

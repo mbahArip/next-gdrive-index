@@ -71,7 +71,16 @@ export type TFile = {
     "text/plain": string;
   };
 };
+export type TPath = {
+  name: string;
+  id: string;
+  mimeType: string;
+};
 
+export interface ValidatePathResponse extends APIResponse {
+  data: TPath[];
+  password?: string;
+}
 export interface FilesResponse extends APIResponse {
   passwordRequired?: boolean;
   passwordValidated?: boolean;

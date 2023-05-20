@@ -3,40 +3,58 @@ import siteConfig from "config/site.config";
 import { NextRequest } from "next/server";
 
 export const config = {
-  runtime: "edge",
+  runtime: "experimental-edge",
 };
 
 const fontBold = fetch(
-  new URL("../../../public/fonts/Exo2-Bold.ttf", import.meta.url),
+  new URL(
+    "../../../public/fonts/Exo2-Bold.ttf",
+    import.meta.url,
+  ),
 ).then((res) => res.arrayBuffer());
 const fontRegular = fetch(
-  new URL("../../../public/fonts/Exo2-Regular.ttf", import.meta.url),
+  new URL(
+    "../../../public/fonts/Exo2-Regular.ttf",
+    import.meta.url,
+  ),
 ).then((res) => res.arrayBuffer());
 
-export default async function handler(request: NextRequest) {
+export default async function handler(
+  request: NextRequest,
+) {
   try {
     const exoFont = await fontRegular;
     const exoFontBold = await fontBold;
 
     const { searchParams } = new URL(request.url);
 
-    const siteName = searchParams.get("siteName") || siteConfig.siteName;
+    const siteName =
+      searchParams.get("siteName") || siteConfig.siteName;
     const fileId = searchParams.get("fileId") || null;
     const fileName =
-      searchParams.get("fileName") || fileId?.split(":")[0] || null;
+      searchParams.get("fileName") ||
+      fileId?.split(":")[0] ||
+      null;
+    const fileExt = fileName?.split(".").pop() || null;
+
+    const isImage = [
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "webp",
+    ].includes(fileExt || "");
 
     if (!fileId) {
       throw new Error("No file ID");
     }
 
     let fileImage;
-    try {
-      if (fileId) {
-        fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?banner=1`;
-      } else {
-        fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files?banner=1`;
-      }
-    } catch (error: any) {
+    if (fileId && isImage) {
+      fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?download=1`;
+    } else if (fileId && !isImage) {
+      fileImage = `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${fileId}?thumbnail=1`;
+    } else {
       throw new Error("Default image");
     }
 

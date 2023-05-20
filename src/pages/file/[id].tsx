@@ -1,13 +1,19 @@
 import { GetServerSideProps } from "next";
 import axios from "axios";
-import { ErrorResponse, FileResponse } from "types/googleapis";
+import {
+  ErrorResponse,
+  FileResponse,
+} from "types/googleapis";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { urlDecrypt } from "utils/encryptionHelper";
+import { shortDecrypt } from "utils/encryptionHelper";
 import DefaultLayout from "components/layout/DefaultLayout";
 import { NextSeo } from "next-seo";
 import SWRLayout from "components/layout/SWRLayout";
-import { getFilePreview, getFileType } from "utils/mimeTypesHelper";
+import {
+  getFilePreview,
+  getFileType,
+} from "utils/mimeTypesHelper";
 import {
   capitalize,
   formatBytes,
@@ -27,7 +33,8 @@ type Metadata = {
 };
 export default function File({ id, fileName }: Props) {
   const [data, setData] = useState<FileResponse>();
-  const [PreviewComponent, setPreviewComponent] = useState<JSX.Element>();
+  const [PreviewComponent, setPreviewComponent] =
+    useState<JSX.Element>();
   const [metadata, setMetadata] = useState<Metadata[]>([]);
 
   const copyLink = useCopyText();
@@ -41,7 +48,9 @@ export default function File({ id, fileName }: Props) {
     data: swrData,
     error,
     isLoading,
-  } = useSWR<FileResponse, ErrorResponse>(`/api/files/${id}`);
+  } = useSWR<FileResponse, ErrorResponse>(
+    `/api/files/${id}`,
+  );
 
   useEffect(() => {
     if (swrData) {
@@ -49,8 +58,10 @@ export default function File({ id, fileName }: Props) {
         ...swrData,
         file: {
           ...swrData.file,
-          id: urlDecrypt(swrData.file.id as string),
-          webContentLink: urlDecrypt(swrData.file.webContentLink as string),
+          id: shortDecrypt(swrData.file.id as string),
+          webContentLink: shortDecrypt(
+            swrData.file.webContentLink as string,
+          ),
         },
       };
       setData(decryptedData);
@@ -90,11 +101,15 @@ export default function File({ id, fileName }: Props) {
         },
         {
           label: "Created",
-          value: formatDate(new Date(data.file.createdTime as string)),
+          value: formatDate(
+            new Date(data.file.createdTime as string),
+          ),
         },
         {
           label: "Modified",
-          value: formatDate(new Date(data.file.modifiedTime as string)),
+          value: formatDate(
+            new Date(data.file.modifiedTime as string),
+          ),
         },
       ];
       if (data.file.imageMediaMetadata) {
@@ -107,7 +122,8 @@ export default function File({ id, fileName }: Props) {
         defaultMetadata.push({
           label: "Duration",
           value: formatDuration(
-            data.file.videoMediaMetadata.durationMillis as string,
+            data.file.videoMediaMetadata
+              .durationMillis as string,
           ),
         });
       }
@@ -121,13 +137,19 @@ export default function File({ id, fileName }: Props) {
       renderSwitchLayout={false}
     >
       <NextSeo
-        title={`Viewing ${fileName.split(".").slice(0, -1).join(".")}`}
+        title={`Viewing ${fileName
+          .split(".")
+          .slice(0, -1)
+          .join(".")}`}
         openGraph={{
           title: fileName.split(".").slice(0, -1).join("."),
-          description: `Viewing ${fileName.split(".").slice(0, -1).join(".")}`,
-          url: `${process.env.NEXT_PUBLIC_DOMAIN}/file/${encodeURIComponent(
-            id,
-          )}`,
+          description: `Viewing ${fileName
+            .split(".")
+            .slice(0, -1)
+            .join(".")}`,
+          url: `${
+            process.env.NEXT_PUBLIC_DOMAIN
+          }/file/${encodeURIComponent(id)}`,
           images: [
             {
               url: `${
@@ -177,11 +199,19 @@ export default function File({ id, fileName }: Props) {
               {metadata.map((item, index) => (
                 <div
                   key={`fileDetails-${index}`}
-                  className={"mb-2 flex w-full flex-col justify-center"}
+                  className={
+                    "mb-2 flex w-full flex-col justify-center"
+                  }
                 >
-                  <span className={"font-bold text-inherit"}>{item.label}</span>
                   <span
-                    className={"whitespace-pre-wrap break-words text-inherit"}
+                    className={"font-bold text-inherit"}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    className={
+                      "whitespace-pre-wrap break-words text-inherit"
+                    }
                   >
                     {item.value}
                   </span>
@@ -195,14 +225,20 @@ export default function File({ id, fileName }: Props) {
 
               <div className={"divider-horizontal"} />
 
-              <div className={"flex w-full flex-col justify-center gap-2"}>
+              <div
+                className={
+                  "flex w-full flex-col justify-center gap-2"
+                }
+              >
                 <Link
                   href={`/api/files/${id}?download=1`}
                   className={"w-full"}
                   target={"_blank"}
                   rel={"noopener noreferrer"}
                 >
-                  <button className={"primary w-full"}>Download</button>
+                  <button className={"primary w-full"}>
+                    Download
+                  </button>
                 </Link>
                 <button
                   className={"secondary"}
@@ -223,22 +259,23 @@ export default function File({ id, fileName }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.query;
+export const getServerSideProps: GetServerSideProps =
+  async (context) => {
+    const { id } = context.query;
 
-  const fetchFileMetadata = await axios.get<FileResponse>(
-    `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
-  );
-  if (!fetchFileMetadata.data.success) {
+    const fetchFileMetadata = await axios.get<FileResponse>(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/files/${id}`,
+    );
+    if (!fetchFileMetadata.data.success) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        id,
+        fileName: fetchFileMetadata.data.file.name,
+      },
     };
-  }
-
-  return {
-    props: {
-      id,
-      fileName: fetchFileMetadata.data.file.name,
-    },
   };
-};

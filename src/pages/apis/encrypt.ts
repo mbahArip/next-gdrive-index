@@ -4,8 +4,8 @@ import { ExtendedError } from "utils/driveHelper";
 import {
   decrypt,
   encrypt,
-  urlDecrypt,
-  urlEncrypt,
+  shortDecrypt,
+  shortEncrypt,
 } from "utils/encryptionHelper";
 
 export default function handler(
@@ -15,23 +15,36 @@ export default function handler(
   const _start = Date.now();
   try {
     const { text, isUrl, isDecrypt } = request.query;
-    if (!text) throw new ExtendedError("Missing text", 400, "missingText");
+    if (!text)
+      throw new ExtendedError(
+        "Missing text",
+        400,
+        "missingText",
+      );
 
     let encrypted;
     let decrypted;
     if (!isDecrypt) {
       if (isUrl) {
-        const encodedText = encodeURIComponent(text as string);
-        encrypted = urlEncrypt(encodedText);
+        const encodedText = encodeURIComponent(
+          text as string,
+        );
+        encrypted = shortEncrypt(encodedText);
       } else {
-        const encodedText = encodeURIComponent(text as string);
+        const encodedText = encodeURIComponent(
+          text as string,
+        );
         encrypted = encrypt(encodedText);
       }
     } else {
       if (isUrl) {
-        decrypted = decodeURIComponent(urlDecrypt(text as string));
+        decrypted = decodeURIComponent(
+          shortDecrypt(text as string),
+        );
       } else {
-        decrypted = decodeURIComponent(decrypt(text as string));
+        decrypted = decodeURIComponent(
+          decrypt(text as string),
+        );
       }
     }
 
@@ -55,11 +68,19 @@ export default function handler(
       responseTime: Date.now() - _start,
       code: error.code || 500,
       errors: {
-        message: error.errors?.[0].message || error.message || "Unknown error",
-        reason: error.errors?.[0].reason || error.cause || "internalError",
+        message:
+          error.errors?.[0].message ||
+          error.message ||
+          "Unknown error",
+        reason:
+          error.errors?.[0].reason ||
+          error.cause ||
+          "internalError",
       },
     };
 
-    return response.status(payload.code || 500).json(payload);
+    return response
+      .status(payload.code || 500)
+      .json(payload);
   }
 }

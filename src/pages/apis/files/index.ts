@@ -1,10 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import driveClient from "utils/driveClient";
 import apiConfig from "config/api.config";
-import { ExtendedError, hiddenFiles } from "utils/driveHelper";
+import {
+  ExtendedError,
+  hiddenFiles,
+} from "utils/driveHelper";
 import initMiddleware from "utils/apiMiddleware";
-import { ErrorResponse, FilesResponse } from "types/googleapis";
-import { urlEncrypt } from "utils/encryptionHelper";
+import {
+  ErrorResponse,
+  FilesResponse,
+} from "types/googleapis";
+import { shortEncrypt } from "utils/encryptionHelper";
 
 export default initMiddleware(async function handler(
   request: NextApiRequest,
@@ -20,32 +26,41 @@ export default initMiddleware(async function handler(
       "'me' in owners",
       `parents = '${apiConfig.files.rootFolder}'`,
     ];
-    const fetchFolderContents = await driveClient.files.list({
-      q: `${query.join(" and ")}`,
-      fields:
-        "files(id, name, mimeType, thumbnailLink, fileExtension, fullFileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, iconLink), nextPageToken",
-      orderBy: "folder, name asc, createdTime",
-      pageSize: apiConfig.files.itemsPerPage,
-      pageToken: (pageToken as string) || undefined,
-    });
+    const fetchFolderContents =
+      await driveClient.files.list({
+        q: `${query.join(" and ")}`,
+        fields:
+          "files(id, name, mimeType, thumbnailLink, fileExtension, fullFileExtension, createdTime, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, iconLink), nextPageToken",
+        orderBy: "folder, name asc, createdTime",
+        pageSize: apiConfig.files.itemsPerPage,
+        pageToken: (pageToken as string) || undefined,
+      });
 
-    const isReadmeExists = fetchFolderContents.data.files?.find(
-      (file) => file.name === ".readme.md",
-    );
-    const isBannerExists = fetchFolderContents.data.files?.find((file) =>
-      file.name?.startsWith(".banner"),
-    );
-    const isPasswordExists = fetchFolderContents.data.files?.find((file) =>
-      file.name?.startsWith(".password"),
-    );
+    const isReadmeExists =
+      fetchFolderContents.data.files?.find(
+        (file) => file.name === ".readme.md",
+      );
+    const isBannerExists =
+      fetchFolderContents.data.files?.find((file) =>
+        file.name?.startsWith(".banner"),
+      );
+    const isPasswordExists =
+      fetchFolderContents.data.files?.find((file) =>
+        file.name?.startsWith(".password"),
+      );
 
     if (banner === "1") {
       if (!isBannerExists) {
-        throw new ExtendedError("Banner not found.", 404, "notFound");
+        throw new ExtendedError(
+          "Banner not found.",
+          404,
+          "notFound",
+        );
       }
-      const bannerFile = fetchFolderContents.data.files?.find((file) =>
-        file.name?.startsWith(".banner"),
-      );
+      const bannerFile =
+        fetchFolderContents.data.files?.find((file) =>
+          file.name?.startsWith(".banner"),
+        );
       const bannerFileStream = await driveClient.files.get(
         {
           fileId: bannerFile?.id as string,
@@ -63,24 +78,33 @@ export default initMiddleware(async function handler(
           bannerFile?.name as string,
         )}`,
       );
-      response.setHeader("Content-Length", bannerFile?.size as string);
-      return response.status(200).send(bannerFileStream.data);
+      response.setHeader(
+        "Content-Length",
+        bannerFile?.size as string,
+      );
+      return response
+        .status(200)
+        .send(bannerFileStream.data);
     }
 
     const folderList =
       fetchFolderContents.data.files
         ?.filter(
-          (item) => item.mimeType === "application/vnd.google-apps.folder",
+          (item) =>
+            item.mimeType ===
+            "application/vnd.google-apps.folder",
         )
         .map((item) => ({
           ...item,
-          id: urlEncrypt(item.id as string),
+          id: shortEncrypt(item.id as string),
         })) || [];
     const fileList =
       fetchFolderContents.data.files
         ?.filter(
           (item) =>
-            !item.mimeType?.startsWith("application/vnd.google-apps") &&
+            !item.mimeType?.startsWith(
+              "application/vnd.google-apps",
+            ) &&
             // !hiddenFiles.includes(item.name as string),
             !hiddenFiles.some((hiddenFile) =>
               item.name?.startsWith(hiddenFile),
@@ -88,9 +112,9 @@ export default initMiddleware(async function handler(
         )
         .map((item) => ({
           ...item,
-          id: urlEncrypt(item.id as string),
+          id: shortEncrypt(item.id as string),
           webContentLink: item.webContentLink
-            ? urlEncrypt(item.webContentLink)
+            ? shortEncrypt(item.webContentLink)
             : undefined,
         })) || [];
 
@@ -103,7 +127,8 @@ export default initMiddleware(async function handler(
       isReadmeExists: !!isReadmeExists,
       isBannerExists: !!isBannerExists,
       isPasswordExists: !!isPasswordExists,
-      nextPageToken: fetchFolderContents.data.nextPageToken || undefined,
+      nextPageToken:
+        fetchFolderContents.data.nextPageToken || undefined,
     };
 
     return response
@@ -117,11 +142,19 @@ export default initMiddleware(async function handler(
       responseTime: Date.now() - _start,
       code: error.code || 500,
       errors: {
-        message: error.errors?.[0].message || error.message || "Unknown error",
-        reason: error.errors?.[0].reason || error.cause || "internalError",
+        message:
+          error.errors?.[0].message ||
+          error.message ||
+          "Unknown error",
+        reason:
+          error.errors?.[0].reason ||
+          error.cause ||
+          "internalError",
       },
     };
 
-    return response.status(payload.code || 500).json(payload);
+    return response
+      .status(payload.code || 500)
+      .json(payload);
   }
 });

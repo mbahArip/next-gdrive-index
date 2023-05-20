@@ -1,12 +1,18 @@
-import { BsDiscord, BsGithub, BsPaypal } from "react-icons/bs";
+import {
+  BsDiscord,
+  BsEnvelopeAt,
+  BsGithub,
+  BsPaypal,
+} from "react-icons/bs";
 
-const config = {
+const oldConfig = {
   /* Site MetaData */
   // The name of the site
   siteName: "mbahArip Stash",
   // The description of the site
   // Used in meta tags and document head
-  siteDescription: "Personal Stash of mbahArip, a place to store my files.",
+  siteDescription:
+    "Personal Stash of mbahArip, a place to store my files.",
   // Fav icon of the site
   // Also used as the logo of the site on the navbar
   siteIcon: "/favicon.svg",
@@ -88,6 +94,60 @@ const config = {
     // google / mozilla
     // NOTE: the Google service sometimes doesn't work.
     pdfProvider: "mozilla",
+  },
+};
+const config = {
+  /* Site MetaData */
+  siteName: "mbahArip Stash",
+  siteDescription:
+    "Personal Stash of mbahArip, a place to store my files.",
+
+  /* General */
+  /**
+   * Site wide password protection
+   */
+  privateIndex: true,
+  indexPassword:
+    "640e3e38dd31aec254f214ba38541a82ddb615e73ce9c6129f33ef549b154ab9",
+
+  navbar: {
+    /**
+     * Title beside the logo
+     * If not set, will be using `siteName` instead
+     */
+    title: "",
+    links: [
+      {
+        icon: BsGithub,
+        name: "GitHub",
+        href: "https://www.github.com/mbaharip",
+        newTab: true,
+      },
+      {
+        icon: BsPaypal,
+        name: "Donate",
+        href: "https://www.paypal.me/mbaharip",
+        newTab: true,
+      },
+      {
+        icon: BsEnvelopeAt,
+        name: "Email",
+        href: "mailto:support@mbaharip.com",
+      },
+      {
+        name: "Main Website",
+        href: "https://www.mbaharip.com",
+        newTab: true,
+      },
+    ],
+  },
+  footer: {
+    /**
+     * Footer text will be rendered as
+     * {year} {footerText} - Powered by next-gdrive-index ❤️
+     */
+    text: "mbahArip Stash",
+    renderYear: true,
   },
 };
 

@@ -1,8 +1,11 @@
 import apiConfig from "config/api.config";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ErrorResponse, SearchResponse } from "types/googleapis";
+import {
+  ErrorResponse,
+  SearchResponse,
+} from "types/googleapis";
 import driveClient from "utils/driveClient";
-import { urlEncrypt } from "utils/encryptionHelper";
+import { shortEncrypt } from "utils/encryptionHelper";
 import { hiddenFiles } from "utils/driveHelper";
 
 export default async function handler(
@@ -43,12 +46,15 @@ export default async function handler(
               !hiddenFiles.some((hiddenFile) =>
                 item.name?.startsWith(hiddenFile),
               ) &&
-              (!item.mimeType?.startsWith("application/vnd.google-apps") ||
-                item.mimeType === "application/vnd.google-apps.folder"),
+              (!item.mimeType?.startsWith(
+                "application/vnd.google-apps",
+              ) ||
+                item.mimeType ===
+                  "application/vnd.google-apps.folder"),
           )
           .map((item) => ({
             ...item,
-            id: urlEncrypt(item.id as string),
+            id: shortEncrypt(item.id as string),
           })) || [],
     };
 
@@ -63,11 +69,19 @@ export default async function handler(
       responseTime: Date.now() - _start,
       code: error.code || 500,
       errors: {
-        message: error.errors?.[0].message || error.message || "Unknown error",
-        reason: error.errors?.[0].reason || error.cause || "internalError",
+        message:
+          error.errors?.[0].message ||
+          error.message ||
+          "Unknown error",
+        reason:
+          error.errors?.[0].reason ||
+          error.cause ||
+          "internalError",
       },
     };
 
-    return response.status(payload.code || 500).json(payload);
+    return response
+      .status(payload.code || 500)
+      .json(payload);
   }
 }

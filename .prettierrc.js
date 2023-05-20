@@ -1,9 +1,7 @@
 "use strict";
-const tailwindConfig = require("prettier-plugin-tailwindcss");
-
 module.exports = {
-  plugins: [tailwindConfig],
-  printWidth: 80,
+  plugins: [require("prettier-plugin-tailwindcss")],
+  printWidth: 60,
   tabWidth: 2,
   useTabs: false,
   semi: true,
