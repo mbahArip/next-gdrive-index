@@ -68,6 +68,7 @@ module.exports = {
        */
       banner: ".banner",
     },
+    hiddenFiles: [".password", ".readme.md", ".banner"],
     itemsPerPage: 50,
     searchResult: 10,
     /**
@@ -108,5 +109,5 @@ module.exports = {
   /**
    * https://web.dev/uses-long-cache-ttl/
    */
-  cache: "s-maxage=60, stale-while-revalidate",
+  cacheControl: "s-maxage=60, stale-while-revalidate",
 };

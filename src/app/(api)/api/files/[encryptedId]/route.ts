@@ -1,20 +1,17 @@
+import shortEncryption from "utils/encryptionHelper/shortEncryption";
+import gdrive from "utils/apiHelper/gdrive";
+import { drive_v3 } from "googleapis";
+import apiConfig from "config/api.config";
+import { API_Response } from "types/api";
 import {
-  ErrorResponse,
   FileResponse,
   FilesResponse,
-} from "types/googleapis";
+} from "types/api/files";
 import { NextRequest, NextResponse } from "next/server";
-import getSearchParams from "utils/getSearchParams";
-import {
-  shortDecrypt,
-  shortEncrypt,
-} from "utils/encryptionHelper";
-import driveClient from "utils/driveClient";
-import apiConfig from "config/api.config";
-import {
-  ExtendedError,
-  hiddenFiles,
-} from "utils/driveHelper";
+import createErrorPayload from "utils/apiHelper/createErrorPayload";
+import ExtendedError from "utils/generalHelper/extendedError";
+import getSearchParams from "utils/apiHelper/getSearchParams";
+import { Constant } from "types/general/constant";
 
 export async function GET(
   request: NextRequest,
@@ -25,7 +22,7 @@ export async function GET(
   try {
     const { pageToken, banner, thumbnail } =
       getSearchParams(request.url, ["pageToken", "banner"]);
-    const id = shortDecrypt(params.encryptedId);
+    const id = shortEncryption.decrypt(params.encryptedId);
     if (id === apiConfig.files.rootFolder) {
       return NextResponse.redirect(
         `${apiConfig.basePath}/api/files`,
@@ -35,7 +32,7 @@ export async function GET(
       );
     }
 
-    const file = await driveClient.files.get({
+    const file = await gdrive.files.get({
       fileId: id,
       fields: apiConfig.files.field,
     });
@@ -44,7 +41,12 @@ export async function GET(
       const msg = file.data.trashed
         ? "File has been deleted"
         : "File not found";
-      throw new ExtendedError(msg, 404, "notFound");
+      throw new ExtendedError(
+        Constant.apiFileNotFound,
+        404,
+        "notFound",
+        msg,
+      );
     }
 
     if (
@@ -60,15 +62,17 @@ export async function GET(
         );
       }
 
-      const payload: FileResponse = {
+      const payload: API_Response<FileResponse> = {
         success: true,
         timestamp: new Date().toISOString(),
         responseTime: Date.now() - _start,
-        file: {
+        data: {
           ...file.data,
-          id: shortEncrypt(file.data.id as string),
+          id: shortEncryption.encrypt(
+            file.data.id as string,
+          ),
           webContentLink:
-            shortEncrypt(
+            shortEncryption.encrypt(
               file.data.webContentLink as string,
             ) || undefined,
         },
@@ -77,7 +81,7 @@ export async function GET(
       return NextResponse.json(payload, {
         status: 200,
         headers: {
-          "Cache-Control": apiConfig.cache,
+          "Cache-Control": apiConfig.cacheControl,
         },
       });
     }
@@ -87,7 +91,7 @@ export async function GET(
       "trashed = false",
       "'me' in owners",
     ];
-    const folderContents = await driveClient.files.list({
+    const fetchFolderContents = await gdrive.files.list({
       q: `${query.join(" and ")}`,
       fields: `files(${apiConfig.files.field}), nextPageToken`,
       orderBy: apiConfig.files.orderBy,
@@ -95,11 +99,11 @@ export async function GET(
       pageToken: pageToken || undefined,
     });
 
-    const readmeFile = folderContents.data.files?.find(
+    const readmeFile = fetchFolderContents.data.files?.find(
       (file) =>
         file.name === apiConfig.files.specialFile.readme,
     );
-    const bannerFile = folderContents.data.files?.find(
+    const bannerFile = fetchFolderContents.data.files?.find(
       (file) =>
         file.name?.startsWith(
           apiConfig.files.specialFile.banner,
@@ -109,9 +113,10 @@ export async function GET(
     if (banner === "1") {
       if (!bannerFile) {
         throw new ExtendedError(
-          "Banner not found.",
+          Constant.apiFileNotFound,
           404,
           "notFound",
+          "The banner file is not found.",
         );
       }
       if (
@@ -125,7 +130,9 @@ export async function GET(
       }
 
       return NextResponse.redirect(
-        `${apiConfig.basePath}/api/banner?id=${shortEncrypt(
+        `${
+          apiConfig.basePath
+        }/api/banner?id=${shortEncryption.encrypt(
           bannerFile.id as string,
         )}`,
         {
@@ -135,7 +142,7 @@ export async function GET(
     }
 
     const folderList =
-      folderContents.data.files
+      (fetchFolderContents.data.files
         ?.filter(
           (file) =>
             file.mimeType ===
@@ -143,61 +150,56 @@ export async function GET(
         )
         .map((file) => ({
           ...file,
-          id: shortEncrypt(file.id as string),
-        })) || [];
+          id: shortEncryption.encrypt(file.id as string),
+        })) as drive_v3.Schema$File[]) || [];
     const fileList =
-      folderContents.data.files
+      (fetchFolderContents.data.files
         ?.filter(
           (file) =>
-            file.mimeType !==
-              "application/vnd.google-apps.folder" &&
-            !hiddenFiles.some((hiddenFile) =>
-              file.name?.startsWith(hiddenFile),
+            !file.mimeType?.startsWith(
+              "application/vnd.google-apps",
+            ) &&
+            !apiConfig.files.hiddenFiles.some(
+              (hiddenFile) =>
+                file.name?.startsWith(hiddenFile),
             ),
         )
         .map((file) => ({
           ...file,
-          id: shortEncrypt(file.id as string),
+          id: shortEncryption.encrypt(file.id as string),
           webContentLink:
-            shortEncrypt(file.webContentLink as string) ||
-            undefined,
-        })) || [];
+            shortEncryption.encrypt(
+              file.webContentLink as string,
+            ) || undefined,
+        })) as drive_v3.Schema$File[]) || [];
 
-    const payload: FilesResponse = {
+    const payload: API_Response<FilesResponse> = {
       success: true,
       timestamp: new Date().toISOString(),
       responseTime: Date.now() - _start,
-      folders: folderList,
-      files: fileList,
-      isReadmeExists: !!readmeFile,
-      isBannerExists: !!bannerFile,
-      nextPageToken:
-        folderContents.data.nextPageToken || undefined,
+      data: {
+        folders: folderList,
+        files: fileList,
+        isReadmeExists: !!readmeFile,
+        isBannerExists: !!bannerFile,
+        nextPageToken:
+          fetchFolderContents.data.nextPageToken ||
+          undefined,
+      },
     };
 
     return NextResponse.json(payload, {
       status: 200,
       headers: {
-        "Cache-Control": apiConfig.cache,
+        "Cache-Control": apiConfig.cacheControl,
       },
     });
   } catch (error: any) {
-    const payload: ErrorResponse = {
-      success: false,
-      timestamp: new Date().toISOString(),
-      responseTime: Date.now() - _start,
-      code: error.code || 500,
-      errors: {
-        message:
-          error.errors?.[0].message ||
-          error.message ||
-          "Unknown error",
-        reason:
-          error.errors?.[0].reason ||
-          error.cause ||
-          "internalError",
-      },
-    };
+    const payload = createErrorPayload(
+      error,
+      "GET /api/files",
+      _start,
+    );
 
     return NextResponse.json(payload, {
       status: payload.code || 500,

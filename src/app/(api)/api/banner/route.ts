@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ErrorResponse } from "types/googleapis";
-import getSearchParams from "utils/getSearchParams";
+import getSearchParams from "utils/apiHelper/getSearchParams";
 import { ExtendedError } from "utils/driveHelper";
 import driveClient from "utils/driveClient";
 import { shortDecrypt } from "utils/encryptionHelper";
