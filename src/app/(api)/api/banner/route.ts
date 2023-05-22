@@ -50,7 +50,8 @@ export async function GET(request: NextRequest) {
 
     if (
       Number(metadata.data.size) >
-      apiConfig.files.download.maxFileSize
+        apiConfig.files.download.maxFileSize &&
+      apiConfig.files.download.maxFileSize > 0
     ) {
       return NextResponse.redirect(
         metadata.data.webContentLink as string,

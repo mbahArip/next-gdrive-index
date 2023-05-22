@@ -60,6 +60,7 @@ module.exports = {
        * https://vercel.com/docs/platform/limits#serverless-function-payload-size-limit
        * If you're using another platform that has different limit,
        * change this value to match your platform.
+       * Set to 0 to disable limit
        */
       maxFileSize: 4 * 1024 * 1024,
     },
