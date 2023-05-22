@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ErrorResponse } from "types/googleapis";
+import createErrorPayload from "utils/apiHelper/createErrorPayload";
 import getSearchParams from "utils/apiHelper/getSearchParams";
-import { ExtendedError } from "utils/driveHelper";
-import driveClient from "utils/driveClient";
-import { shortDecrypt } from "utils/encryptionHelper";
+import ExtendedError from "utils/generalHelper/extendedError";
+import { Constant } from "types/general/constant";
+import gdrive from "utils/apiHelper/gdrive";
+import shortEncryption from "utils/encryptionHelper/shortEncryption";
+import apiConfig from "config/api.config";
 
 export async function GET(request: NextRequest) {
   const _start = Date.now();
@@ -11,19 +13,20 @@ export async function GET(request: NextRequest) {
     const { id } = getSearchParams(request.url, ["id"]);
     if (!id) {
       throw new ExtendedError(
-        "No id provided",
+        Constant.apiBadRequest,
         400,
         "badRequest",
+        "Missing id",
       );
     }
 
-    const getMetadata = driveClient.files.get({
-      fileId: shortDecrypt(id),
-      fields: "id, name, mimeType",
+    const getMetadata = gdrive.files.get({
+      fileId: shortEncryption.decrypt(id),
+      fields: "id, name, mimeType, webContentLink",
     });
-    const getStream = driveClient.files.get(
+    const getStream = gdrive.files.get(
       {
-        fileId: shortDecrypt(id),
+        fileId: shortEncryption.decrypt(id),
         alt: "media",
       },
       { responseType: "stream" },
@@ -33,6 +36,27 @@ export async function GET(request: NextRequest) {
       getMetadata,
       getStream,
     ]);
+    if (!metadata || metadata.data.trashed) {
+      const msg = metadata.data.trashed
+        ? "File has been deleted"
+        : "File not found";
+      throw new ExtendedError(
+        Constant.apiFileNotFound,
+        404,
+        "notFound",
+        msg,
+      );
+    }
+
+    if (
+      Number(metadata.data.size) >
+      apiConfig.files.download.maxFileSize
+    ) {
+      return NextResponse.redirect(
+        metadata.data.webContentLink as string,
+        { status: 302 },
+      );
+    }
 
     const arrayBuffer = await new Promise<ArrayBuffer>(
       (resolve, reject) => {
@@ -59,28 +83,16 @@ export async function GET(request: NextRequest) {
         "Content-Type":
           metadata.data.mimeType ||
           "application/octet-stream",
-        "Cache-Control":
-          "public, max-age=31536000, immutable",
+        "Cache-Control": apiConfig.cacheControl,
         "Content-Disposition": `inline; filename="${metadata.data.name}"`,
       },
     });
   } catch (error: any) {
-    const payload: ErrorResponse = {
-      success: false,
-      timestamp: new Date().toISOString(),
-      responseTime: Date.now() - _start,
-      code: error.code || 500,
-      errors: {
-        message:
-          error.errors?.[0].message ||
-          error.message ||
-          "Unknown error",
-        reason:
-          error.errors?.[0].reason ||
-          error.cause ||
-          "internalError",
-      },
-    };
+    const payload = createErrorPayload(
+      error,
+      "GET /api/banner",
+      _start,
+    );
 
     return NextResponse.json(payload, {
       status: payload.code || 500,

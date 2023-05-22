@@ -20,6 +20,7 @@ function createErrorPayload(
   };
 
   if (error instanceof ExtendedError) {
+    console.log(error.message);
     payload.message = error.message;
     payload.category = error.category || "internalError";
     payload.reason =

@@ -2,7 +2,12 @@
 
 import { ThemeContext, TTheme } from "context/themeContext";
 import { useEffect, useState } from "react";
-import { TLayout } from "context/layoutContext";
+import {
+  LayoutContext,
+  TLayout,
+} from "context/layoutContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.min.css";
 
 type Props = {
   children: React.ReactNode;
@@ -54,7 +59,32 @@ function ContextWrapper({ children }: Props) {
           },
         }}
       >
-        {children}
+        <LayoutContext.Provider
+          value={{
+            layout,
+            setLayout: (layout) => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("layout", layout);
+              }
+              setLayout(layout);
+            },
+          }}
+        >
+          <ToastContainer
+            position='bottom-center'
+            autoClose={2500}
+            limit={3}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover={false}
+            theme={theme}
+          />
+          {children}
+        </LayoutContext.Provider>
       </ThemeContext.Provider>
     </>
   );

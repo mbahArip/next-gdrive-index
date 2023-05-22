@@ -1,10 +1,18 @@
-import { cookies } from "next/headers";
-import axios from "axios";
 import { ValidatePathResponse } from "types/googleapis";
+import fetch from "utils/generalHelper/fetch";
+import { cookies } from "next/headers";
 
-async function _validatePath(path: string) {
-  const { data } = await axios.get<ValidatePathResponse>(
-    `/api/validate-path?path=${path}`,
+async function _validatePath(
+  path: string,
+  cookies?: string,
+) {
+  const { data } = await fetch.get<ValidatePathResponse>(
+    `/api/validate/${path}`,
+    {
+      headers: {
+        Cookie: `${cookies}`,
+      },
+    },
   );
   return data;
 }
@@ -14,13 +22,24 @@ type Props = {
     path: string[];
   };
 };
-async function ListIdPage({ params }: Props) {
+async function FilePage({ params }: Props) {
+  const cookieStore = cookies();
+
+  const password = cookieStore.get("next-gdrive-password");
   const validatePath = await _validatePath(
     params.path.join("/"),
+    `${password?.name}=${password?.value}`,
   );
-  const c = cookies();
-  const token = c.has("token") ? c.get("token")?.name : "";
-  return <div>lorem - {token}</div>;
+  return (
+    <div>
+      {validatePath.data.map((item) => (
+        <div key={item.id}>
+          <h1>{item.name}</h1>
+          <p>{item.id}</p>
+        </div>
+      ))}
+    </div>
+  );
 }
 
-export default ListIdPage;
+export default FilePage;

@@ -16,7 +16,7 @@ fetch.interceptors.response.use(
     if (error.response) {
       const payload = JSON.stringify(
         new ExtendedError(
-          error.message,
+          error.response.data.message,
           error.response.data.code,
           error.response.data.category,
           error.response.data.reason,

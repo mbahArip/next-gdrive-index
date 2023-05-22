@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
-import Navbar from "components/Navbar";
-import Footer from "components/Footer";
+import Navbar from "./compNavbar";
+import Footer from "./compFooter";
 import ContextWrapper from "./contextWrapper";
 import {
   Exo_2,
@@ -10,6 +10,7 @@ import {
 } from "next/font/google";
 
 import siteConfig from "config/site.config";
+import apiConfig from "config/api.config";
 import "styles/globals.css";
 
 const exo2 = Exo_2({
@@ -35,8 +36,24 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(apiConfig.basePath),
   title: siteConfig.siteName,
   description: siteConfig.siteDescription,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: siteConfig.siteName,
+    description: siteConfig.siteDescription,
+    url: `/`,
+    siteName: siteConfig.siteName,
+  },
+  twitter: {
+    title: siteConfig.siteName,
+    description: siteConfig.siteDescription,
+    card: "summary_large_image",
+    site: siteConfig.siteName,
+  },
 };
 
 type Props = {
@@ -52,11 +69,11 @@ function RootLayout({ children }: Props) {
         <ContextWrapper>
           <main
             className={
-              "text-dark-900 flex h-full min-h-dynamic w-dynamic flex-col bg-zinc-200 font-body dark:bg-zinc-800 dark:text-zinc-100"
+              "text-dark-900 flex h-full min-h-dynamic w-full flex-col bg-zinc-200 font-body dark:bg-zinc-800 dark:text-zinc-100"
             }
           >
             <Navbar />
-            <div className={"flex-grow p-4"}>
+            <div className={"flex-grow px-4 py-2"}>
               {children}
             </div>
             <Footer />

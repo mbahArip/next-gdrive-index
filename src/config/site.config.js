@@ -141,6 +141,26 @@ const config = {
       },
     ],
   },
+  files: {
+    /**
+     * Limit breadcrumb to specific depth
+     * 0 = Unlimited
+     * 1 = Only show current file
+     * 2 = Show current file and its parent
+     * 3 = Show current file, its parent and grandparent
+     * and so on.
+     * Default: 2
+     */
+    breadcrumbDepth: 2,
+    breadcrumbLimiter: "/",
+    /**
+     * Limit thumbnail to specific file group
+     * Refer to typeGroup on /src/utils/fileHelper/fileGroup.ts:1
+     * Will use google drive thumbnailLink
+     * If thumbnailLink not available, will use Icon instead
+     */
+    allowThumbnailFileType: ["image", "video", "pdf"],
+  },
   footer: {
     /**
      * Footer text will be rendered as

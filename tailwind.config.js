@@ -23,9 +23,18 @@ module.exports = {
         dynamic: "100dvw",
       },
       fontFamily: {
-        body: ["var(--font-exo2)", ...defaultTheme.fontFamily.sans],
-        docs: ["var(--font-source-sans-pro", ...defaultTheme.fontFamily.sans],
-        code: ["var(--font-jetbrains-mono)", ...defaultTheme.fontFamily.mono],
+        body: [
+          "var(--font-exo2)",
+          ...defaultTheme.fontFamily.sans,
+        ],
+        docs: [
+          "var(--font-source-sans-pro",
+          ...defaultTheme.fontFamily.sans,
+        ],
+        code: [
+          "var(--font-jetbrains-mono)",
+          ...defaultTheme.fontFamily.mono,
+        ],
       },
       screens: {
         mobile: "320px",
@@ -33,7 +42,8 @@ module.exports = {
         desktop: "1024px",
       },
       backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-radial":
+          "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         "checkerboard":

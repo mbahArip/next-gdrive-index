@@ -143,12 +143,16 @@ export async function GET(
     );
     const nearestProtectedFolder =
       protectedFolder[protectedFolder.length - 1] ?? null;
-
-    console.log(nearestProtectedFolder);
+    const masterKey = request.headers.get("x-gdrive-key");
+    const validMasterKey = passwordHash.verify(
+      masterKey || "",
+      apiConfig.masterKey,
+    );
 
     if (
       nearestProtectedFolder &&
-      nearestProtectedFolder.passwordId
+      nearestProtectedFolder.passwordId &&
+      !validMasterKey
     ) {
       const fetchPassword = await gdrive.files.get(
         {

@@ -119,15 +119,6 @@ export async function GET(
           "The banner file is not found.",
         );
       }
-      if (
-        Number(bannerFile.size) >
-        apiConfig.files.download.maxFileSize
-      ) {
-        return NextResponse.redirect(
-          bannerFile.webContentLink as string,
-          { status: 302 },
-        );
-      }
 
       return NextResponse.redirect(
         `${
