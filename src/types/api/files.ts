@@ -4,6 +4,7 @@ export type FilesResponse = {
   folders: drive_v3.Schema$File[];
   files: drive_v3.Schema$File[];
   isReadmeExists?: boolean;
+  readmeContent?: string;
   isBannerExists?: boolean;
   nextPageToken?: string;
 };
