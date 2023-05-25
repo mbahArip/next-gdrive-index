@@ -82,7 +82,6 @@ export default function Error({
             <p className={"font-medium"}>
               {extendedError?.message}
             </p>
-            <span>{path}</span>
             <div
               className={
                 "flex flex-row gap-2 tablet:flex-row"
@@ -108,7 +107,7 @@ export default function Error({
           {/* Error reason */}
           <pre
             className={
-              "absolute bottom-2 my-4 max-w-sm whitespace-pre-wrap rounded-lg border border-zinc-500/25 bg-zinc-100 px-4 py-2 text-xs dark:bg-zinc-900 md:max-w-screen-lg"
+              "absolute bottom-0 my-4 max-w-sm whitespace-pre-wrap rounded-lg border border-zinc-500/25 bg-zinc-100 px-4 py-2 text-xs dark:bg-zinc-900 md:max-w-screen-lg"
             }
           >
             <b>{extendedError?.category}: </b>
