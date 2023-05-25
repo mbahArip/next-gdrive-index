@@ -322,10 +322,10 @@ function Action({
   const copyLink = useCopyText();
   let url: string = apiConfig.basePath;
   if (path) {
+    if (isDownloadable) {
+      url += "/download";
+    }
     url += path;
-  }
-  if (path && isDownloadable) {
-    url += `/download${path}`;
   }
   return (
     <div
