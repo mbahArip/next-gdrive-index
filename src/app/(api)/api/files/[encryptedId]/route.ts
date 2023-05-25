@@ -1,17 +1,20 @@
-import shortEncryption from "utils/encryptionHelper/shortEncryption";
-import gdrive from "utils/apiHelper/gdrive";
 import { drive_v3 } from "googleapis";
-import apiConfig from "config/api.config";
+import { NextRequest, NextResponse } from "next/server";
+
+import createErrorPayload from "utils/apiHelper/createErrorPayload";
+import gdrive from "utils/apiHelper/gdrive";
+import getSearchParams from "utils/apiHelper/getSearchParams";
+import shortEncryption from "utils/encryptionHelper/shortEncryption";
+import ExtendedError from "utils/generalHelper/extendedError";
+
 import { API_Response } from "types/api";
 import {
   FileResponse,
   FilesResponse,
 } from "types/api/files";
-import { NextRequest, NextResponse } from "next/server";
-import createErrorPayload from "utils/apiHelper/createErrorPayload";
-import ExtendedError from "utils/generalHelper/extendedError";
-import getSearchParams from "utils/apiHelper/getSearchParams";
 import { Constant } from "types/general/constant";
+
+import apiConfig from "config/api.config";
 
 export async function GET(
   request: NextRequest,
@@ -21,7 +24,11 @@ export async function GET(
 
   try {
     const { pageToken, banner, thumbnail } =
-      getSearchParams(request.url, ["pageToken", "banner"]);
+      getSearchParams(request.url, [
+        "pageToken",
+        "banner",
+        "thumbnail",
+      ]);
     const id = shortEncryption.decrypt(params.encryptedId);
     if (id === apiConfig.files.rootFolder) {
       return NextResponse.redirect(
@@ -54,6 +61,60 @@ export async function GET(
       "application/vnd.google-apps.folder"
     ) {
       if (thumbnail === "1") {
+        if (!file.data.thumbnailLink) {
+          const imgStream = await fetch(
+            `${apiConfig.basePath}/og.png`,
+          ).then((res) => res.arrayBuffer());
+          return new NextResponse(imgStream, {
+            status: 200,
+          });
+        }
+        if (file.data.mimeType?.startsWith("image/")) {
+          const imgStream = await gdrive.files.get(
+            {
+              fileId: id,
+              alt: "media",
+            },
+            { responseType: "stream" },
+          );
+          if (
+            Number(file.data.size) <
+              apiConfig.files.download.maxFileSize &&
+            apiConfig.files.download.maxFileSize > 0
+          ) {
+            const arrayBuffer =
+              await new Promise<ArrayBuffer>(
+                (resolve, reject) => {
+                  const chunks: Buffer[] = [];
+                  imgStream.data.on("data", (chunk) =>
+                    chunks.push(chunk),
+                  );
+                  imgStream.data.on("end", () => {
+                    const buffer = Buffer.concat(chunks);
+                    resolve(
+                      buffer.buffer.slice(
+                        buffer.byteOffset,
+                        buffer.byteOffset +
+                          buffer.byteLength,
+                      ),
+                    );
+                  });
+                  imgStream.data.on("error", reject);
+                },
+              );
+            return new NextResponse(arrayBuffer, {
+              status: 200,
+              headers: {
+                "Content-Type":
+                  file.data.mimeType ||
+                  "application/octet-stream",
+                "Cache-Control": apiConfig.cacheControl,
+                "Content-Disposition": `inline; filename="${file.data.name}"`,
+              },
+            });
+          }
+        }
+
         return NextResponse.redirect(
           file.data.thumbnailLink as string,
           {
@@ -103,6 +164,7 @@ export async function GET(
       (file) =>
         file.name === apiConfig.files.specialFile.readme,
     );
+    let readmeContent: string | undefined;
     const bannerFile = fetchFolderContents.data.files?.find(
       (file) =>
         file.name?.startsWith(
@@ -110,6 +172,16 @@ export async function GET(
         ) && file.mimeType?.startsWith("image/"),
     );
 
+    if (readmeFile) {
+      const readme = await gdrive.files.get(
+        {
+          fileId: readmeFile.id as string,
+          alt: "media",
+        },
+        { responseType: "text" },
+      );
+      readmeContent = readme.data as string;
+    }
     if (banner === "1") {
       if (!bannerFile) {
         throw new ExtendedError(
@@ -172,6 +244,7 @@ export async function GET(
         folders: folderList,
         files: fileList,
         isReadmeExists: !!readmeFile,
+        readmeContent,
         isBannerExists: !!bannerFile,
         nextPageToken:
           fetchFolderContents.data.nextPageToken ||
