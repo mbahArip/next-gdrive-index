@@ -1,12 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import passwordHash from "utils/encryptionHelper/passwordHash";
 
 import { Constant } from "types/general/constant";
 
-function Password({ path }: { path: string }) {
+function Password({
+  path,
+  redirect,
+}: {
+  path: string;
+  redirect: string;
+}) {
+  const router = useRouter();
   const [password, setPassword] = useState<string>("");
 
   const handlePasswordSubmit = (
@@ -42,7 +50,7 @@ function Password({ path }: { path: string }) {
       )}; expires=${expires.toUTCString()}; path=/`;
     }
 
-    window.location.reload();
+    router.push(redirect);
   };
 
   return (

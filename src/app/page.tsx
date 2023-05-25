@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import Breadcrumb from "components/compBreadcrumb";
 import FileLayout from "components/compFileLayout";
@@ -75,6 +75,14 @@ async function RootPage() {
 
   if (!pathValidation.success) {
     const errorData = pathValidation as API_Error;
+    if (errorData.code === 401) {
+      const protectedPath = errorData.reason
+        .split('"')[1]
+        .split('"')[0];
+      redirect(
+        `/password?redirect=/&path=${protectedPath}`,
+      );
+    }
     if (errorData.code === 404) {
       notFound();
     }
