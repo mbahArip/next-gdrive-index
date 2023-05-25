@@ -9,10 +9,10 @@ import { Constant } from "types/general/constant";
 
 function Password({
   path,
-  redirect,
+  redirect = "/",
 }: {
   path: string;
-  redirect: string;
+  redirect?: string;
 }) {
   const router = useRouter();
   const [password, setPassword] = useState<string>("");
