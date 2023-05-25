@@ -78,24 +78,52 @@ function ListLayout({ data }: Props) {
         </div>
         <div className={"divider-horizontal"} />
         <div className={"flex w-full flex-col"}>
-          {data.folders.map((folder) => (
-            <ListFolder
-              folder={folder}
-              key={`list-${folder.id}`}
-              path={
-                pathname === "/" ? "" : (pathname as string)
-              }
-            />
-          ))}
-          {data.files.map((file) => (
-            <ListFile
-              file={file}
-              key={`list-${file.id}`}
-              path={
-                pathname === "/" ? "" : (pathname as string)
-              }
-            />
-          ))}
+          {data.folders.length === 0 &&
+            data.files.length === 0 && (
+              <div
+                className={
+                  "col-span-full flex items-center justify-center py-2"
+                }
+              >
+                <span
+                  className={
+                    "text-lg font-bold text-center"
+                  }
+                >
+                  No files or folders found
+                </span>
+              </div>
+            )}
+          {data.folders.length > 0 && (
+            <>
+              {data.folders.map((folder) => (
+                <ListFolder
+                  folder={folder}
+                  key={`list-${folder.id}`}
+                  path={
+                    pathname === "/"
+                      ? ""
+                      : (pathname as string)
+                  }
+                />
+              ))}
+            </>
+          )}
+          {data.files.length > 0 && (
+            <>
+              {data.files.map((file) => (
+                <ListFile
+                  file={file}
+                  key={`list-${file.id}`}
+                  path={
+                    pathname === "/"
+                      ? ""
+                      : (pathname as string)
+                  }
+                />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -276,7 +304,6 @@ function ListFile({
         >
           <Action
             path={fileURL}
-            encryptedId={file.id ?? ""}
             isDownloadable={true}
           />
         </span>
@@ -287,11 +314,9 @@ function ListFile({
 
 function Action({
   path = "",
-  encryptedId = "",
   isDownloadable = false,
 }: {
   path?: string;
-  encryptedId?: string;
   isDownloadable?: boolean;
 }) {
   const copyLink = useCopyText();

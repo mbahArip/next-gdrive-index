@@ -21,36 +21,54 @@ function GridLayout({ data }: Props) {
   const pathname = usePathname();
   return (
     <div className={"flex h-full w-full flex-col gap-8"}>
-      <div
-        className={
-          "grid grid-cols-1 gap-4 tablet:grid-cols-4"
-        }
-      >
-        {data.folders.map((folder) => (
-          <GridFolder
-            folder={folder}
-            key={folder.id}
-            path={
-              pathname === "/" ? "" : (pathname as string)
+      {data.folders.length === 0 &&
+        data.files.length === 0 && (
+          <div
+            className={
+              "w-full flex items-center justify-center py-2"
             }
-          />
-        ))}
-      </div>
-      <div
-        className={
-          "grid grid-cols-1 gap-4 tablet:grid-cols-4"
-        }
-      >
-        {data.files.map((file) => (
-          <GridFile
-            file={file}
-            key={file.id}
-            path={
-              pathname === "/" ? "" : (pathname as string)
-            }
-          />
-        ))}
-      </div>
+          >
+            <span
+              className={"text-lg font-bold text-center"}
+            >
+              No files or folders found
+            </span>
+          </div>
+        )}
+      {data.folders.length > 0 && (
+        <div
+          className={
+            "grid grid-cols-1 gap-4 tablet:grid-cols-4"
+          }
+        >
+          {data.folders.map((folder) => (
+            <GridFolder
+              folder={folder}
+              key={folder.id}
+              path={
+                pathname === "/" ? "" : (pathname as string)
+              }
+            />
+          ))}
+        </div>
+      )}
+      {data.files.length > 0 && (
+        <div
+          className={
+            "grid grid-cols-1 gap-4 tablet:grid-cols-4"
+          }
+        >
+          {data.files.map((file) => (
+            <GridFile
+              file={file}
+              key={file.id}
+              path={
+                pathname === "/" ? "" : (pathname as string)
+              }
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
