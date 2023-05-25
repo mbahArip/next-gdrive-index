@@ -4515,10 +4515,10 @@ react-h5-audio-player@^3.8.6:
     "@iconify/icons-mdi" "~1.1.0"
     "@iconify/react" "^3.1.3"
 
-react-icons@^4.8.0:
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.8.0.tgz#621e900caa23b912f737e41be57f27f6b2bff445"
-  integrity sha512-N6+kOLcihDiAnj5Czu637waJqSnwlMNROzVZMhfX68V/9bu9qHaMIJC4UdozWoOk57gahFCNHwVvWzm0MTzRjg==
+react-icons@4.8.1-snapshot.2:
+  version "4.8.1-snapshot.2"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.8.1-snapshot.2.tgz#336ecd15cacd99c799df4e7a244e2f99c5703432"
+  integrity sha512-EC41ETSFRtpAuwstiDw/8rkjWbw13TQAQDIQDckCOnAgf1bPcXOx+OLUzCNpNd4sPwl/P8dSFqTwSUYybYWmJQ==
 
 react-is@^16.13.1:
   version "16.13.1"
