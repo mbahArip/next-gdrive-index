@@ -1,5 +1,6 @@
 import { Metadata, ResolvingMetadata } from "next";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 
 import Breadcrumb from "components/compBreadcrumb";
 import FileLayout from "components/compFileLayout";
@@ -119,6 +120,9 @@ async function FilePage({ params }: Props) {
 
   if (!pathValidation.success) {
     const errorData = pathValidation as API_Error;
+    if (errorData.code === 404) {
+      notFound();
+    }
     const payload = handleError(errorData);
     throw new Error(payload);
   }
