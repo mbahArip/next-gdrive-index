@@ -22,7 +22,11 @@ import { Constant } from "types/general/constant";
 import apiConfig from "config/api.config";
 import siteConfig from "config/site.config";
 
-import { alt, size } from "../../(api)/api/test/route";
+export const alt = siteConfig.siteName;
+export const size = {
+  width: 1200,
+  height: 630,
+};
 
 export async function GET(
   request: NextRequest,
