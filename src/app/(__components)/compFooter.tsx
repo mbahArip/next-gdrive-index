@@ -12,7 +12,7 @@ function Footer() {
       <span className={"text-xs font-semibold"}>
         {siteConfig.footer.renderYear &&
           new Date().getFullYear()}{" "}
-        {siteConfig.footer.text} - Powered by{" "}
+        {siteConfig.footer.text} -{" "}
         <Link
           role={"url"}
           href={
