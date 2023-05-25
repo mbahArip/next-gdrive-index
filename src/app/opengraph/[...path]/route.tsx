@@ -22,6 +22,8 @@ import { Constant } from "types/general/constant";
 import apiConfig from "config/api.config";
 import siteConfig from "config/site.config";
 
+export const runtime = "edge";
+
 export const alt = siteConfig.siteName;
 export const size = {
   width: 1200,
