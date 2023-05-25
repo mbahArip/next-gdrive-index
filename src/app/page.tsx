@@ -45,9 +45,10 @@ async function RootPage() {
   const getPathValidation = fetch(
     `${apiConfig.basePath}/api/validate`,
     {
-      headers: {
-        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-      },
+      credentials: "include",
+      // headers: {
+      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      // },
     },
   ).then(
     (res) =>
@@ -60,7 +61,10 @@ async function RootPage() {
     `${apiConfig.basePath}/api/files`,
     {
       headers: {
-        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+        credentials: "include",
+        // headers: {
+        //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+        // },
       },
     },
   ).then(

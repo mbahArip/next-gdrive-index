@@ -107,9 +107,10 @@ async function FilePage({ params }: Props) {
       "/",
     )}`,
     {
-      headers: {
-        Cookie: `${Constant.cookiePassword}=${passwordCookies};test=IsThisTheProblem`,
-      },
+      credentials: "include",
+      // headers: {
+      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      // },
     },
   ).then(
     (res) =>
@@ -151,9 +152,10 @@ async function FilePage({ params }: Props) {
   const filesData = await fetch(
     `${apiConfig.basePath}/api/files/${lastId}`,
     {
-      headers: {
-        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-      },
+      credentials: "include",
+      // headers: {
+      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      // },
     },
   ).then(
     (res) =>
