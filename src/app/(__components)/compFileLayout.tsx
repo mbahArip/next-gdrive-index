@@ -1,23 +1,29 @@
 "use client";
-import {
-  LayoutContext,
-  TLayoutContext,
-} from "context/layoutContext";
+
 import {
   useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
-import GridLayout from "./compGridLayout";
-import { FilesResponse } from "types/api/files";
-import fetch from "utils/generalHelper/fetch";
+
+import {
+  LayoutContext,
+  TLayoutContext,
+} from "context/layoutContext";
+
 import { API_Response } from "types/api";
+import { FilesResponse } from "types/api/files";
+
+import apiConfig from "config/api.config";
+
+import GridLayout from "./compGridLayout";
 import ListLayout from "./compListLayout";
 
 type Props = {
   data: FilesResponse;
 };
+
 function FileLayout({ data }: Props) {
   const { layout } =
     useContext<TLayoutContext>(LayoutContext);
@@ -39,21 +45,22 @@ function FileLayout({ data }: Props) {
 
   const handleLoadMore = useCallback(async () => {
     setIsNextPageLoading(true);
-    const { data: newData } = await fetch<
-      API_Response<FilesResponse>
-    >(`/api/files?pageToken=${nextPageToken}`);
+    const { data: newData } = await fetch(
+      `${apiConfig.basePath}/api/files?pageToken=${nextPageToken}`,
+    ).then(
+      (res) =>
+        res.json() as Promise<API_Response<FilesResponse>>,
+    );
+
     setClientData((prev) => ({
       ...prev,
-      files: [
-        ...prev.files,
-        ...(newData.data?.files ?? []),
-      ],
+      files: [...prev.files, ...(newData?.files ?? [])],
       folders: [
         ...prev.folders,
-        ...(newData.data?.folders ?? []),
+        ...(newData?.folders ?? []),
       ],
     }));
-    setNextPageToken(newData.data?.nextPageToken ?? "");
+    setNextPageToken(newData?.nextPageToken ?? "");
     setIsNextPageLoading(false);
   }, [nextPageToken]);
 
