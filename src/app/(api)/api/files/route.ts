@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { drive_v3 } from "googleapis";
-import apiConfig from "config/api.config";
+import { NextRequest, NextResponse } from "next/server";
 
-import gdrive from "utils/apiHelper/gdrive";
 import createErrorPayload from "utils/apiHelper/createErrorPayload";
+import gdrive from "utils/apiHelper/gdrive";
 import getSearchParams from "utils/apiHelper/getSearchParams";
 import shortEncryption from "utils/encryptionHelper/shortEncryption";
 import ExtendedError from "utils/generalHelper/extendedError";
@@ -11,6 +10,8 @@ import ExtendedError from "utils/generalHelper/extendedError";
 import { API_Response } from "types/api";
 import { FilesResponse } from "types/api/files";
 import { Constant } from "types/general/constant";
+
+import apiConfig from "config/api.config";
 
 export async function GET(request: NextRequest) {
   const _start = Date.now();
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
       (file) =>
         file.name === apiConfig.files.specialFile.readme,
     );
+    let readmeContent: string | undefined;
     const bannerFile = fetchFolderContents.data.files?.find(
       (file) =>
         file.name?.startsWith(
@@ -45,6 +47,16 @@ export async function GET(request: NextRequest) {
         ) && file.mimeType?.startsWith("image/"),
     );
 
+    if (readmeFile) {
+      const readme = await gdrive.files.get(
+        {
+          fileId: readmeFile.id as string,
+          alt: "media",
+        },
+        { responseType: "text" },
+      );
+      readmeContent = readme.data as string;
+    }
     if (banner === "1") {
       if (!bannerFile) {
         throw new ExtendedError(
@@ -107,6 +119,9 @@ export async function GET(request: NextRequest) {
         folders: folderList,
         files: fileList,
         isReadmeExists: !!readmeFile,
+        readmeContent: shortEncryption.encrypt(
+          readmeContent as string,
+        ),
         isBannerExists: !!bannerFile,
         nextPageToken:
           fetchFolderContents.data.nextPageToken ||
