@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
   const _start = Date.now();
 
   try {
-    const masterKey = request.headers.get("x-gdrive-key");
+    const masterKey = request.headers.get(
+      Constant.cookieMaster,
+    );
     const validMasterKey = passwordHash.verify(
       masterKey || "",
       apiConfig.masterKey,
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     if (siteConfig.privateIndex && !validMasterKey) {
       const userPassword = cookies().get(
-        `next-gdrive-password`,
+        Constant.cookiePassword,
       )?.value;
       if (!userPassword) {
         throw new ExtendedError(

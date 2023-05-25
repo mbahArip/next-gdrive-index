@@ -146,7 +146,9 @@ export async function GET(
     );
     const nearestProtectedFolder =
       protectedFolder[protectedFolder.length - 1] ?? null;
-    const masterKey = request.headers.get("x-gdrive-key");
+    const masterKey = request.headers.get(
+      Constant.cookieMaster,
+    );
     const validMasterKey = passwordHash.verify(
       masterKey || "",
       apiConfig.masterKey,
@@ -166,7 +168,7 @@ export async function GET(
       );
 
       const userPassword = cookies().get(
-        `next-gdrive-password`,
+        Constant.cookiePassword,
       )?.value;
       if (!userPassword) {
         throw new ExtendedError(
@@ -212,7 +214,7 @@ export async function GET(
       !validMasterKey
     ) {
       const userPassword = cookies().get(
-        `next-gdrive-password`,
+        Constant.cookiePassword,
       )?.value;
       if (!userPassword) {
         throw new ExtendedError(
