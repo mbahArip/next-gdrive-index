@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 function NotFound() {
+  console.log("Not Found");
   return (
     <div
       className={
@@ -21,9 +22,7 @@ function NotFound() {
           "flex max-w-screen-lg flex-col items-center gap-2"
         }
       >
-        <h1 className={"font-semibold"}>
-          Error 404: Not Found
-        </h1>
+        <h1 className={"font-semibold"}>404</h1>
         <p className={"font-medium"}>
           The file or folder you are trying to access does
           not exist or has been deleted.
