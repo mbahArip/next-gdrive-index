@@ -244,7 +244,9 @@ export async function GET(
         folders: folderList,
         files: fileList,
         isReadmeExists: !!readmeFile,
-        readmeContent,
+        readmeContent: readmeContent
+          ? shortEncryption.encrypt(readmeContent)
+          : undefined,
         isBannerExists: !!bannerFile,
         nextPageToken:
           fetchFolderContents.data.nextPageToken ||
