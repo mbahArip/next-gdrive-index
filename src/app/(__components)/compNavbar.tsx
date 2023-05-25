@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-import siteConfig from "config/site.config";
+import { useContext, useState } from "react";
 import {
   MdClose,
   MdDarkMode,
@@ -11,17 +10,25 @@ import {
   MdMenu,
   MdSearch,
 } from "react-icons/md";
-import { useContext, useState } from "react";
+
 import {
-  ThemeContext,
   TThemeContext,
+  ThemeContext,
 } from "context/themeContext";
+
+import { Constant } from "types/general/constant";
+
+import siteConfig from "config/site.config";
 
 function Navbar() {
   const { theme, setTheme } =
     useContext<TThemeContext>(ThemeContext);
   const [isMenuOpen, setIsMenuOpen] =
     useState<boolean>(false);
+
+  const clearPassword = () => {
+    document.cookie = `${Constant.cookiePassword}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  };
 
   return (
     <>
@@ -124,6 +131,15 @@ function Navbar() {
             className={
               "interactive relative flex aspect-square h-6 w-6 items-center justify-center tablet:h-5 tablet:w-5"
             }
+            onClick={() => {
+              const confirm = window.confirm(
+                "Are you sure you want to clear all password?",
+              );
+              if (confirm) {
+                clearPassword();
+                window.location.reload();
+              }
+            }}
           >
             <MdLogout
               className={
