@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 import Breadcrumb from "components/compBreadcrumb";
 import FileLayout from "components/compFileLayout";
+import CompReadmeRender from "components/compReadmeRender";
 import SwitchLayout from "components/compSwitchLayout";
 
 import { handleError } from "utils/generalHelper/axiosFetch";
@@ -182,6 +183,18 @@ async function FilePage({ params }: Props) {
           <span>File preview</span>
         )}
       </div>
+
+      {filesData.data?.isReadmeExists &&
+        filesData.data?.readmeContent && (
+          <div
+            id={"content-readme"}
+            className={"card"}
+          >
+            <CompReadmeRender
+              data={filesData.data.readmeContent}
+            />
+          </div>
+        )}
     </div>
   );
 }
