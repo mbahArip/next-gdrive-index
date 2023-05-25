@@ -320,12 +320,12 @@ function Action({
   isDownloadable?: boolean;
 }) {
   const copyLink = useCopyText();
-  let url: string = "";
+  let url: string = apiConfig.basePath;
   if (path) {
-    url = `${apiConfig.basePath}${path}`;
+    url += path;
   }
   if (path && isDownloadable) {
-    url = `${apiConfig.basePath}/download${path}`;
+    url += `/download${path}`;
   }
   return (
     <div
