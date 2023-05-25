@@ -355,8 +355,8 @@ function Action({
         <Link
           title={"Download"}
           href={url}
-          // target={"_blank"}
-          // rel={"noopener noreferrer"}
+          target={"_blank"}
+          rel={"noopener noreferrer"}
           onClick={(e) => {
             e.stopPropagation();
           }}
