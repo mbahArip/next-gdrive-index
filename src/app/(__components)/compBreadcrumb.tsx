@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { MdHome } from "react-icons/md";
 import { Fragment, useEffect, useState } from "react";
-import siteConfig from "config/site.config";
+import { MdHome } from "react-icons/md";
+
 import { FilePath } from "types/api/path";
+
+import siteConfig from "config/site.config";
 
 type Props = {
   data?: FilePath[];
 };
+
 function Breadcrumb({ data = [] }: Props) {
   const [breadcrumb, setBreadcrumb] = useState<FilePath[]>(
     [],

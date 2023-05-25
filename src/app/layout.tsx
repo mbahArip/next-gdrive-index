@@ -1,16 +1,13 @@
-import { Metadata } from "next";
-
-import Navbar from "./compNavbar";
-import Footer from "./compFooter";
-import ContextWrapper from "./contextWrapper";
 import {
   Exo_2,
   JetBrains_Mono,
   Source_Sans_Pro,
 } from "next/font/google";
 
-import siteConfig from "config/site.config";
-import apiConfig from "config/api.config";
+import ClientContextWrapper from "components/clientContextWrapper";
+import Footer from "components/compFooter";
+import Navbar from "components/compNavbar";
+
 import "styles/globals.css";
 
 const exo2 = Exo_2({
@@ -35,27 +32,6 @@ const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(apiConfig.basePath),
-  title: siteConfig.siteName,
-  description: siteConfig.siteDescription,
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: siteConfig.siteName,
-    description: siteConfig.siteDescription,
-    url: `/`,
-    siteName: siteConfig.siteName,
-  },
-  twitter: {
-    title: siteConfig.siteName,
-    description: siteConfig.siteDescription,
-    card: "summary_large_image",
-    site: siteConfig.siteName,
-  },
-};
-
 type Props = {
   children: React.ReactNode;
 };
@@ -66,7 +42,7 @@ function RootLayout({ children }: Props) {
       <body
         className={`${exo2.variable} ${sourceSansPro.variable} ${jetBrainsMono.variable} font-body`}
       >
-        <ContextWrapper>
+        <ClientContextWrapper>
           <main
             className={
               "text-dark-900 flex h-full min-h-dynamic w-full flex-col bg-zinc-200 font-body dark:bg-zinc-800 dark:text-zinc-100"
@@ -78,7 +54,7 @@ function RootLayout({ children }: Props) {
             </div>
             <Footer />
           </main>
-        </ContextWrapper>
+        </ClientContextWrapper>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ function getLocale() {
     return window.navigator.languages[0];
   return window.navigator.language;
 }
+
 function formatDate(date: Date, locale = getLocale()) {
   return new Intl.DateTimeFormat(locale, {
     year: "numeric",

@@ -1,6 +1,7 @@
+import ExtendedError from "utils/generalHelper/extendedError";
+
 import { API_Error } from "types/api";
 import { Constant } from "types/general/constant";
-import ExtendedError from "utils/generalHelper/extendedError";
 
 function createErrorPayload(
   error: any,

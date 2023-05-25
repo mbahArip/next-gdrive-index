@@ -2,8 +2,8 @@
 
 import React, {
   createContext,
-  useState,
   useEffect,
+  useState,
 } from "react";
 
 export type TTheme = "dark" | "light";

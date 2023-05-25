@@ -1,75 +1,90 @@
 @tailwind components;
 
 @layer components {
-  .markdown {
-    @apply leading-normal text-inherit bg-inherit;
-  }
+    .markdown {
+        @apply leading-normal text-inherit bg-inherit;
+    }
 
-  
-  .markdown p {
-    @apply leading-loose;
-  }
 
-  .markdown h1, .markdown h2, .markdown h3 {
-    @apply mb-4 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700 first-letter:capitalize;
-  }
+    .markdown p {
+        @apply leading-loose;
+    }
 
-  .markdown code:not(pre code) {
-    @apply bg-zinc-300 dark:bg-zinc-700 px-1.5 rounded-lg;
-  }
-  .markdown code {
-    @apply font-code;
-  }
-  
-  .markdown a {
-    @apply text-blue-500 dark:text-blue-400;
-  }
-  .markdown p {
-    @apply whitespace-normal;
-  }
-  .markdown img {
-    @apply rounded-lg;
-  }
+    .markdown h1, .markdown h2, .markdown h3 {
+        @apply my-4 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700 first-letter:capitalize;
+    }
 
-  .markdown ul {
-    @apply list-disc leading-loose;
-  }
-  .markdown ol {
-    @apply list-decimal leading-loose;
-  }
-  .markdown li {
-    @apply ml-8;
-  }
+    .markdown code:not(pre code) {
+        @apply bg-zinc-300 dark:bg-zinc-700 px-2 leading-normal rounded-lg;
+    }
 
-  .markdown table {
-    @apply block w-full overflow-auto border-collapse mb-4 border-spacing-0;
-  }
-  .markdown table th, .markdown table td {
-    @apply py-1 px-3 border border-zinc-500 dark:border-zinc-500;
-  }
-  .markdown table th {
-    @apply bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100;
-  }
-  .markdown table tr {
-    @apply bg-zinc-100 dark:bg-zinc-900;
-  }
-  .markdown table tr:nth-child(2n) {
-    @apply bg-zinc-200 dark:bg-zinc-800;
-  }
+    .markdown code {
+        @apply font-code;
+    }
 
-  .markdown ul.contains-task-list {
-    @apply list-none ml-4;
-  }
-  .markdown input[type="checkbox"]{
-    @apply mr-2 w-4 h-4 aspect-square p-2;
-    @apply appearance-none border border-zinc-500;
-    @apply disabled:bg-zinc-200 dark:disabled:bg-zinc-700 disabled:checked:bg-blue-500 dark:disabled:checked:bg-blue-400;
-  }
+    .markdown a {
+        @apply text-blue-500 dark:text-blue-400;
+    }
 
-  .markdown blockquote {
-    @apply pl-2 border-l-4 border-l-zinc-500;
-  }
-  .markdown hr {
-    @apply my-4 border-t-0 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700;
-  }
+    .markdown p {
+        @apply whitespace-normal;
+    }
+
+    .markdown img {
+        @apply rounded-lg;
+    }
+
+    .markdown ul {
+        @apply list-disc leading-loose;
+    }
+
+    .markdown ol {
+        @apply list-decimal leading-loose;
+    }
+
+    .markdown li {
+        @apply ml-8;
+    }
+
+    .markdown table {
+        @apply block w-full overflow-auto border-collapse mb-4 border-spacing-0;
+    }
+
+    .markdown table th, .markdown table td {
+        @apply py-1 px-3 border border-zinc-500 dark:border-zinc-500;
+    }
+
+    .markdown table th {
+        @apply bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100;
+    }
+
+    .markdown table tr {
+        @apply bg-zinc-100 dark:bg-zinc-900;
+    }
+
+    .markdown table tr:nth-child(2n) {
+        @apply bg-zinc-200 dark:bg-zinc-800;
+    }
+
+    .markdown ul.contains-task-list {
+        @apply list-none;
+    }
+
+    .markdown ul.contains-task-list li {
+        @apply ml-1 flex items-center;
+    }
+
+    .markdown input[type="checkbox"] {
+        @apply mr-2 w-4 h-4 aspect-square p-2;
+        @apply appearance-none border border-zinc-500;
+        @apply disabled:bg-zinc-200 dark:disabled:bg-zinc-700 disabled:checked:bg-blue-500 dark:disabled:checked:bg-blue-400;
+    }
+
+    .markdown blockquote {
+        @apply pl-2 border-l-4 border-l-zinc-500;
+    }
+
+    .markdown hr {
+        @apply my-4 border-t-0 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700;
+    }
 }

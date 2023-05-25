@@ -1,5 +1,3 @@
-import { typeGroup } from "./fileGroup";
-import { extensionMap, overlapVideo } from "./typeMap";
 import { IconType } from "react-icons";
 import {
   BsBoxFill,
@@ -19,6 +17,9 @@ import {
   BsFileEarmarkWordFill,
   BsFileEarmarkZipFill,
 } from "react-icons/bs";
+
+import { typeGroup } from "./fileGroup";
+import { extensionMap, overlapVideo } from "./typeMap";
 
 const iconMap: Record<keyof typeof typeGroup, IconType> = {
   "3d": BsBoxFill,

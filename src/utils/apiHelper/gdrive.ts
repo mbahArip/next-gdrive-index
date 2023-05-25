@@ -1,5 +1,6 @@
-import apiConfig from "config/api.config";
 import { drive_v3, google } from "googleapis";
+
+import apiConfig from "config/api.config";
 
 //TODO: Move client_secret and refresh_token to config after setup page is done
 const config = {

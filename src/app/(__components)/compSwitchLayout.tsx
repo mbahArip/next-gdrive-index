@@ -1,10 +1,6 @@
 "use client";
 
 import {
-  LayoutContext,
-  TLayoutContext,
-} from "context/layoutContext";
-import {
   useContext,
   useEffect,
   useRef,
@@ -15,6 +11,11 @@ import {
   MdGridView,
   MdList,
 } from "react-icons/md";
+
+import {
+  LayoutContext,
+  TLayoutContext,
+} from "context/layoutContext";
 
 function SwitchLayout() {
   const { layout, setLayout } =
@@ -39,6 +40,7 @@ function SwitchLayout() {
         setIsDropdownOpen(false);
       }
     }
+
     document.addEventListener(
       "mousedown",
       handleClickOutside,
