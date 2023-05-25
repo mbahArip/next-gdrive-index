@@ -1,19 +1,22 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+
 import createErrorPayload from "utils/apiHelper/createErrorPayload";
-import { RequestContext } from "types/general";
-import apiConfig from "config/api.config";
 import gdrive from "utils/apiHelper/gdrive";
+import passwordHash from "utils/encryptionHelper/passwordHash";
+import shortEncryption from "utils/encryptionHelper/shortEncryption";
 import ExtendedError from "utils/generalHelper/extendedError";
-import { Constant } from "types/general/constant";
+
+import { API_Response } from "types/api";
 import {
   FilePath,
   ValidateFilePathResponse,
 } from "types/api/path";
-import shortEncryption from "utils/encryptionHelper/shortEncryption";
-import { cookies } from "next/headers";
-import passwordHash from "utils/encryptionHelper/passwordHash";
-import * as console from "console";
-import { API_Response } from "types/api";
+import { RequestContext } from "types/general";
+import { Constant } from "types/general/constant";
+
+import apiConfig from "config/api.config";
+import siteConfig from "config/site.config";
 
 export async function GET(
   request: NextRequest,
@@ -170,7 +173,7 @@ export async function GET(
           Constant.apiNotAuthorized,
           401,
           "unauthorized",
-          `You need to provide password to access this folder / file`,
+          `You need to provide password to access "${nearestProtectedFolder.path}"`,
         );
       }
 
@@ -184,13 +187,57 @@ export async function GET(
           Constant.apiNotAuthorized,
           401,
           "unauthorized",
-          `You need to provide password to access this folder / file`,
+          `You need to provide password to access "${nearestProtectedFolder.path}"`,
         );
       }
 
       if (
         !passwordHash.verify(
           fetchPassword.data as string,
+          nearestFolderPassword,
+        )
+      ) {
+        throw new ExtendedError(
+          Constant.apiNotAuthorized,
+          401,
+          "unauthorized",
+          `The password you provided is incorrect`,
+        );
+      }
+    }
+
+    if (
+      siteConfig.privateIndex &&
+      !nearestProtectedFolder &&
+      !validMasterKey
+    ) {
+      const userPassword = cookies().get(
+        `next-gdrive-password`,
+      )?.value;
+      if (!userPassword) {
+        throw new ExtendedError(
+          Constant.apiNotAuthorized,
+          401,
+          "unauthorized",
+          `You need to provide password to access "root"`,
+        );
+      }
+
+      const parsedUserPassword = JSON.parse(userPassword);
+      const nearestFolderPassword =
+        parsedUserPassword["root"];
+      if (!nearestFolderPassword) {
+        throw new ExtendedError(
+          Constant.apiNotAuthorized,
+          401,
+          "unauthorized",
+          `You need to provide password to access "root"`,
+        );
+      }
+
+      if (
+        !passwordHash.compare(
+          siteConfig.indexPassword,
           nearestFolderPassword,
         )
       ) {
