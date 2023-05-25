@@ -260,9 +260,6 @@ export async function GET(
 
     return NextResponse.json(payload, {
       status: 200,
-      headers: {
-        "Cache-Control": apiConfig.cacheControl,
-      },
     });
   } catch (error: any) {
     const payload = createErrorPayload(

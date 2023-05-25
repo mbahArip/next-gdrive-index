@@ -72,9 +72,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(payload, {
       status: 200,
-      headers: {
-        "Cache-Control": apiConfig.cacheControl,
-      },
     });
   } catch (error: any) {
     const payload = createErrorPayload(
