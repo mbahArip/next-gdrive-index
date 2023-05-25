@@ -94,7 +94,6 @@ export default function Error({
               </a>
               <button
                 onClick={() => {
-                  document.cookie = `next-gdrive-password={"Protected%20Folder%20-%20pass%20loremipsum":"5245a52778d684fa698f69861fb2e058b308f6a74fed5bf2fe77d97bad5e071c"}`;
                   reset();
                 }}
                 className={"interactive"}
