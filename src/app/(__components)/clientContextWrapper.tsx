@@ -1,18 +1,20 @@
 "use client";
 
-import { ThemeContext, TTheme } from "context/themeContext";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.min.css";
+
 import {
   LayoutContext,
   TLayout,
 } from "context/layoutContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.min.css";
+import { TTheme, ThemeContext } from "context/themeContext";
 
 type Props = {
   children: React.ReactNode;
 };
-function ContextWrapper({ children }: Props) {
+
+function ClientContextWrapper({ children }: Props) {
   const [theme, setTheme] = useState<TTheme>("light");
   const [layout, setLayout] = useState<TLayout>("grid");
 
@@ -90,4 +92,4 @@ function ContextWrapper({ children }: Props) {
   );
 }
 
-export default ContextWrapper;
+export default ClientContextWrapper;
