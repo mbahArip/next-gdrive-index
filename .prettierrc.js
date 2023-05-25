@@ -1,6 +1,9 @@
 "use strict";
 module.exports = {
-  plugins: [require("prettier-plugin-tailwindcss")],
+  plugins: [
+    require("prettier-plugin-tailwindcss"),
+    require("@trivago/prettier-plugin-sort-imports"),
+  ],
   printWidth: 60,
   tabWidth: 2,
   useTabs: false,
@@ -17,4 +20,14 @@ module.exports = {
   endOfLine: "lf",
   embeddedLanguageFormatting: "auto",
   singleAttributePerLine: true,
+  importOrder: [
+    "<THIRD_PARTY_MODULES>",
+    "^components/(.*)$",
+    "^(utils|hooks|context)/(.*)$",
+    "^types/(.*)$",
+    "^(config|styles)/(.*)$",
+    "^[./]",
+  ],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 };
