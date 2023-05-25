@@ -1,16 +1,20 @@
 import axios, { AxiosError } from "axios";
-import apiConfig from "config/api.config";
-import { API_Error } from "types/api";
+import { notFound } from "next/navigation";
+
 import ExtendedError from "utils/generalHelper/extendedError";
+
+import { API_Error } from "types/api";
 import { Constant } from "types/general/constant";
 
-const fetch = axios.create({
+import apiConfig from "config/api.config";
+
+const AxiosFetch = axios.create({
   baseURL: apiConfig.basePath,
   maxRate: 5,
   timeout: 10000,
 });
 
-fetch.interceptors.response.use(
+AxiosFetch.interceptors.response.use(
   (response) => response,
   (error: AxiosError<API_Error>) => {
     if (error.response) {
@@ -47,4 +51,34 @@ fetch.interceptors.response.use(
   },
 );
 
-export default fetch;
+export function fetchData<D = unknown>(
+  url: RequestInfo | URL,
+  config?: RequestInit,
+) {
+  const isRelativeUrl =
+    typeof url === "string" && url.startsWith("/");
+  const fullPath = isRelativeUrl
+    ? `${apiConfig.basePath}${url}`
+    : url;
+
+  return fetch(fullPath, config)
+    .then((res) => res.json())
+    .then((res) => res as D);
+}
+
+export function handleError(error: API_Error) {
+  const errorData = error as API_Error;
+  if (errorData.code === 404) {
+    notFound();
+  }
+  return JSON.stringify(
+    new ExtendedError(
+      errorData.message,
+      errorData.code,
+      errorData.category,
+      errorData.reason,
+    ),
+  );
+}
+
+export default AxiosFetch;
