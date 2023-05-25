@@ -1,12 +1,38 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import CompPassword from "components/compPassword";
+
+import apiConfig from "config/api.config";
+import siteConfig from "config/site.config";
 
 type Props = {
   searchParams: {
     [key: string]: string | string[] | undefined;
   };
 };
+
+export const metadata: Metadata = {
+  metadataBase: new URL(apiConfig.basePath),
+  title: siteConfig.siteName,
+  description: siteConfig.siteDescription,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: siteConfig.siteName,
+    description: siteConfig.siteDescription,
+    url: `/`,
+    siteName: siteConfig.siteName,
+  },
+  twitter: {
+    title: siteConfig.siteName,
+    description: siteConfig.siteDescription,
+    card: "summary_large_image",
+    site: siteConfig.siteName,
+  },
+};
+
 function Password({ searchParams }: Props) {
   if (
     searchParams["redirect"] === undefined ||
