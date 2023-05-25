@@ -108,7 +108,7 @@ async function FilePage({ params }: Props) {
     )}`,
     {
       headers: {
-        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+        Cookie: `${Constant.cookiePassword}=${passwordCookies};test=IsThisTheProblem`,
       },
     },
   ).then(
