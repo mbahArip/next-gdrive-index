@@ -1,21 +1,25 @@
 "use client";
 
-import { FilesResponse } from "types/api/files";
 import { drive_v3 } from "googleapis";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   MdContentCopy,
   MdDownload,
   MdFolder,
   MdPlayCircle,
 } from "react-icons/md";
-import getFileGroup from "utils/fileHelper/typeMap";
-import siteConfig from "config/site.config";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+
+import useCopyText from "hooks/useCopyText";
 import formatDate from "utils/fileHelper/formatDate";
 import formatSize from "utils/fileHelper/formatSize";
-import useCopyText from "hooks/useCopyText";
+import getFileGroup from "utils/fileHelper/typeMap";
+
+import { FilesResponse } from "types/api/files";
+import { Constant } from "types/general/constant";
+
 import apiConfig from "config/api.config";
+import siteConfig from "config/site.config";
 
 type Props = {
   data: FilesResponse;
@@ -77,7 +81,7 @@ function ListLayout({ data }: Props) {
           {data.folders.map((folder) => (
             <ListFolder
               folder={folder}
-              key={folder.id}
+              key={`list-${folder.id}`}
               path={
                 pathname === "/" ? "" : (pathname as string)
               }
@@ -86,7 +90,7 @@ function ListLayout({ data }: Props) {
           {data.files.map((file) => (
             <ListFile
               file={file}
-              key={file.id}
+              key={`list-${file.id}`}
               path={
                 pathname === "/" ? "" : (pathname as string)
               }
@@ -126,7 +130,7 @@ function ListFolder({
         >
           <MdFolder
             className={
-              "aspect-square h-8 w-8 flex-shrink-0 flex-grow-0 rounded object-contain p-2"
+              "aspect-square h-8 w-8 flex-shrink-0 flex-grow-0 rounded object-contain p-1"
             }
           />
           <div className={"line-clamp-1 w-full break-all"}>
@@ -154,7 +158,7 @@ function ListFolder({
             "hidden text-center tablet:col-span-1 tablet:block"
           }
         >
-          Folder
+          {Constant.type_folder}
         </span>
         <span
           className={
@@ -260,13 +264,10 @@ function ListFile({
           {file.size ? formatSize(file.size) : "-"}
         </span>
         <span
-          className={`hidden text-center tablet:col-span-1 tablet:block ${
-            fileGroup.length > 2
-              ? "capitalize"
-              : "uppercase"
-          }`}
+          className={`hidden text-center capitalize tablet:col-span-1 tablet:block`}
         >
-          {fileGroup === "default" ? "Unknown" : fileGroup}
+          {Constant[`type_${fileGroup}`] ??
+            Constant.type_default}
         </span>
         <span
           className={
@@ -275,6 +276,7 @@ function ListFile({
         >
           <Action
             path={fileURL}
+            encryptedId={file.id ?? ""}
             isDownloadable={true}
           />
         </span>
@@ -284,13 +286,22 @@ function ListFile({
 }
 
 function Action({
-  path,
+  path = "",
+  encryptedId = "",
   isDownloadable = false,
 }: {
-  path: string;
+  path?: string;
+  encryptedId?: string;
   isDownloadable?: boolean;
 }) {
   const copyLink = useCopyText();
+  let url: string = "";
+  if (path) {
+    url = `${apiConfig.basePath}${path}`;
+  }
+  if (path && isDownloadable) {
+    url = `${apiConfig.basePath}/download${path}`;
+  }
   return (
     <div
       className={
@@ -305,7 +316,7 @@ function Action({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          copyLink(`${apiConfig.basePath}${path}/download`);
+          copyLink(url);
         }}
       >
         <MdContentCopy
@@ -318,12 +329,15 @@ function Action({
       {isDownloadable && (
         <Link
           title={"Download"}
-          href={`${apiConfig.basePath}${path}/download`}
+          href={url}
           target={"_blank"}
           rel={"noopener noreferrer"}
           onClick={(e) => {
             e.stopPropagation();
           }}
+          className={
+            "global-duration grid aspect-square h-8 w-8 cursor-pointer place-items-center rounded-full p-1 transition-colors hover:bg-zinc-300 active:bg-zinc-400 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+          }
         >
           <MdDownload
             className={
