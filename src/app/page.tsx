@@ -46,9 +46,9 @@ async function RootPage() {
     `${apiConfig.basePath}/api/validate`,
     {
       credentials: "include",
-      // headers: {
-      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-      // },
+      headers: {
+        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      },
     },
   ).then(
     (res) =>
@@ -60,11 +60,9 @@ async function RootPage() {
   const getFilesData = fetch(
     `${apiConfig.basePath}/api/files`,
     {
+      credentials: "include",
       headers: {
-        credentials: "include",
-        // headers: {
-        //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-        // },
+        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
       },
     },
   ).then(

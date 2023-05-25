@@ -108,9 +108,9 @@ async function FilePage({ params }: Props) {
     )}`,
     {
       credentials: "include",
-      // headers: {
-      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-      // },
+      headers: {
+        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      },
     },
   ).then(
     (res) =>
@@ -153,9 +153,9 @@ async function FilePage({ params }: Props) {
     `${apiConfig.basePath}/api/files/${lastId}`,
     {
       credentials: "include",
-      // headers: {
-      //   Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
-      // },
+      headers: {
+        Cookie: `${Constant.cookiePassword}=${passwordCookies}`,
+      },
     },
   ).then(
     (res) =>
