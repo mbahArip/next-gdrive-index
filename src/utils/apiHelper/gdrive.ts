@@ -18,20 +18,24 @@ const config = {
       : process.env.DRIVE_REFRESH_TOKEN,
 };
 
-const oauth2Client = new google.auth.OAuth2(
-  config.client_id,
-  config.client_secret as string,
-);
-oauth2Client.setCredentials({
-  refresh_token: config.refresh_token as string,
-});
+//TODO: Refetch token if it's become invalid
+let gdrive: drive_v3.Drive | undefined;
 
-let gdrive;
-if (!gdrive) {
+const oauth2Client = new google.auth.OAuth2({
+  clientId: config.client_id,
+  clientSecret: config.client_secret as string,
+  eagerRefreshThresholdMillis: 10000,
+  redirectUri: "http://localhost",
+});
+function initializeClient() {
+  oauth2Client.setCredentials({
+    refresh_token: config.refresh_token as string,
+  });
   gdrive = google.drive({
     version: "v3",
     auth: oauth2Client,
   });
 }
 
-export default gdrive as drive_v3.Drive;
+initializeClient();
+export default gdrive;
