@@ -70,8 +70,12 @@ function Breadcrumb({ data = [] }: Props) {
       >
         {breadcrumb.map(
           (parent: FilePath, index: number) => {
+            const findCurrentPath =
+              breadcrumbPath.findIndex(
+                (item) => item === parent.name,
+              );
             const url = breadcrumbPath
-              .slice(0, index + 1)
+              .slice(0, findCurrentPath + 1)
               .join("/");
             return (
               <Fragment key={index}>
