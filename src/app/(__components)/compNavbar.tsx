@@ -179,7 +179,7 @@ function Navbar() {
           isMenuOpen ? "top-0" : "-top-full"
         }`}
       >
-        {siteConfig.navbar.links.map((link, index) => (
+        {siteConfig.navbar.links.map((link) => (
           <Link
             key={`m-nav-link-${link.name}`}
             href={link.href}
