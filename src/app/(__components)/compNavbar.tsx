@@ -72,7 +72,7 @@ function Navbar() {
                 rel={
                   link.newTab ? "noopener noreferrer" : ""
                 }
-                target={link.newTab ? "_blank" : "_self"}
+                target={link.newTab ? "_blank" : "_parent"}
                 title={link.name}
                 className={
                   "flex items-center gap-1 whitespace-nowrap"
@@ -184,7 +184,7 @@ function Navbar() {
             key={`m-nav-link-${link.name}`}
             href={link.href}
             rel={link.newTab ? "noopener noreferrer" : ""}
-            target={link.newTab ? "_blank" : "_self"}
+            target={link.newTab ? "_blank" : "_parent"}
             title={link.name}
             className={`global-duration relative flex items-center gap-1 whitespace-nowrap transition-opacity delay-75 ${
               isMenuOpen ? "opacity-100" : "opacity-0"
