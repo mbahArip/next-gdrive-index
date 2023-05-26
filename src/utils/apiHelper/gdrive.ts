@@ -27,15 +27,11 @@ const oauth2Client = new google.auth.OAuth2({
   eagerRefreshThresholdMillis: 10000,
   redirectUri: "http://localhost",
 });
-function initializeClient() {
-  oauth2Client.setCredentials({
-    refresh_token: config.refresh_token as string,
-  });
-  gdrive = google.drive({
-    version: "v3",
-    auth: oauth2Client,
-  });
-}
-
-initializeClient();
+oauth2Client.setCredentials({
+  refresh_token: config.refresh_token as string,
+});
+gdrive = google.drive({
+  version: "v3",
+  auth: oauth2Client,
+});
 export default gdrive;
