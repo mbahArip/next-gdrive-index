@@ -34,4 +34,4 @@ gdrive = google.drive({
   version: "v3",
   auth: oauth2Client,
 });
-export default gdrive;
+export default gdrive as drive_v3.Drive;
