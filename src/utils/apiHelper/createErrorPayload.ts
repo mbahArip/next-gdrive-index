@@ -1,5 +1,3 @@
-import ExtendedError from "utils/generalHelper/extendedError";
-
 import { API_Error } from "types/api";
 import { Constant } from "types/general/constant";
 
@@ -20,8 +18,8 @@ function createErrorPayload(
     reason: error.message || Constant.apiInternalError,
   };
 
-  if (error instanceof ExtendedError) {
-    console.log(error.message);
+  if ("extendedMessage" in error) {
+    console.log("Reason: ", error.reason);
     payload.message = error.message;
     payload.category = error.category || "internalError";
     payload.reason =
