@@ -24,6 +24,7 @@ export default function Error({
   const [path, setPath] = useState<string>("root");
 
   useEffect(() => {
+    console.log("CHECKPOINT ERROR PAGE", error);
     if (error.message.includes("{")) {
       console.log("CHECKPOINT ERROR MESSAGE IS JSON");
       const errorObj = JSON.parse(
