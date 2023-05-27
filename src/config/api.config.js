@@ -1,8 +1,6 @@
 module.exports = {
   // Client ID are safe to expose
   client_id:
-    "126409166174-l2unckghm8d5m1gp3deu0uaps5son64f.apps.googleusercontent.com",
-  dev_client_id:
     "126409166174-l0f9hdblsrmhkt9jeue9m8o93skfs1sr.apps.googleusercontent.com",
 
   /**
