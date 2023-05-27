@@ -120,6 +120,7 @@ async function FilePage({ params }: Props) {
 
   if (!pathValidation.success) {
     const errorData = pathValidation as API_Error;
+    console.error(errorData);
     const payload = handleError(errorData);
     throw new Error(payload);
   }
