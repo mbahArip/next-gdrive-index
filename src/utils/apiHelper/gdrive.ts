@@ -4,10 +4,7 @@ import apiConfig from "config/api.config";
 
 //TODO: Move client_secret and refresh_token to config after setup page is done
 const config = {
-  client_id:
-    process.env.NODE_ENV === "development"
-      ? apiConfig.dev_client_id
-      : apiConfig.client_id,
+  client_id: apiConfig.client_id,
   client_secret: process.env.DRIVE_CLIENT_SECRET,
   refresh_token: process.env.DRIVE_REFRESH_TOKEN,
 };
