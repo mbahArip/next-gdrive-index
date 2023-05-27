@@ -13,6 +13,7 @@
 - ~~Copy file direct url~~
 - ~~Download file url~~
 - ~~Password protected~~
+  - Issues: Return 500 error if it's wrong password
 - File Preview
   - 3D > 3DPreview
   - Audio > AudioPreview
