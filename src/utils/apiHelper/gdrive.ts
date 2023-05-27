@@ -8,14 +8,8 @@ const config = {
     process.env.NODE_ENV === "development"
       ? apiConfig.dev_client_id
       : apiConfig.client_id,
-  client_secret:
-    process.env.NODE_ENV === "development"
-      ? process.env.DEV_DRIVE_CLIENT_SECRET
-      : process.env.DRIVE_CLIENT_SECRET,
-  refresh_token:
-    process.env.NODE_ENV === "development"
-      ? process.env.DEV_DRIVE_REFRESH_TOKEN
-      : process.env.DRIVE_REFRESH_TOKEN,
+  client_secret: process.env.DRIVE_CLIENT_SECRET,
+  refresh_token: process.env.DRIVE_REFRESH_TOKEN,
 };
 
 //TODO: Refetch token if it's become invalid
