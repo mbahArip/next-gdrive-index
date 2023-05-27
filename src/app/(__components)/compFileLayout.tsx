@@ -38,8 +38,8 @@ function FileLayout({ data }: Props) {
   );
 
   useEffect(() => {
-    const files = clientData.files.length;
-    const folders = clientData.folders.length;
+    const files = clientData.files.length ?? 0;
+    const folders = clientData.folders.length ?? 0;
     setTotalItems(files + folders);
   }, [clientData]);
 
@@ -67,7 +67,9 @@ function FileLayout({ data }: Props) {
   return (
     <>
       {layout === "grid" ? (
-        <GridLayout data={clientData} />
+        <>
+          <GridLayout data={clientData} />
+        </>
       ) : (
         <ListLayout data={clientData} />
       )}
