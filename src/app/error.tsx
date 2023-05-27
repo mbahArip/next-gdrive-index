@@ -1,6 +1,7 @@
 "use client";
 
 // Error components must be Client Components
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import CompPassword from "components/compPassword";
@@ -16,6 +17,8 @@ export default function Error({
   error: Error;
   reset: () => void;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [extendedError, setExtendedError] =
     useState<ExtendedError>();
   const [path, setPath] = useState<string>("root");
@@ -48,6 +51,15 @@ export default function Error({
       setExtendedError(extendedError);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (extendedError?.code === 401) {
+      router.push(
+        `/password?redirect=${pathname}&path=${path}`,
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extendedError, path, pathname]);
 
   return (
     <div
