@@ -25,6 +25,7 @@ export default function Error({
 
   useEffect(() => {
     if (error.message.includes("{")) {
+      console.log("CHECKPOINT ERROR MESSAGE IS JSON");
       const errorObj = JSON.parse(
         error.message,
       ) as ExtendedError;
@@ -35,6 +36,7 @@ export default function Error({
         errorObj.category || "internalServerError",
         errorObj.reason || "Internal Server Error",
       );
+      console.log("CHECKPOINT EXTENDED ERROR", extendError);
       setExtendedError(extendError);
 
       const path =
