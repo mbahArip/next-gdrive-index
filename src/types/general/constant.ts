@@ -6,6 +6,8 @@ export enum Constant {
   apiBadRequest = "Bad request",
   apiInternalError = "Internal server error",
 
+  reasonNotFound = "Can't find file you requested. It may have been deleted or you may not have permission to access it.",
+
   cookiePassword = "next-gdrive-password",
   cookieMaster = "x-gdrive-key",
 

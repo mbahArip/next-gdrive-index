@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 
 async function RootPage() {
   const passwordCookies =
-    cookies().get(Constant.cookiePassword)?.value || "";
+    cookies().get(Constant.cookiePassword)?.value ?? "";
 
   const getPathValidation = fetch(
     `${apiConfig.basePath}/api/validate`,

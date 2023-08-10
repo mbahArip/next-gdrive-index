@@ -40,3 +40,5 @@ next-env.d.ts
 /.next
 /.vscode
 /src/pages/api/legacy/
+
+.vercel

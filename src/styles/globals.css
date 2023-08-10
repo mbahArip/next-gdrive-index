@@ -76,7 +76,8 @@ html, body {
     }
 
     button {
-        @apply bg-blue-600 text-zinc-100 px-4 py-2 rounded-xl opacity-100;
+        @apply bg-blue-600 text-zinc-100 px-4 py-2 opacity-100;
+        @apply rounded-xl focus:rounded-xl active:rounded-xl;
         @apply hover:bg-blue-500 hover:text-zinc-100;
         @apply active:bg-blue-700 active:text-zinc-100;
         @apply focus:outline-none;

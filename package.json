@@ -23,7 +23,7 @@
     "googleapis": "^118.0.0",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.35",
-    "next": "^13.4.3",
+    "next": "^13.4.4",
     "next-seo": "^6.0.0",
     "nextjs-progressbar": "^0.0.16",
     "postcss": "8.4.22",

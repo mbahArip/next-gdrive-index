@@ -45,78 +45,28 @@ export async function GET(
     });
 
     if (!file || file.data.trashed) {
-      const msg = file.data.trashed
-        ? "File has been deleted"
-        : "File not found";
       throw new ExtendedError(
         Constant.apiFileNotFound,
         404,
         "notFound",
-        msg,
+        Constant.reasonNotFound,
       );
     }
 
+    /**
+     * If fetched file isn't a folder, return File
+     */
     if (
       file.data.mimeType !==
       "application/vnd.google-apps.folder"
     ) {
       if (thumbnail === "1") {
-        if (!file.data.thumbnailLink) {
-          const imgStream = await fetch(
-            `${apiConfig.basePath}/og.png`,
-          ).then((res) => res.arrayBuffer());
-          return new NextResponse(imgStream, {
-            status: 200,
-          });
-        }
-        if (file.data.mimeType?.startsWith("image/")) {
-          const imgStream = await gdrive.files.get(
-            {
-              fileId: id,
-              alt: "media",
-            },
-            { responseType: "stream" },
-          );
-          if (
-            Number(file.data.size) <
-              apiConfig.files.download.maxFileSize &&
-            apiConfig.files.download.maxFileSize > 0
-          ) {
-            const arrayBuffer =
-              await new Promise<ArrayBuffer>(
-                (resolve, reject) => {
-                  const chunks: Buffer[] = [];
-                  imgStream.data.on("data", (chunk) =>
-                    chunks.push(chunk),
-                  );
-                  imgStream.data.on("end", () => {
-                    const buffer = Buffer.concat(chunks);
-                    resolve(
-                      buffer.buffer.slice(
-                        buffer.byteOffset,
-                        buffer.byteOffset +
-                          buffer.byteLength,
-                      ),
-                    );
-                  });
-                  imgStream.data.on("error", reject);
-                },
-              );
-            return new NextResponse(arrayBuffer, {
-              status: 200,
-              headers: {
-                "Content-Type":
-                  file.data.mimeType ||
-                  "application/octet-stream",
-                "Cache-Control": apiConfig.cacheControl,
-                "Content-Disposition": `inline; filename="${file.data.name}"`,
-              },
-            });
-          }
-        }
-
         return NextResponse.redirect(
-          file.data.thumbnailLink as string,
+          `${
+            apiConfig.basePath
+          }/api/thumbnail/${shortEncryption.encrypt(
+            id as string,
+          )}`,
           {
             status: 302,
           },
@@ -148,9 +98,8 @@ export async function GET(
     }
 
     const query = [
+      ...apiConfig.files.query,
       `'${id}' in parents`,
-      "trashed = false",
-      "'me' in owners",
     ];
     const fetchFolderContents = await gdrive.files.list({
       q: `${query.join(" and ")}`,
@@ -195,7 +144,7 @@ export async function GET(
       return NextResponse.redirect(
         `${
           apiConfig.basePath
-        }/api/banner?id=${shortEncryption.encrypt(
+        }/api/banner/${shortEncryption.encrypt(
           bannerFile.id as string,
         )}`,
         {
@@ -263,7 +212,7 @@ export async function GET(
   } catch (error: any) {
     const payload = createErrorPayload(
       error,
-      "GET /api/files",
+      "GET /api/files/:id",
       _start,
     );
 

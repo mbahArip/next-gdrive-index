@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 function NotFound() {
-  console.log("Not Found");
   return (
     <div
       className={

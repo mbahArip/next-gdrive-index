@@ -1,3 +1,5 @@
+- Redo how to handle error
+
 # /
 - ~~Override opengraph using banner image~~
 - ~~Render readme file~~

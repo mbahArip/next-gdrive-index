@@ -23,9 +23,8 @@ export async function GET(request: NextRequest) {
     );
 
     const query: string[] = [
-      "trashed = false",
-      "'me' in owners",
-      `parents = '${apiConfig.files.rootFolder}'`,
+      ...apiConfig.files.query,
+      `'${apiConfig.files.rootFolder}' in parents`,
     ];
     const fetchFolderContents = await gdrive.files.list({
       q: `${query.join(" and ")}`,
@@ -70,7 +69,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         `${
           apiConfig.basePath
-        }/api/banner?id=${shortEncryption.encrypt(
+        }/api/banner/${shortEncryption.encrypt(
           bannerFile.id as string,
         )}`,
         {

@@ -24,24 +24,23 @@ export default function Error({
   const [path, setPath] = useState<string>("root");
 
   useEffect(() => {
-    console.log("CHECKPOINT ERROR PAGE", error);
     if (error.message.includes("{")) {
-      console.log("CHECKPOINT ERROR MESSAGE IS JSON");
       const errorObj = JSON.parse(
         error.message,
       ) as ExtendedError;
       const extendError = new ExtendedError(
-        errorObj.extendedMessage ||
+        errorObj.extendedMessage ??
           Constant.apiInternalError,
-        errorObj.code || 500,
-        errorObj.category || "internalServerError",
-        errorObj.reason || "Internal Server Error",
+        errorObj.code ?? 500,
+        errorObj.category ?? "internalServerError",
+        errorObj.reason ?? "Internal Server Error",
       );
-      console.log("CHECKPOINT EXTENDED ERROR", extendError);
       setExtendedError(extendError);
 
+      console.log(extendError.code);
+
       const path =
-        extendError.reason?.split('"')[1].split('"')[0] ||
+        extendError.reason?.split('"')[1]?.split('"')[0] ??
         "root";
       setPath(path);
     } else {
@@ -55,14 +54,14 @@ export default function Error({
     }
   }, [error]);
 
-  useEffect(() => {
-    if (extendedError?.code === 401) {
-      router.push(
-        `/password?redirect=${pathname}&path=${path}`,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [extendedError, path, pathname]);
+  // useEffect(() => {
+  //   if (extendedError?.code === 401) {
+  //     router.push(
+  //       `/password?redirect=${pathname}&path=${path}`,
+  //     );
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [extendedError, path, pathname]);
 
   return (
     <div

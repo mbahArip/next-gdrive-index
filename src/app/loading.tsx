@@ -23,9 +23,14 @@ function RootLoading() {
       </div>
       <div
         className={
-          "skeleton h-full min-h-[50dvh] w-full rounded-lg px-4 py-2"
+          "skeleton h-full min-h-[30dvh] w-full rounded-lg px-4 py-2"
         }
-      ></div>
+      />
+      <div
+        className={
+          "skeleton h-full min-h-[30dvh] w-full rounded-lg px-4 py-2"
+        }
+      />
     </div>
   );
 }
