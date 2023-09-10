@@ -14,6 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
     const id = decryptData(encryptedId);
     if (!id) throw new ExtendedError("Invalid encryptedId", 400, "EncryptedId provided is invalid");
 
+    console.log(id);
     const path: string[] = [];
     let lastId = id;
     const fileContent = await gdrive.files.get({
@@ -52,7 +53,8 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
       }
     }
 
-    const redirectURL = new URL(path.reverse().join("/"), process.env.NEXT_PUBLIC_VERCEL_URL);
+    const redirectURL = new URL(path.reverse().join("/"), process.env.NEXT_PUBLIC_VERCEL_URL ?? request.nextUrl.origin);
+    console.log(redirectURL);
     return NextResponse.redirect(redirectURL.toString(), {
       status: 302,
       headers: {
