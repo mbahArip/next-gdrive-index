@@ -43,7 +43,7 @@ export default function FilePathPage(props: FilePathPageProps) {
   useEffect(() => {
     setIsLoadingData(true);
 
-    const lastPathMimeType = props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].mimeType;
+    const lastPathMimeType = props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].mimeType;
     let isLastPathFile = false;
     if (lastPathMimeType === "application/vnd.google-apps.folder") {
       isLastPathFile = false;
@@ -73,7 +73,7 @@ export default function FilePathPage(props: FilePathPageProps) {
     Promise.all([_getPassword, _getData, _getReadme])
       .then(async ([passwordData, fileData, readmeData]) => {
         // Check password
-        if (passwordData.data.data.length) {
+        if (passwordData.data.data && passwordData.data.data.length) {
           let isPathProtected = true;
           const savedPasswordCookie =
             document.cookie.split(";").find((cookie) => cookie.startsWith(`${Constant.cookies_SitePassword}=`)) ??
@@ -118,7 +118,7 @@ export default function FilePathPage(props: FilePathPageProps) {
   return (
     <LoaderLayout
       seo={{
-        title: props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].name,
+        title: props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].name,
       }}
     >
       {isLoadingData ? (
@@ -156,7 +156,7 @@ export default function FilePathPage(props: FilePathPageProps) {
                   data={data}
                   isProtected={false}
                   isFileProtected={isFileProtected}
-                  encryptedId={props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id}
+                  encryptedId={props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].id}
                 />
               ) : (
                 <ExplorerLayout
@@ -165,7 +165,7 @@ export default function FilePathPage(props: FilePathPageProps) {
                   readmeFile={readmeFile}
                   isProtected={false}
                   isFileProtected={isFileProtected}
-                  encryptedId={props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id}
+                  encryptedId={props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].id}
                 />
               )}
             </>
