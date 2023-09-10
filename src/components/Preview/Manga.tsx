@@ -39,6 +39,7 @@ export default function MangaPreview(props: PreviewProps) {
           }
         }
         setImages(mangaImages);
+        setMaxPageIndex(mangaImages.length);
       })
       .catch((err) => {
         console.error(err);
