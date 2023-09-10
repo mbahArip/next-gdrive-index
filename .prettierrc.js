@@ -4,7 +4,7 @@ module.exports = {
     require("prettier-plugin-tailwindcss"),
     require("@trivago/prettier-plugin-sort-imports"),
   ],
-  printWidth: 60,
+  printWidth: 120,
   tabWidth: 2,
   useTabs: false,
   semi: true,

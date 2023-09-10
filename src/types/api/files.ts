@@ -1,13 +1,25 @@
-import { drive_v3 } from "googleapis";
+export interface IGDriveFiles {
+  mimeType: string;
+  encryptedId: string;
+  name: string;
+  trashed: boolean;
+  modifiedTime: Date | string;
+  fileExtension?: string;
+  encryptedWebContentLink?: string;
+  size?: number;
+  thumbnailLink?: string;
+  imageMediaMetadata?: {
+    width: number;
+    height: number;
+    rotation: number;
+  } | null;
+  videoMediaMetadata?: {
+    width: number;
+    height: number;
+    durationMillis: number;
+  } | null;
+}
 
-export type FilesResponse = {
-  folders: drive_v3.Schema$File[];
-  files: drive_v3.Schema$File[];
-  isReadmeExists?: boolean;
-  readmeContent?: string;
-  isBannerExists?: boolean;
-  nextPageToken?: string;
-};
-
-export type FileResponse = drive_v3.Schema$File;
-export type SearchResponse = drive_v3.Schema$File[];
+export interface PreviewProps {
+  file: IGDriveFiles;
+}

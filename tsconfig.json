@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es2019"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext", "es2019"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -21,28 +16,17 @@
     "incremental": true,
     "baseUrl": "./src",
     "paths": {
-      //      "@/*": ["./src/*"],
-      "components/*": [
-        "app/(__components)/*"
-      ],
-      "config/*": [
-        "config/*"
-      ],
-      "hooks/*": [
-        "hooks/*"
-      ],
-      "styles/*": [
-        "styles/*"
-      ],
-      "utils/*": [
-        "utils/*"
-      ],
-      "types/*": [
-        "types/*"
-      ],
-      "context/*": [
-        "context/*"
-      ]
+      // "@/*": ["./src/*"],
+      // "components/*": [
+      //   "app/(__components)/*"
+      // ],
+      "components/*": ["components/*"],
+      "config": ["config/gIndex.config.ts"],
+      "hooks/*": ["hooks/*"],
+      "styles/*": ["styles/*"],
+      "utils/*": ["utils/*"],
+      "types/*": ["types/*"],
+      "context/*": ["context/*"]
     },
     "plugins": [
       {
@@ -59,6 +43,8 @@
   ],
   "exclude": [
     "node_modules",
-    ".next"
+    ".next",
+    "**/*/_legacy/**/*",
+    "**/*/_app/**/*"
   ]
 }

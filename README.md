@@ -1,72 +1,79 @@
 ![next-gdrive-index](./public/og.png)
 
-## Status
-
-Basic features are working now, can be used for daily use.  
-You can check the demo [here](https://drive.mbaharip.com).
+<p align='center'>
+  <a href='https://drive-demo.mbaharip.com'>Demo</a>
+  ·
+  <a href='https://github.com/mbahArip/next-gdrive-index/wiki/Deploying'>Deploying Guide</a>
+  ·
+  <a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ'>FAQ</a>
+</p>
 
 ## What is this?
+
 `next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
 It's aim to simplify the process of sharing files using Google Drive, and also implements some features that I think is useful for sharing files.
 
 This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo.
 
 ### Why I made this?
-I know there already some Google Drive indexer out there, but all of them are  using **Cloudflare** worker.  
-I've tried to use it, but the speed isn't that great for me.  
-Currently I'm using SpencerWooo's onedrive index, and it's working perfectly for me from usage perspective and speed.
 
-But, if I compare the price between these two services, Google Drive still cheaper than Onedrive.  
+when I compare the price between these two services, Google Drive still cheaper than Onedrive.  
 For 100GB plan, Google Drive is IDR 269.000 / ~$18 USD annually, and Onedrive is IDR 319.000 / ~$21 USD annually.  
 For free plan, Google Drive offering 15GB of storage, and Onedrive offering 5GB of storage.
 
 I know there are a lot of people selling cheap edu account for Google Drive and Onedrive, but most of the time those account doesn't last long, especially Google Drive account. So I want to do it legit without buying cheap edu account or anything similar this time.
 
 ## Features
-### Navigate through your Google Drive files and folders.
-You can navigate through your Google Drive files and folders, just like you're browsing your local files.  
-You can also set the root folder, so you can share only specific folder in your Google Drive.
 
-### Theme support.
-Choose your side!
+- **Private Index**, lock the whole index site with password.
+- **Folder and file protection**, you can protect your folder and files with password.
+- **Readme file**, you can add readme file for your folder, so you can add some description for your folder.
+- **File preview**, you can preview some file types directly from the browser, without downloading it first.
+  - Image preview
+  - Video preview
+  - Audio preview
+  - Markdown preview
+  - PDF preview
+  - Document preview (docx, pptx, xlsx)
+  - Code preview
+  - Text preview
+  - Manga preview (cbz)
+- **File search**, you can search for files and folders easily.
+- **Direct download**, you can download files directly from index site without opening Google Drive.
+- **Raw file link**, you can use the raw file link for hosting your web project assets or comments on forum.
 
-### Site wide password protection.
-You can lock the site so only those who know the password can access it.  
-NOTE: This only protect the site, not the files. The files are still accessible if you know the link.
+## File Security
 
-### Search for files and folders.
-We implement native search for files and folders, so you can search for files and folders easily.
+All files fetched from Google Drive **NEED TO BE SHARED** with `Anyone with the link can view` permission.  
+This is because Google Drive API can only access files that are shared with `Anyone with the link can view` permission.
 
-### File preview for some file types.
-You can preview some file types directly from the browser, without downloading it first.  
-Most files are Images, Videos, Audio, Markdown, and PDF. (I'm still adding more file types)
+But, every files `id` and `webContentLink` are encrypted with `AES-256-CBC` using your own key, so no one can access your files without the key.  
+Except, if the files are larger than the `fileSizeLimit` (default: 4MB for vercel), then the download will be redirected to the raw file link.
 
-### Direct download for files.
-Download files directly from index site without opening Google Drive.
+## Known Issue
 
-### Raw file link for files.
-You can use the raw file link for hosting your web project assets or comments on forum.
+### File size limit
 
-### Embed your readme file for folder.
-You can embed your readme file for folder, so you can add some description for your folder.  
-Simply upload `.readme.md` on your folder, and it will be displayed on the folder page.
+File size limit causing some files can't be previewed, and the download will be redirected to the raw file link.
 
-### Override folder OpenGraph image.
-You can override the folder OpenGraph image by uploading `.banner.(png/jpg/jpeg/webp/svg)` on your folder.
+### Long Response Time
 
-## Credits
-- [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo for the inspiration and also some file type helpers.
+The flow of the project are:
 
----
+- Validate the path is valid or not. (Only applied for `/...[path]`)
+- Fetch the password, readme, and files from Google Drive.
+- Show to the user.
 
-## Known Issues
-- ~~Fetching files from Google Drive API take too much time, it triggers 504 Error on Vercel.~~
-- ~~Can't download big files, because of Vercel's 4.5MB limit for serverless function.~~ (Implement redirect to Google Drive download link instead of using Vercel serverless function for files bigger than 4MB)
-  - Need to set the folder to public, so it can be downloaded directly from Google Drive.
-  - The way to get files are changed because of this, now it's using the file name, and 8 first character of file id for hiding the id so no one can access it via Google Drive.
-  - All id and webContentLink are now encrypted using AES-128-CBC.
-- Protected folder cause long response time, because it need to fetch the file / folder first > fetch each of the parents till root > check if it's inside protected folder > then checking the password.
-- Download might show scan warning, because it's using Google Drive's direct download link. 
+So, if you have a lot of files in your Google Drive, it might take a long time to fetch all the files.  
+To improve the response time, I added a cache to the response, so the next time you access the same path, it will be faster.
 
-## TODO
-Todo list are moved to [here](./TODO.md).
+ATM, it roughly take around 600 - 2 seconds to fetch all the data on my Google Drive.
+
+### No support for Google Shared Drive
+
+I don't have Google Shared Drive, so I can't test it and implement it.
+
+### No support for Google Docs, Sheets, and Slides
+
+For now, I don't have any plan to implement this, because I think it's not necessary.  
+All Google Drive files like Docs, Sheets, and Slides are hidden from the list.

@@ -1,10 +1,4 @@
-/**
- * Get search params from url string, and return it as object
- * @param url - Request url
- * @param key - Key to get from the url
- * @returns Object containing the key and value
- */
-function getSearchParams(
+export default function getSearchParams(
   url: string,
   key: string | string[],
 ): Record<string, string | null> {
@@ -13,11 +7,9 @@ function getSearchParams(
     return { [key]: searchParams.get(key) };
   } else {
     const result: Record<string, string | null> = {};
-    key.forEach((k) => {
+    for (const k of key) {
       result[k] = searchParams.get(k);
-    });
+    }
     return result;
   }
 }
-
-export default getSearchParams;
