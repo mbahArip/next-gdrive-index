@@ -60,17 +60,18 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
       },
     });
   } catch (error: any) {
+    const errorCode = isNaN(Number(error.code)) ? 500 : Number(error.code);
     const res: ErrorResponse = {
       timestamp: Date.now(),
       responseTime: Date.now() - reqStart,
       error: {
-        code: error.code || 500,
+        code: errorCode,
         message: error.message,
         reason: error.errors?.[0].reason,
       },
     };
     return NextResponse.json(res, {
-      status: error.code || 500,
+      status: errorCode,
     });
   }
 }
