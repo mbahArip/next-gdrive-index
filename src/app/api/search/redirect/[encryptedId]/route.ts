@@ -53,9 +53,9 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
       }
     }
 
-    const redirectURL = new URL(path.reverse().join("/"), process.env.NEXT_PUBLIC_VERCEL_URL ?? request.nextUrl.origin);
+    const redirectURL = new URL(path.reverse().join("/"), request.nextUrl.origin ?? process.env.VERCEL_URL);
     console.log(redirectURL);
-    return NextResponse.redirect(redirectURL.toString(), {
+    return NextResponse.redirect(redirectURL, {
       status: 302,
       headers: {
         "Cache-Control": gIndexConfig.cacheControl,
