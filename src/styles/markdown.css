@@ -2,31 +2,50 @@
 
 @layer components {
   .markdown {
-    @apply leading-normal text-inherit bg-inherit;
+    @apply bg-inherit text-base leading-relaxed tracking-wide;
   }
 
-  
   .markdown p {
     @apply leading-loose;
   }
 
-  .markdown h1, .markdown h2, .markdown h3 {
-    @apply mb-4 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700 first-letter:capitalize;
+  .markdown h1 {
+    @apply text-4xl font-medium;
+  }
+  .markdown h2 {
+    @apply text-3xl font-medium;
+  }
+  .markdown h3 {
+    @apply text-2xl font-medium;
+  }
+  .markdown h4 {
+    @apply text-xl font-medium;
+  }
+  .markdown h5 {
+    @apply text-lg font-medium;
+  }
+  .markdown h6 {
+    @apply text-base;
+  }
+
+  .markdown h1,
+  .markdown h2,
+  .markdown h3 {
+    @apply my-4 border-b-2 border-b-primary-700 first-letter:capitalize;
   }
 
   .markdown code:not(pre code) {
-    @apply bg-zinc-300 dark:bg-zinc-700 px-1.5 rounded-lg;
+    @apply rounded-md bg-primary-800 px-2 py-0.5 leading-normal;
   }
-  .markdown code {
-    @apply font-code;
-  }
-  
+
   .markdown a {
-    @apply text-blue-500 dark:text-blue-400;
+    @apply text-accent-500 opacity-80 transition-smooth hover:opacity-100;
   }
+
   .markdown p {
     @apply whitespace-normal;
   }
+
   .markdown img {
     @apply rounded-lg;
   }
@@ -34,42 +53,55 @@
   .markdown ul {
     @apply list-disc leading-loose;
   }
+
   .markdown ol {
     @apply list-decimal leading-loose;
   }
+
   .markdown li {
     @apply ml-8;
   }
 
   .markdown table {
-    @apply block w-full overflow-auto border-collapse mb-4 border-spacing-0;
+    @apply mb-4 block w-full border-collapse border-spacing-0 overflow-auto;
   }
-  .markdown table th, .markdown table td {
-    @apply py-1 px-3 border border-zinc-500 dark:border-zinc-500;
+
+  .markdown table th,
+  .markdown table td {
+    @apply border border-primary-700 px-2 py-1;
   }
+
   .markdown table th {
-    @apply bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100;
+    @apply bg-primary-950 text-primary-50;
   }
+
   .markdown table tr {
-    @apply bg-zinc-100 dark:bg-zinc-900;
+    @apply bg-primary-900;
   }
+
   .markdown table tr:nth-child(2n) {
-    @apply bg-zinc-200 dark:bg-zinc-800;
+    @apply bg-primary-800;
   }
 
   .markdown ul.contains-task-list {
-    @apply list-none ml-4;
+    @apply list-none;
   }
-  .markdown input[type="checkbox"]{
-    @apply mr-2 w-4 h-4 aspect-square p-2;
-    @apply appearance-none border border-zinc-500;
-    @apply disabled:bg-zinc-200 dark:disabled:bg-zinc-700 disabled:checked:bg-blue-500 dark:disabled:checked:bg-blue-400;
+
+  .markdown ul.contains-task-list li {
+    @apply ml-1 flex items-center;
+  }
+
+  .markdown input[type="checkbox"] {
+    @apply mr-2 aspect-square h-4 w-4 rounded-full p-2;
+    @apply appearance-none border border-primary-500;
+    @apply disabled:bg-primary-600 disabled:checked:bg-accent-400;
   }
 
   .markdown blockquote {
-    @apply pl-2 border-l-4 border-l-zinc-500;
+    @apply my-2 rounded-r-md border-l-4 border-l-info-500 bg-primary-800 py-4 pl-2;
   }
+
   .markdown hr {
-    @apply my-4 border-t-0 border-b-2 tablet:border-b-4 border-b-zinc-400 dark:border-b-zinc-700;
+    @apply my-4 border-b border-t-0 border-b-primary-500;
   }
 }

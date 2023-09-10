@@ -9,7 +9,6 @@
 /coverage
 
 # next.js
-/.next/
 /out/
 
 # production
@@ -28,15 +27,15 @@ yarn-error.log*
 .env
 .env.local
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 # personal docs
 /docs
-/.next
-/.vscode
 /src/pages/api/legacy/
+
+/**/*/_legacy/
+
+/.*/
+/src/_app
