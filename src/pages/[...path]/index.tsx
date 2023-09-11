@@ -119,6 +119,20 @@ export default function FilePathPage(props: FilePathPageProps) {
     <LoaderLayout
       seo={{
         title: props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].name,
+        openGraph: {
+          type: "website",
+          title: props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].name,
+          description: gIndexConfig.siteConfig.siteDescription,
+          url: process.env.NEXT_PUBLIC_VERCEL_URL,
+          siteName: gIndexConfig.siteConfig.siteName,
+          images: [
+            {
+              url: `/og.png`,
+              width: 1200,
+              height: 630,
+            },
+          ],
+        },
       }}
     >
       {isLoadingData ? (
