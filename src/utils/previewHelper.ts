@@ -77,7 +77,7 @@ const iconMap: Record<FileTypes | "unknown", string> = {
   document: "ion:document-text",
   code: "ion:code-slash",
   text: "ion:document-text",
-  manga: "ion:ion:book",
+  manga: "ion:book",
   unknown: "ion:document",
 };
 
