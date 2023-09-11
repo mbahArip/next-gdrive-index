@@ -8,8 +8,6 @@
   <a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ'>FAQ</a>
 </p>
 
-**Development will be paused for a few weeks, I will resume the project as soon as possible.**
-
 ## What is this?
 
 `next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
