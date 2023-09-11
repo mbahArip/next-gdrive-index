@@ -48,7 +48,8 @@ export default function MangaPreview(props: PreviewProps) {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [props.file, maxPageIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.file]);
 
   const handleCurrentView = useCallback(
     (pageNumber: number) => {
