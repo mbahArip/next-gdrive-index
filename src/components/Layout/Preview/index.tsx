@@ -21,6 +21,7 @@ import { createDownloadToken } from "utils/tokenHelper";
 import { IGDriveFiles } from "types/api/files";
 import { Constant } from "types/constant";
 
+import Header from "../Header";
 import PasswordLayout from "../Password";
 
 const Loading = () => (
@@ -181,21 +182,7 @@ export default function PreviewLayout(props: PreviewLayoutProps) {
   return (
     <div className='w-full flex h-full flex-col gap-4 relative'>
       {/* Top */}
-      <div className='flex items-center justify-between gap-4'>
-        <h1 className='text-2xl font-medium'>{gIndexConfig.siteConfig.siteName}</h1>
-
-        {!showPasswordLayout && (
-          <div className='flex items-center gap-4'>
-            {/* Disable until figure out how to search from root */}
-            {/* <Tooltip content='Search file'>
-            <ButtonIcon
-              icon='ion:search'
-              variant='transparent'
-            />
-          </Tooltip> */}
-          </div>
-        )}
-      </div>
+      <Header showPasswordLayout={showPasswordLayout} />
 
       <div className='w-full h-px bg-primary-500' />
 
