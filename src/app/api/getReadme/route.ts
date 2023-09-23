@@ -3,29 +3,21 @@ import { NextRequest, NextResponse } from "next/server";
 
 import getSearchParams from "utils/apiHelper/getSearchParams";
 import { decryptData } from "utils/encryptionHelper/hash";
+import { gdriveFilesList } from "utils/gdrive";
 import gdrive from "utils/gdriveInstance";
 
-import {
-  APIGetReadmeResponse,
-  ErrorResponse,
-} from "types/api/response";
+import { APIGetReadmeResponse, ErrorResponse } from "types/api/response";
 
 export async function GET(request: NextRequest) {
   const reqStart = Date.now();
   try {
-    const { encryptedId } = getSearchParams(request.url, [
-      "encryptedId",
-    ]);
+    const { encryptedId } = getSearchParams(request.url, ["encryptedId"]);
 
     const query: string[] = [
       ...gIndexConfig.apiConfig.defaultQuery,
-      `'${
-        encryptedId
-          ? decryptData(encryptedId)
-          : gIndexConfig.apiConfig.rootFolder
-      }' in parents`,
+      `'${encryptedId ? decryptData(encryptedId) : gIndexConfig.apiConfig.rootFolder}' in parents`,
     ];
-    const folderContent = await gdrive.files.list({
+    const folderContent = await gdriveFilesList({
       q: query.join(" and "),
       fields: `files(${gIndexConfig.apiConfig.defaultField}), nextPageToken`,
       orderBy: gIndexConfig.apiConfig.defaultOrder,
@@ -33,9 +25,7 @@ export async function GET(request: NextRequest) {
       pageToken: undefined,
     });
     const isReadmeExist = folderContent.data.files?.find(
-      (file) =>
-        file.name ===
-        gIndexConfig.apiConfig.specialFile.readme,
+      (file) => file.name === gIndexConfig.apiConfig.specialFile.readme,
     );
     let data: string | null = null;
 

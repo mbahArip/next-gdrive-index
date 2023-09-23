@@ -10,6 +10,7 @@ import PasswordLayout from "components/Layout/Password";
 import PreviewLayout from "components/Layout/Preview";
 
 import { decryptData, encryptData } from "utils/encryptionHelper/hash";
+import { gdriveFilesList } from "utils/gdrive";
 import gdrive from "utils/gdriveInstance";
 import { addNewPassword, checkPathPassword } from "utils/passwordHelper";
 
@@ -196,10 +197,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const fetchRootId = gdrive.files.get({
     fileId: gIndexConfig.apiConfig.rootFolder,
     fields: "id",
+    supportsAllDrives: true,
   });
   const fetchPathId = path.map(async (path) => {
     const query = ["trashed = false", `name = '${path}'`];
-    const fetchFolderContents = await gdrive.files.list({
+    const fetchFolderContents = await gdriveFilesList({
       q: `${query.join(" and ")}`,
       fields: "files(id, name, mimeType, parents)",
     });

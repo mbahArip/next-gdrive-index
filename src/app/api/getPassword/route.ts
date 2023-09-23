@@ -2,52 +2,32 @@ import gIndexConfig from "config";
 import { NextRequest, NextResponse } from "next/server";
 
 import getSearchParams from "utils/apiHelper/getSearchParams";
-import {
-  decryptData,
-  encryptData,
-} from "utils/encryptionHelper/hash";
+import { decryptData, encryptData } from "utils/encryptionHelper/hash";
 import ExtendedError from "utils/extendedError";
+import { gdriveFilesList } from "utils/gdrive";
 import gdrive from "utils/gdriveInstance";
 
-import {
-  APIGetPasswordResponse,
-  ErrorResponse,
-} from "types/api/response";
+import { APIGetPasswordResponse, ErrorResponse } from "types/api/response";
 
 export async function GET(request: NextRequest) {
   const reqStart = Date.now();
 
   try {
     const { path } = getSearchParams(request.url, ["path"]);
-    if (!path)
-      throw new ExtendedError(
-        "Path is required",
-        400,
-        "Can't find path in query, please check your query",
-      );
-    const mappedPath: Record<
-      "name" | "id" | "mimeType",
-      string
-    >[] = JSON.parse(decryptData(path));
-    const passwordParents = mappedPath.map(
-      (path) => `'${decryptData(path.id)}' in parents`,
-    );
+    if (!path) throw new ExtendedError("Path is required", 400, "Can't find path in query, please check your query");
+    const mappedPath: Record<"name" | "id" | "mimeType", string>[] = JSON.parse(decryptData(path));
+    const passwordParents = mappedPath.map((path) => `'${decryptData(path.id)}' in parents`);
     const query: string[] = [
       "trashed = false",
-      `name = '${
-        gIndexConfig.apiConfig.specialFile.password
-      }' and (${passwordParents.join(" or ")})`,
+      `name = '${gIndexConfig.apiConfig.specialFile.password}' and (${passwordParents.join(" or ")})`,
     ];
-    const passwordData = await gdrive.files.list({
+    const passwordData = await gdriveFilesList({
       q: query.join(" and "),
       fields: "files(id, name, parents)",
     });
 
     const protectedPaths = mappedPath.map((path) => {
-      const isPasswordExist = passwordData.data.files?.find(
-        (file) =>
-          file.parents?.[0] === decryptData(path.id),
-      );
+      const isPasswordExist = passwordData.data.files?.find((file) => file.parents?.[0] === decryptData(path.id));
       if (isPasswordExist)
         return {
           name: path.name,
@@ -77,21 +57,14 @@ export async function GET(request: NextRequest) {
       );
     });
 
-    const passwordContent = await Promise.all(
-      _passwordContent,
-    );
+    const passwordContent = await Promise.all(_passwordContent);
 
     let prevPath = [""];
-    let password: Record<
-      "relativePath" | "password",
-      string
-    >[] = [];
+    let password: Record<"relativePath" | "password", string>[] = [];
 
     mappedPath.forEach((path) => {
       prevPath.push(path.name);
-      const isPasswordExist = passwordContent.find(
-        (password) => password.path === path.name,
-      );
+      const isPasswordExist = passwordContent.find((password) => password.path === path.name);
       if (isPasswordExist) {
         password.push({
           relativePath: prevPath.join("/"),
