@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
       const fileContent = await gdrive.files.get({
         fileId: decryptData(encryptedId),
         fields: gIndexConfig.apiConfig.defaultField,
+        supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
       });
       if (isHiddenFile(fileContent.data.name as string))
         throw new ExtendedError("File not found", 404, "File you are looking for is not found");

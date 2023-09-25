@@ -37,10 +37,12 @@ export async function GET(
     const _fileMeta = gdrive.files.get({
       fileId: decryptData(data.id),
       fields: "id, name, size, mimeType, webContentLink",
+      supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
     });
     const _fileContent = gdrive.files.get(
       {
         fileId: decryptData(data.id),
+        supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
         alt: "media",
       },
       { responseType: "stream" },
