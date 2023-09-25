@@ -69,9 +69,10 @@ To improve the response time, I added a cache to the response, so the next time 
 
 ATM, it roughly take around 600 - 2 seconds to fetch all the data on my Google Drive.
 
-### No support for Google Shared Drive
+### Shared Drive is now supported
 
-I don't have Google Shared Drive, so I can't test it and implement it.
+~~I don't have Google Shared Drive, so I can't test it and implement it.~~  
+Implemented by [@loadingthedev](https://github.com/loadingthedev) [(PR #4)](https://github.com/mbahArip/next-gdrive-index/pull/4)
 
 ### No support for Google Docs, Sheets, and Slides
 
