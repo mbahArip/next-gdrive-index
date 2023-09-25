@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import getSearchParams from "utils/apiHelper/getSearchParams";
 import { encryptData } from "utils/encryptionHelper/hash";
 import ExtendedError from "utils/extendedError";
-import gdrive from "utils/gdriveInstance";
+import { gdriveFilesList } from "utils/gdrive";
 
 import { IGDriveFiles } from "types/api/files";
 import { APISearchResponse, ErrorResponse } from "types/api/response";
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { query } = getSearchParams(request.url, ["query"]);
     if (!query) throw new ExtendedError("Missing query", 400, "Search query is required");
 
-    const searchFiles = await gdrive.files.list({
+    const searchFiles = await gdriveFilesList({
       q: [...gIndexConfig.apiConfig.defaultQuery, `name contains '${query}'`].join(" and "),
       fields: `files(${gIndexConfig.apiConfig.defaultField}), nextPageToken`,
       orderBy: "name_natural desc",
