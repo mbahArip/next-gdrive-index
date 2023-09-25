@@ -197,7 +197,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const fetchRootId = gdrive.files.get({
     fileId: gIndexConfig.apiConfig.rootFolder,
     fields: "id",
-    supportsAllDrives: true,
+    supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
   });
   const fetchPathId = path.map(async (path) => {
     const query = ["trashed = false", `name = '${path}'`];

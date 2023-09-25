@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
             {
               fileId: path.passwordId as string,
               alt: "media",
+              supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
             },
             { responseType: "text" },
           )

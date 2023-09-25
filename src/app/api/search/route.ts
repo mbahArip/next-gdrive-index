@@ -5,7 +5,6 @@ import getSearchParams from "utils/apiHelper/getSearchParams";
 import { encryptData } from "utils/encryptionHelper/hash";
 import ExtendedError from "utils/extendedError";
 import { gdriveFilesList } from "utils/gdrive";
-import gdrive from "utils/gdriveInstance";
 
 import { IGDriveFiles } from "types/api/files";
 import { APISearchResponse, ErrorResponse } from "types/api/response";

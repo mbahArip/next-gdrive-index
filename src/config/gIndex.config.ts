@@ -39,7 +39,7 @@ const config: gIndexConfig = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    rootFolder: "",
+    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
     isTeamDrive: false, // Set this to true if you're using Team Drive
     defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
     defaultField:

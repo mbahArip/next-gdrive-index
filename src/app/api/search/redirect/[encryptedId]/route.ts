@@ -20,6 +20,7 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
     const fileContent = await gdrive.files.get({
       fileId: lastId,
       fields: "id, name, mimeType, parents",
+      supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
     });
     if (fileContent) {
       path.push(fileContent.data.name as string);
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest, { params }: { params: { encrypte
           const folderContent = await gdrive.files.get({
             fileId: lastId,
             fields: "id, name, mimeType, parents",
+            supportsAllDrives: gIndexConfig.apiConfig.isTeamDrive,
           });
           if (folderContent.data.id === gIndexConfig.apiConfig.rootFolder) {
             lastId = "";
