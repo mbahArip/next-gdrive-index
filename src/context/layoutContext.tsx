@@ -1,8 +1,4 @@
-import React, {
-  createContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 export type TLayout = "grid" | "list";
 
@@ -36,9 +32,15 @@ const LayoutProvider = ({ children }: TLayoutProvider) => {
     setLayout(getLayoutFromLocalStorage());
   }, []);
 
+  const onChangeLayout = (layout: TLayout) => {
+    setLayout(layout);
+    localStorage.setItem("layout", layout);
+  };
+
   return (
-    <LayoutContext.Provider value={{ layout, setLayout }}>
+    <LayoutContext.Provider value={{ layout, setLayout: onChangeLayout }}>
       {children}
     </LayoutContext.Provider>
   );
 };
+export default LayoutProvider;

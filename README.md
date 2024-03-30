@@ -8,6 +8,16 @@
   <a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ'>FAQ</a>
 </p>
 
+## Version 2
+
+It seems there are some bugs on mobile devices that prevent the files list from rendering properly. So I will use this chance to upgrade the project to `Next.js 14`, use `shadcn/ui`, and also add some new features.
+
+Here's what changed in version 2:
+
+- Upgrade to `Next.js 14` app directory structure.
+- Use `shadcn/ui` for the UI components.
+- Add light and dark mode.
+
 ## What is this?
 
 `next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  

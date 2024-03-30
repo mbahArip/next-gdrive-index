@@ -1,10 +1,7 @@
 "use strict";
 module.exports = {
-  plugins: [
-    require("prettier-plugin-tailwindcss"),
-    require("@trivago/prettier-plugin-sort-imports"),
-  ],
-  printWidth: 120,
+  plugins: [require("@trivago/prettier-plugin-sort-imports"), require("prettier-plugin-tailwindcss")],
+  printWidth: 80,
   tabWidth: 2,
   useTabs: false,
   semi: true,
@@ -30,4 +27,5 @@ module.exports = {
   ],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
+  tailwindFunctions: ["twsx", "cn"],
 };
