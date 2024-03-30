@@ -89,7 +89,7 @@ export default function FileGrid({ data }: Props) {
 
           {/* File data */}
           <div className='flex h-full w-full flex-col justify-between gap-1.5 px-3 py-1.5'>
-            <span className='line-clamp-2 h-full whitespace-pre-wrap text-balance break-all text-center'>
+            <span className='line-clamp-2 h-full whitespace-pre-wrap text-balance break-all'>
               {data.fileExtension
                 ? data.name.replace(new RegExp(`.${data.fileExtension}$`), "")
                 : data.name}
