@@ -103,7 +103,7 @@ export default function FileBrowser({ files, nextPageToken }: Props) {
                 key={file.encryptedId}
                 data={file}
               />
-              <Separator className='group-last:hidden' />
+              <Separator className='mt-1.5 group-last:hidden' />
             </div>
           ))}
         </div>

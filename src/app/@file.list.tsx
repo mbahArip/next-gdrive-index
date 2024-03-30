@@ -52,15 +52,27 @@ export default function FileList({ data }: Props) {
       >
         <div className={cn("flex-shrink flex-grow", "flex items-center gap-3")}>
           {/* If it's media, show thumbnail */}
-          <div className='flex-shrink-0 rounded-[var(--radius)] bg-muted/25'>
+          <div className='relative flex-shrink-0 rounded-[var(--radius)] bg-muted/25'>
             {data.thumbnailLink &&
             (data.mimeType.startsWith("video") ||
               data.mimeType.startsWith("image")) ? (
-              <img
-                src={`/api/thumb/${data.encryptedId}`}
-                alt={data.name}
-                className='size-12 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover'
-              />
+              <>
+                <img
+                  src={`/api/thumb/${data.encryptedId}`}
+                  alt={data.name}
+                  className='size-16 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover tablet:size-12'
+                />
+
+                {data.mimeType.startsWith("video") && (
+                  <>
+                    <Icon
+                      name='Play'
+                      className='absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground fill-muted p-1.5 text-muted opacity-75'
+                      size={24}
+                    />
+                  </>
+                )}
+              </>
             ) : (
               <Icon
                 name={
@@ -68,7 +80,7 @@ export default function FileList({ data }: Props) {
                     ? "Folder"
                     : getPreviewIcon(data.fileExtension || "", data.mimeType)
                 }
-                className='size-12 flex-shrink-0 flex-grow-0 p-3'
+                className='size-16 flex-shrink-0 flex-grow-0 p-3 tablet:size-12'
               />
             )}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
@@ -18,10 +18,11 @@ export default function Password({ path, errorMessage }: Props) {
   const router = useRouter();
 
   const [input, setInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitLoading(true);
     toast.loading("Checking password...", {
       id: "password",
     });
@@ -46,9 +47,30 @@ export default function Password({ path, errorMessage }: Props) {
       });
     } finally {
       setInput("");
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  if (loading)
+    return (
+      <div
+        className={cn(
+          "mx-auto h-full w-full max-w-md",
+          "flex flex-grow flex-col items-center justify-center gap-3",
+        )}
+      >
+        <Icon
+          name='LoaderCircle'
+          size={32}
+          className='animate-spin text-foreground'
+        />
+        <p>Checking password...</p>
+      </div>
+    );
 
   return (
     <div
@@ -89,9 +111,9 @@ export default function Password({ path, errorMessage }: Props) {
         <Button
           className='gap-3'
           type='submit'
-          disabled={loading}
+          disabled={submitLoading}
         >
-          {loading ? (
+          {submitLoading ? (
             <>
               <Icon
                 name='LoaderCircle'

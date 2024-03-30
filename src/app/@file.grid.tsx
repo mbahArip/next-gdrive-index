@@ -64,7 +64,7 @@ export default function FileGrid({ data }: Props) {
                   <>
                     <Icon
                       name='Play'
-                      className='absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground fill-muted p-1.5 text-muted opacity-50'
+                      className='absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground fill-muted p-1.5 text-muted opacity-75'
                       size={32}
                     />
                     <div className='absolute bottom-0 right-0 z-10 bg-background px-1 py-0.5 text-xs text-foreground'>
