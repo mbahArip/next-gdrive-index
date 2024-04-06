@@ -10,6 +10,7 @@ import Markdown from "./@markdown";
 import { GetFiles, GetReadme } from "./actions";
 
 export const revalidate = 300;
+export const dynamic = 'force-dynamic'
 
 export default async function RootPage() {
   const [data, readme] = await Promise.all([

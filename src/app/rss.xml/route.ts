@@ -9,5 +9,10 @@ import { NextResponse } from "next/server";
  */
 
 export async function GET() {
-  return new NextResponse();
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/xml",
+    },
+  });
 }

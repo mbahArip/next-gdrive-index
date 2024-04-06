@@ -54,9 +54,9 @@
     "next": "^14.1.4",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^1.6.11",
-    "react": "^18.2.0",
+    "react": "^18",
     "react-day-picker": "^8.10.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18",
     "react-h5-audio-player": "^3.9.1",
     "react-hook-form": "^7.51.2",
     "react-hot-toast": "^2.4.1",
@@ -86,9 +86,9 @@
     "@types/cors": "^2.8.13",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/mime-types": "^2.1.1",
-    "@types/node": "18.15.11",
-    "@types/react": "^18.2.74",
-    "@types/react-dom": "^18.2.24",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "@types/three": "^0.150.2",
     "autoprefixer": "^10.4.19",
     "encoding": "^0.1.13",
@@ -98,6 +98,6 @@
     "prettier": "3.0.0",
     "prettier-plugin-tailwindcss": "0.5.12",
     "tailwindcss": "^3.4.1",
-    "typescript": "5.0.4"
+    "typescript": "^5"
   }
 }

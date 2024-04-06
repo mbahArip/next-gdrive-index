@@ -34,6 +34,7 @@ import {
 } from "../actions";
 
 export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: {
