@@ -5,6 +5,8 @@ import { decryptData } from "~/utils/encryptionHelper/hash";
 
 import config from "~/config/gIndex.config";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: NextRequest,
   { params: { rest } }: { params: { rest: string[] } },

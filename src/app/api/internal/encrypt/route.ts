@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { encryptData } from "~/utils/encryptionHelper/hash";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const sp = new URL(request.nextUrl).searchParams;
