@@ -1,5 +1,3 @@
-import { z } from "zod";
-import { Schema_File } from "~/schema";
 import { cn } from "~/utils";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -9,18 +7,13 @@ import FileBrowser from "./@explorer";
 import Header from "./@header";
 import HeaderButton from "./@header.button";
 import Markdown from "./@markdown";
+import { GetFiles } from "./actions";
 
 export const revalidate = 300;
 export const dynamic = "force-dynamic";
 
 export default async function RootPage() {
-  const data: {
-    files: z.infer<typeof Schema_File>[];
-    nextPageToken: string | undefined;
-  } = {
-    files: [],
-    nextPageToken: undefined,
-  };
+  const data = await GetFiles({});
   const readme = "";
   // const [data, readme] = await Promise.all([
   //   GetFiles({}),
