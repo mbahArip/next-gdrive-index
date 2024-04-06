@@ -206,7 +206,7 @@ const config: z.input<typeof Schema_Config> = {
      * The site password are set from Environment Variable (NEXT_GDRIVE_INDEX_PASSWORD)
      * It's because I don't want to store sensitive data in the code
      */
-    privateIndex: true,
+    privateIndex: false,
 
     /**
      * Maximum breadcrumb length
@@ -284,62 +284,3 @@ const config: z.input<typeof Schema_Config> = {
 };
 
 export default config;
-// export interface gIndexConfig {
-//   version: string;
-//   basePath: string;
-//   cacheControl: string;
-
-//   apiConfig: {
-//     rootFolder: string;
-//     isTeamDrive: boolean;
-//     defaultQuery: string[];
-//     defaultField: string;
-//     defaultOrder: string;
-//     itemsPerPage: number;
-//     searchResult: number;
-//     proxyThumbnail: boolean;
-
-//     specialFile: {
-//       password: string;
-//       readme: string;
-//       banner: string;
-//     };
-//     hiddenFiles: string[];
-
-//     allowDownloadProtectedFile: boolean;
-//     temporaryTokenDuration: number;
-//     maxFileSize: number;
-//   };
-//   siteConfig: {
-//     siteName: string;
-//     siteNameTemplate?: string;
-//     siteDescription: string;
-//     siteIcon: string;
-//     siteAuthor?: string;
-//     favIcon: string;
-//     robots?: Metadata["robots"];
-//     twitterHandle?: string;
-
-//     footer: string | string[];
-
-//     privateIndex: boolean;
-//     breadcrumbMax: number;
-
-//     toaster?: {
-//       position?: ToastPosition;
-//       duration?: number;
-//     };
-
-//     navbarItems: {
-//       icon: keyof typeof icons;
-//       name: string;
-//       href: string;
-//       external?: boolean;
-//     }[];
-//     supports: {
-//       name: string;
-//       currency: string;
-//       href: string;
-//     }[];
-//   };
-// }
