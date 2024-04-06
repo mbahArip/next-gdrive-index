@@ -513,7 +513,7 @@ function SearchResultItem({ data }: { data: z.infer<typeof Schema_File> }) {
         "rounded-[var(--radius)]",
         "flex flex-grow items-center justify-between gap-3",
         "hover:bg-muted/50",
-        "transition",
+        "cursor-pointer transition",
       )}
       onClick={async () => {
         toast.loading("Getting file path...", {

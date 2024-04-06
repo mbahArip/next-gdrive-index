@@ -23,7 +23,7 @@ Here's what changed in version 2:
 - **[shadcn/ui](https://ui.shadcn.com/)**, change the UI library to `shadcn/ui`.
 - **Faster Response Time**, added cache to improve the response time.
 - **Revalidate Data**, data fetching now utilizing revalidate. (can be changed from config file)
-  > You can manually revalidate the data by sending POST request to `/api/revalidate` with `Authorization` header set to `{{ masterKey }}`.
+  > You can manually revalidate the data by sending POST request to `/api/revalidate` with `Authorization` header set to `{{ process.env.SITE_PASSWORD }}`.
 
 ### Changed
 
@@ -141,7 +141,12 @@ To improve the response time, I added a cache to the response, so the next time 
 
 ~~ATM, it roughly take around 600 - 2 seconds to fetch all the data on my Google Drive.~~
 
-### Shared Drive is now supported
+### Can't seek on audio and video preview
+
+It looks like the audio and video preview can't seek, so you need to listen/watch from the beginning.  
+I'm still looking for a solution for this.
+
+### ~~Shared Drive is now supported~~
 
 ~~I don't have Google Shared Drive, so I can't test it and implement it.~~  
 Implemented by [@loadingthedev](https://github.com/loadingthedev) [(PR #4)](https://github.com/mbahArip/next-gdrive-index/pull/4)
@@ -186,3 +191,11 @@ Now all the environment variable are on the server side, so you need to change t
 - `NEXT_PUBLIC_ENCRYPTION_KEY` **CHANGED** to `ENCRYPTION_KEY`
 - `NEXT_PUBLIC_SITE_PASSWORD` **CHANGED** to `SITE_PASSWORD`
 - `NEXT_PUBLIC_VERCEL_URL` **CHANGED** to `NEXT_PUBLIC_DOMAIN`
+
+## Sponsors and Donations
+
+If you think I deserve it, you can support me by:
+
+- [Paypal (USD)](https://paypal.me/mbaharip)
+- [Ko-fi (USD)](https://ko-fi.com/mbaharip)
+- [Saweria (IDR)](https://saweria.co/mbaharip)
