@@ -3,7 +3,7 @@
 import crypto from "crypto";
 
 const generateKey = () => {
-  const env = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+  const env = process.env.ENCRYPTION_KEY;
   let data = !env
     ? "next-drive-index"
     : env.length < 16
