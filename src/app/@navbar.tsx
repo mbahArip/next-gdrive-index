@@ -3,7 +3,7 @@
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { cn } from "~/utils";
@@ -52,6 +52,7 @@ import { ClearPassword } from "./actions";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { theme, themes, setTheme } = useTheme();
 
@@ -72,6 +73,7 @@ export default function Navbar() {
       loading: "Clearing all saved password...",
       success: () => {
         setOpen(false);
+        router.refresh();
         return "All saved password cleared successfully!";
       },
       error: (error) => error.message,

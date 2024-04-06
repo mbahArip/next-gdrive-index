@@ -9,18 +9,25 @@ import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { CheckSitePassword, SetPassword, SetSitePassword } from "./actions";
+import {
+  CheckPassword,
+  CheckSitePassword,
+  SetPassword,
+  SetSitePassword,
+} from "./actions";
 
 type Props = {
   path: string;
+  checkPaths?: { path: string; id: string }[];
   errorMessage?: string;
 };
-export default function Password({ path, errorMessage }: Props) {
+export default function Password({ path, checkPaths, errorMessage }: Props) {
   const router = useRouter();
 
   const [input, setInput] = useState<string>("");
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitLoading(true);
@@ -37,13 +44,19 @@ export default function Password({ path, errorMessage }: Props) {
         const check = await CheckSitePassword();
         if (!check.success) throw new Error(check.message);
       } else {
+        if (!checkPaths)
+          throw new Error("No path found, try to refresh the page.");
         const set = await SetPassword(path, input);
         if (!set.success) throw new Error(set.message);
+
+        const check = await CheckPassword(checkPaths);
+        if (!check.success) throw new Error(check.message);
       }
 
       toast.success("Password accepted! Refreshing...", {
         id: "password",
       });
+      console.log("Password accepted! Refreshing...");
       router.refresh();
     } catch (error) {
       const e = error as Error;
@@ -51,9 +64,9 @@ export default function Password({ path, errorMessage }: Props) {
       toast.error(e.message, {
         id: "password",
       });
+      setSubmitLoading(false);
     } finally {
       setInput("");
-      setSubmitLoading(false);
     }
   };
 

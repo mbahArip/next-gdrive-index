@@ -88,6 +88,7 @@ export default async function RestPage({ params: { rest } }: Props) {
     return (
       <Password
         path={unlocked.path}
+        checkPaths={paths.data}
         errorMessage={unlocked.message}
       />
     );

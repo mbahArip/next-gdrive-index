@@ -256,9 +256,10 @@ export async function CheckPassword(
       },
     );
     if (savedPassword !== passwordFile)
-      throw new Error(
-        `Password for '${currentFolder.path}' is incorrect, please re-enter the password`,
-      );
+      throw {
+        message: `Password for '${currentFolder.path}' is incorrect, please re-enter the password`,
+        path: currentFolder.id,
+      };
 
     return {
       success: true,
