@@ -27,7 +27,7 @@ module.exports = {
 
   importOrder: [
     "<THIRD_PARTY_MODULES>",
-    "^~/components/(.*)$",
+    "^~/(app|components)/(.*)$",
     "^~/(utils|hooks|context)/(.*)$",
     "^~/types/(.*)$",
     "^~/(config|styles)/(.*)$",

@@ -42,7 +42,9 @@ export default function FileList({ data }: Props) {
   const pathname = usePathname();
 
   const filePath = useMemo<string>(() => {
-    const path = [pathname, encodeURIComponent(data.name)]
+    const currentPath = pathname.startsWith("/e") ? pathname : `/e${pathname}`;
+    // Set to pathname to remove the /e prefix
+    const path = [currentPath, encodeURIComponent(data.name)]
       .join("/")
       .replace(/\/+/g, "/");
 
