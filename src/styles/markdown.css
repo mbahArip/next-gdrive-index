@@ -31,15 +31,15 @@
   .markdown h1,
   .markdown h2,
   .markdown h3 {
-    @apply my-4 border-b-2 border-b-primary-700 first-letter:capitalize;
+    @apply border-b-primary-700 my-4 border-b-2 first-letter:capitalize;
   }
 
   .markdown code:not(pre code) {
-    @apply rounded-md bg-primary-800 px-2 py-0.5 leading-normal;
+    @apply bg-primary-800 rounded-md px-2 py-0.5 leading-normal;
   }
 
   .markdown a {
-    @apply text-accent-500 opacity-80 transition-smooth hover:opacity-100;
+    @apply text-accent-500 transition-smooth opacity-80 hover:opacity-100;
   }
 
   .markdown p {
@@ -68,7 +68,7 @@
 
   .markdown table th,
   .markdown table td {
-    @apply border border-primary-700 px-2 py-1;
+    @apply border-primary-700 border px-2 py-1;
   }
 
   .markdown table th {
@@ -93,15 +93,15 @@
 
   .markdown input[type="checkbox"] {
     @apply mr-2 aspect-square h-4 w-4 rounded-full p-2;
-    @apply appearance-none border border-primary-500;
+    @apply border-primary-500 appearance-none border;
     @apply disabled:bg-primary-600 disabled:checked:bg-accent-400;
   }
 
   .markdown blockquote {
-    @apply my-2 rounded-r-md border-l-4 border-l-info-500 bg-primary-800 py-4 pl-2;
+    @apply border-l-info-500 bg-primary-800 my-2 rounded-r-md border-l-4 py-4 pl-2;
   }
 
   .markdown hr {
-    @apply my-4 border-b border-t-0 border-b-primary-500;
+    @apply border-b-primary-500 my-4 border-b border-t-0;
   }
 }

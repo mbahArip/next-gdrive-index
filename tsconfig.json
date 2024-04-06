@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2021",
     "lib": ["dom", "dom.iterable", "esnext", "es2019"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -20,6 +20,7 @@
       // "components/*": [
       //   "app/(__components)/*"
       // ],
+      "~/*": ["*"],
       "components/*": ["components/*"],
       "config": ["config/gIndex.config.ts"],
       "hooks/*": ["hooks/*"],
@@ -45,6 +46,7 @@
     "node_modules",
     ".next",
     "**/*/_legacy/**/*",
-    "**/*/_app/**/*"
+    "**/*/_app/**/*",
+    "**/*/_page/**/*"
   ]
 }

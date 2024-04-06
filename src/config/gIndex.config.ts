@@ -1,34 +1,43 @@
-import colors from "tailwindcss/colors";
+import { z } from "zod";
+import { Schema_Config } from "~/schema";
 
-const config: gIndexConfig = {
-  version: "1.0.0",
+const config: z.input<typeof Schema_Config> = {
+  /**
+   * If possible, please don't change this value
+   * Even if you're creating a PR, just let me change it myself
+   */
+  version: "2.0",
   /**
    * Base path of the app, used for generating links
-   * If you're not using Vercel, you need to change this to your domain name
    *
-   * 2023/09/10: This is not used anymore, edit via env variable instead
+   * If you're using another port for development, you can set it here
    *
-   * @default process.env.NEXT_PUBLIC_VERCEL_URL
+   * @default process.env.NEXT_PUBLIC_DOMAIN
    */
   basePath:
-    process.env.NODE_ENV === "development" ? "http://localhost:3000" : `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`,
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : `https://${
+          process.env.NEXT_PUBLIC_VERCEL_URL || process.env.NEXT_PUBLIC_DOMAIN
+        }`,
 
   /**
+   * DEPRECATED
+   * Since in 2.0 we're using server side data fetching, this is not needed anymore.
+   *
    * Hashed key for fetching protected files / folders from the server
    * This key will bypass the file / folder password
-   *
-   * 2023/09/10: This is not used anymore
    */
-  masterKey: "masterkey",
+  // masterKey: "masterkey",
 
   /**
    * How long the cache will be stored in the browser
    * Used for all pages and api routes
    * Default is 5 minutes (300/60 = 5min)
    *
-   * @default "max-age=300, s-maxage=300, stale-while-revalidate, public"
+   * @default "max-age=0, s-maxage=60, stale-while-revalidate"
    */
-  cacheControl: "max-age=300, s-maxage=300, stale-while-revalidate, public",
+  cacheControl: "max-age=0, s-maxage=60, stale-while-revalidate",
 
   apiConfig: {
     /**
@@ -39,14 +48,33 @@ const config: gIndexConfig = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
+    rootFolder:
+      "c760fc0eae9990d4accbc2134af21e45a378d412af2c78020070a9f9ac548b98fe61c4f6be953a8d7be6a035e6f7766c",
     isTeamDrive: false, // Set this to true if you're using Team Drive
-    defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
+    defaultQuery: [
+      "trashed = false",
+      "(not mimeType contains 'google-apps' or mimeType contains 'folder')",
+    ],
     defaultField:
       "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
     defaultOrder: "folder, name asc, modifiedTime desc",
     itemsPerPage: 50,
     searchResult: 5,
+
+    /**
+     * By default, the app will use the thumbnail URL from Google Drive
+     *
+     * Sometimes, the thumbnail can't be accessed because of CORS policy
+     * If you're having this issue, you can set this to true
+     *
+     * This will make the api fetch the thumbnail and serve it from the server
+     * instead of using the Google Drive thumbnail
+     *
+     * This will increase the server load, so use it wisely
+     *
+     * Default: true
+     */
+    proxyThumbnail: true,
 
     /**
      * Special file name that will be used for certain purposes
@@ -62,7 +90,22 @@ const config: gIndexConfig = {
        */
       banner: ".banner",
     },
-    hiddenFiles: [".password", ".readme.md", ".banner"],
+    /**
+     * Reason why banner has multiple extensions:
+     * - If I use contains query, it will also match the file or folder that contains the word.
+     *   (e.g: File / folder with the name of "Test Password" will be matched)
+     * - If I use = query, it will only match the exact name, hence the multiple extensions
+     *
+     * You can add more extensions if you want
+     */
+    hiddenFiles: [
+      ".password",
+      ".readme.md",
+      ".banner",
+      ".banner.jpg",
+      ".banner.png",
+      ".banner.webp",
+    ],
 
     /**
      * Allow user to download protected file without password.
@@ -74,6 +117,13 @@ const config: gIndexConfig = {
     allowDownloadProtectedFile: false,
     /**
      * Duration in hours.
+     * In version 2, this will be used for download link expiration.
+     * If you need it under 1 hour, you can use math expression. (e.g: (5 / 60) * 1 = 5 minutes)
+     *
+     * This only affect when the user download the file
+     * For example if you set it for example 30 minutes (0.5)
+     * After 30 minutes, and the user still downloading the file, the download will NOT be interrupted
+     * But if the user refresh the page / trying to download again, the download link will be expired
      *
      * Default: 6 hours
      */
@@ -95,19 +145,59 @@ const config: gIndexConfig = {
 
   siteConfig: {
     /**
-     * This value will be used for metadata
+     * Site Name will be used for default metadata title
+     * Site Name Template will be used if the page has a title
+     * %s will be replaced with the page title
+     *
+     * You can set it to undefined if you don't want to use it
      */
     siteName: "next-gdrive-index",
+    siteNameTemplate: "%s - next-gdrive-index",
     siteDescription: "A simple file browser for Google Drive",
-    siteIcon: "/flaticon.svg",
-    favIcon: "/favicon.svg",
+    siteIcon: "/logo.svg",
+    siteAuthor: "mbaharip",
+    favIcon: "/favicon.png",
+    /**
+     * Next.js Metadata robots object
+     *
+     * ref: https://nextjs.org/docs/app/api-reference/functions/generate-metadata#robots
+     */
+    robots: "noindex, nofollow",
     twitterHandle: "@mbaharip_",
 
     /**
+     * Footer content
+     * You can use string or array of string for multiple lines
+     * You can also set it to empty array if you don't want to use it
+     *
+     * Basic markdown is supported (bold, italic, and link)
+     * External link will be opened in new tab
+     *
+     * Template:
+     * - {{ year }} will be replaced with the current year
+     * - {{ repository }} will be replaced with the original repository link
+     * - {{ author }} will be replaced with author from siteAuthor config above (If it's not set, it will be set to mbaharip)
+     * - {{ version }} will be replaced with the current version
+     * - {{ siteName }} will be replaced with the siteName config above
+     * - {{ creator }} will be replaced with mbaharip if you want to credit me
+     */
+    footer: [
+      "{{ siteName }} *v{{ version }}* @ {{ repository }}",
+      "{{ year }} - Made with ❤️ by **{{ author }}**",
+    ],
+
+    /**
+     * DEPRECATED
+     * Since we're using shadcn/ui now, please refer to their theming documentation
+     * https://ui.shadcn.com/docs/theming
+     *
+     * Or you can use their themes, and replace the color in /src/app/globals.css
+     * https://ui.shadcn.com/themes
+     *
      * Tailwind color name.
      * Ref: https://tailwindcss.com/docs/customizing-colors
      */
-    defaultAccentColor: "teal",
+    // defaultAccentColor: "teal",
 
     /**
      * Site wide password protection
@@ -119,9 +209,26 @@ const config: gIndexConfig = {
     privateIndex: false,
 
     /**
+     * Maximum breadcrumb length
+     * If the breadcrumb is longer than this, it will be shortened
+     */
+    breadcrumbMax: 3,
+
+    /**
+     * Toast notification configuration
+     *
+     * position: Self-explanatory
+     * duration: duration before the toast disappear in milliseconds
+     */
+    toaster: {
+      position: "bottom-right",
+      duration: 3000,
+    },
+
+    /**
      * Example item:
      * {
-     *  icon: string, // icon name from iconify (https://icon-sets.iconify.design/)
+     *  icon: string, // icon name from lucide icons (https://lucide.dev/icons/)
      *  name: string,
      *  href: string,
      *  external?: boolean
@@ -129,76 +236,51 @@ const config: gIndexConfig = {
      */
     navbarItems: [
       {
-        icon: "ion:document-text",
+        icon: "FileText",
         name: "Documentation",
         href: "https://github.com/mbahArip/next-gdrive-index/wiki",
         external: true,
       },
       {
-        icon: "ion:logo-github",
+        icon: "Github",
         name: "Github",
         href: "https://www.github.com/mbaharip",
         external: true,
       },
       {
-        icon: "ion:logo-paypal",
-        name: "Buy me a coffee",
-        href: "https://www.paypal.me/mbaharip",
-        external: true,
-      },
-      {
-        icon: "ion:mail",
+        icon: "Mail",
         name: "Contact",
         href: "mailto:support@mbaharip.com",
+      },
+    ],
+
+    /**
+     * Add support / donation links on the navbar
+     * Example item:
+     * {
+     *  name: string,
+     *  currency: string,
+     *  href: string,
+     * }
+     */
+    supports: [
+      {
+        name: "Paypal",
+        currency: "USD",
+        href: "https://paypal.me/mbaharip",
+      },
+      {
+        name: "Ko-fi",
+        currency: "USD",
+        href: "https://ko-fi.com/mbaharip",
+      },
+      {
+        name: "Saweria",
+        currency: "IDR",
+        href: "https://saweria.co/mbaharip",
       },
     ],
   },
 };
 
 export default config;
-
-interface gIndexConfig {
-  version: string;
-  basePath: string;
-  masterKey: string;
-  cacheControl: string;
-
-  apiConfig: {
-    rootFolder: string;
-    isTeamDrive: boolean;
-    defaultQuery: string[];
-    defaultField: string;
-    defaultOrder: string;
-    itemsPerPage: number;
-    searchResult: number;
-
-    specialFile: {
-      password: string;
-      readme: string;
-      banner: string;
-    };
-    hiddenFiles: string[];
-
-    allowDownloadProtectedFile: boolean;
-    temporaryTokenDuration: number;
-    maxFileSize: number;
-  };
-  siteConfig: {
-    siteName: string;
-    siteDescription: string;
-    siteIcon: string;
-    favIcon: string;
-    twitterHandle: string;
-
-    defaultAccentColor: keyof typeof colors;
-
-    privateIndex: boolean;
-
-    navbarItems: {
-      icon: string;
-      name: string;
-      href: string;
-      external?: boolean;
-    }[];
-  };
-}

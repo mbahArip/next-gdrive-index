@@ -17,9 +17,7 @@ const serviceB64: {
   auth_provider_x509_cert_url: string;
   client_x509_cert_url: string;
   universe_domain: string;
-} = JSON.parse(
-  base64Decode(process.env.GD_SERVICE_B64 as string),
-);
+} = JSON.parse(base64Decode(process.env.GD_SERVICE_B64 as string));
 // const serviceAccount = {
 //   email: process.env.GD_SERVICE_EMAIL,
 //   key: (process.env.GD_SERVICE_PVKEY as string).replace(
@@ -55,7 +53,18 @@ if (!gdrive) {
   gdrive = google.drive({
     version: "v3",
     auth: serviceAccountAuth,
+    fetchImplementation: (url, init) =>
+      fetch(url, {
+        ...init,
+        next: {
+          revalidate: 3600,
+        },
+      }),
   });
 }
+export const gdriveNoCache = google.drive({
+  version: "v3",
+  auth: serviceAccountAuth,
+});
 
 export default gdrive as drive_v3.Drive;

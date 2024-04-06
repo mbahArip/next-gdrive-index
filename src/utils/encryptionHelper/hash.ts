@@ -1,7 +1,9 @@
+"use server";
+
 import crypto from "crypto";
 
 const generateKey = () => {
-  const env = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+  const env = process.env.ENCRYPTION_KEY;
   let data = !env
     ? "next-drive-index"
     : env.length < 16
@@ -14,25 +16,16 @@ const generateKey = () => {
 const key = generateKey();
 const iv = Buffer.from(key);
 
-export function encryptData(data: string): string {
-  const cipher = crypto.createCipheriv(
-    "aes-128-cbc",
-    key,
-    iv,
+export async function encryptData(data: string): Promise<string> {
+  const cipher = crypto.createCipheriv("aes-128-cbc", key, iv);
+  return Buffer.concat([cipher.update(data, "utf-8"), cipher.final()]).toString(
+    "hex",
   );
-  return Buffer.concat([
-    cipher.update(data, "utf-8"),
-    cipher.final(),
-  ]).toString("hex");
 }
 
-export function decryptData(hash: string): string {
+export async function decryptData(hash: string): Promise<string> {
   try {
-    const decipher = crypto.createDecipheriv(
-      "aes-128-cbc",
-      key,
-      iv,
-    );
+    const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv);
 
     return Buffer.concat([
       decipher.update(hash, "hex"),

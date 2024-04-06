@@ -34,8 +34,11 @@ next-env.d.ts
 # personal docs
 /docs
 /src/pages/api/legacy/
-
 /**/*/_legacy/
-
+/data
 /.*/
 /src/_app
+/src/_page
+/src/utils/_legacy
+/src/components/_legacy
+.env.production
