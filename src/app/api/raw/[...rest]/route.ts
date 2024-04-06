@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { CheckPassword, CheckPaths, GetFile } from "~/app/actions";
 
 import { decryptData } from "~/utils/encryptionHelper/hash";

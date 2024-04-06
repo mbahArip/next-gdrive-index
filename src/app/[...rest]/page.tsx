@@ -11,19 +11,19 @@ import { decryptData } from "~/utils/encryptionHelper/hash";
 import gdrive from "~/utils/gdriveInstance";
 import { getFileType } from "~/utils/previewHelper";
 
-import FileBrowser from "../../@explorer";
-import Header from "../../@header";
-import HeaderButton from "../../@header.button";
-import Markdown from "../../@markdown";
-import Password from "../../@password";
-import PreviewAction from "../../@preview.action";
-import PreviewAudio from "../../@preview.audio";
-import PreviewDoc from "../../@preview.doc";
-import PreviewImage from "../../@preview.image";
-import PreviewManga from "../../@preview.manga";
-import PreviewRich from "../../@preview.rich";
-import PreviewUnknown from "../../@preview.unknown";
-import PreviewVideo from "../../@preview.video";
+import FileBrowser from "../@explorer";
+import Header from "../@header";
+import HeaderButton from "../@header.button";
+import Markdown from "../@markdown";
+import Password from "../@password";
+import PreviewAction from "../@preview.action";
+import PreviewAudio from "../@preview.audio";
+import PreviewDoc from "../@preview.doc";
+import PreviewImage from "../@preview.image";
+import PreviewManga from "../@preview.manga";
+import PreviewRich from "../@preview.rich";
+import PreviewUnknown from "../@preview.unknown";
+import PreviewVideo from "../@preview.video";
 import {
   CheckPassword,
   CheckPaths,
@@ -31,7 +31,7 @@ import {
   GetFile,
   GetFiles,
   GetReadme,
-} from "../../actions";
+} from "../actions";
 
 export const revalidate = 300;
 export const dynamic = "force-dynamic";

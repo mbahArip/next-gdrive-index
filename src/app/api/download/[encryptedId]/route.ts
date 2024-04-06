@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import {
   CheckDownloadToken,
   CheckPassword,
@@ -9,7 +8,7 @@ import {
 } from "~/app/actions";
 
 import { decryptData } from "~/utils/encryptionHelper/hash";
-import gdrive from "~/utils/gdriveInstance";
+import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
 
 import config from "~/config/gIndex.config";
 

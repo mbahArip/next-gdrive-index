@@ -53,14 +53,18 @@ if (!gdrive) {
   gdrive = google.drive({
     version: "v3",
     auth: serviceAccountAuth,
-    // fetchImplementation: (url, init) =>
-    //   fetch(url, {
-    //     ...init,
-    //     next: {
-    //       revalidate: 3600,
-    //     },
-    //   }),
+    fetchImplementation: (url, init) =>
+      fetch(url, {
+        ...init,
+        next: {
+          revalidate: 3600,
+        },
+      }),
   });
 }
+export const gdriveNoCache = google.drive({
+  version: "v3",
+  auth: serviceAccountAuth,
+});
 
 export default gdrive as drive_v3.Drive;
