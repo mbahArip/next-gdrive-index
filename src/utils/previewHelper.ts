@@ -29,7 +29,7 @@ const extensionsMap: Record<FileTypes, string[]> = {
   audio: ["mp3", "ogg", "wav", "flac", "m4a", "wma", "aac"],
   markdown: ["md"],
   pdf: ["pdf"],
-  document: ["doc", "docx", "xls", "xlsx", "ppt", "pptx"],
+  document: ["odt", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv"],
   executable: ["exe", "msi"],
   code: [
     "html",
@@ -109,6 +109,24 @@ const iconMap: Record<FileTypes | "unknown", keyof typeof icons> = {
 //   );
 //   return previewMap[type as keyof typeof previewMap] ?? previewMap["unknown"];
 // }
+
+export function getFileType(
+  fileExtension: string,
+  mimeType: string,
+): FileTypes | "unknown" {
+  if (fileExtension === "ts") {
+    if (mimeType.includes("video")) {
+      return "video";
+    } else {
+      return "code";
+    }
+  }
+  const type = Object.keys(extensionsMap).find((key) =>
+    extensionsMap[key as keyof typeof extensionsMap].includes(fileExtension),
+  );
+
+  return type ? (type as FileTypes) : "unknown";
+}
 
 export function getPreviewIcon(fileExtension: string, mimeType: string) {
   if (fileExtension === "ts") {

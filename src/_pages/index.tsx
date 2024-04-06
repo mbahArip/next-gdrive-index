@@ -1,16 +1,11 @@
 import axios from "axios";
+import ExplorerLayout from "components/Layout/Explorer";
+import LoaderLayout from "components/Layout/Loader";
 import gIndexConfig from "config";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-
-import ExplorerLayout from "components/Layout/Explorer";
-import LoaderLayout from "components/Layout/Loader";
-
 import { IGDriveFiles } from "types/api/files";
-import {
-  APIGetFileResponse,
-  APIGetReadmeResponse,
-} from "types/api/response";
+import { APIGetFileResponse, APIGetReadmeResponse } from "types/api/response";
 
 interface StateDataProps {
   file: IGDriveFiles | null;
@@ -26,19 +21,13 @@ export default function RootPage() {
     folders: [],
     pageToken: null,
   });
-  const [readmeFile, setReadmeFile] = useState<
-    string | null
-  >(null);
-  const [isLoadingData, setIsLoadingData] =
-    useState<boolean>(true);
+  const [readmeFile, setReadmeFile] = useState<string | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
 
   useEffect(() => {
     setIsLoadingData(true);
-    const _getData =
-      axios.get<APIGetFileResponse>("/api/getData");
-    const _getReadme = axios.get<APIGetReadmeResponse>(
-      "/api/getReadme",
-    );
+    const _getData = axios.get<APIGetFileResponse>("/api/getData");
+    const _getReadme = axios.get<APIGetReadmeResponse>("/api/getReadme");
 
     Promise.all([_getData, _getReadme])
       .then(([fileData, readmeData]) => {
@@ -60,15 +49,15 @@ export default function RootPage() {
   return (
     <LoaderLayout>
       {isLoadingData ? (
-        <div className='w-full h-full flex items-center justify-center'>
-          <div className='flex flex-col gap-4 items-center justify-center animate-pulse'>
-            <div className='w-fit h-fit relative grid place-items-center'>
+        <div className='flex h-full w-full items-center justify-center'>
+          <div className='flex animate-pulse flex-col items-center justify-center gap-4'>
+            <div className='relative grid h-fit w-fit place-items-center'>
               <img
                 src={gIndexConfig.siteConfig.siteIcon}
                 alt={gIndexConfig.siteConfig.siteName}
-                className='w-12 -top-1 relative'
+                className='relative -top-1 w-12'
               />
-              <div className='absolute w-12 h-12 bg-transparent border border-primary-50 rounded-full animate-ping' />
+              <div className='border-primary-50 absolute h-12 w-12 animate-ping rounded-full border bg-transparent' />
             </div>
             <span>Fetching folder contents...</span>
           </div>

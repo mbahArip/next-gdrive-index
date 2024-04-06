@@ -12,7 +12,7 @@ body {
 @layer base {
   * {
     @apply outline-none;
-    @apply focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-accent-500;
+    @apply focus-visible:outline-accent-500 focus-visible:outline-2 focus-visible:-outline-offset-1;
   }
 
   html,

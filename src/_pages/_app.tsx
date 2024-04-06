@@ -1,4 +1,10 @@
 import { Icon } from "@iconify/react";
+import Button from "components/Button";
+import ButtonGroup from "components/ButtonGroup";
+import ButtonIcon from "components/ButtonIcon";
+import ClickAway from "components/ClickAway";
+import Modal from "components/Modal";
+import Tooltip from "components/Tooltip";
 import gIndexConfig from "config";
 import { DefaultSeo } from "next-seo";
 import { AppProps } from "next/app";
@@ -8,20 +14,11 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "styles/globals.css";
 import { twMerge } from "tailwind-merge";
 import twColor from "tailwindcss/colors";
-
-import Button from "components/Button";
-import ButtonGroup from "components/ButtonGroup";
-import ButtonIcon from "components/ButtonIcon";
-import ClickAway from "components/ClickAway";
-import Modal from "components/Modal";
-import Tooltip from "components/Tooltip";
-
 import hexToRgb from "utils/hexToRGB";
 import { removeAllPassword } from "utils/passwordHelper";
-
-import "styles/globals.css";
 
 const kanit = Kanit({
   display: "auto",

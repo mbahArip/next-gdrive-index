@@ -6,7 +6,6 @@ import { Schema_Breadcrumb } from "~/schema";
 import { cn } from "~/utils";
 
 import HeaderBreadcrumb from "./@header.breadcrumb";
-import HeaderButton from "./@header.button";
 
 type Props = {
   name: string;
@@ -38,7 +37,7 @@ export default function Header({ name, breadcrumb }: Props) {
           data={breadcrumb || []}
           loading={loading}
         />
-        <HeaderButton loading={loading} />
+        {/* <HeaderButton loading={loading} /> */}
       </div>
     </div>
   );

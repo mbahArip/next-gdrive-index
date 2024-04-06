@@ -1,13 +1,15 @@
+import { cn } from "~/utils";
+
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/utils";
 
 import FileBrowser from "./@explorer";
 import Header from "./@header";
+import HeaderButton from "./@header.button";
 import Markdown from "./@markdown";
 import { GetFiles, GetReadme } from "./actions";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function RootPage() {
   const [data, readme] = await Promise.all([
@@ -24,13 +26,17 @@ export default async function RootPage() {
       >
         <Card>
           <CardHeader className='pb-0'>
-            <CardTitle>Browse files</CardTitle>
+            <div className='flex w-full items-center justify-between gap-3'>
+              <CardTitle className='flex-grow'>Browse files</CardTitle>
+              <HeaderButton />
+            </div>
             <Separator />
           </CardHeader>
           <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
             <FileBrowser
               files={data.files}
               nextPageToken={data.nextPageToken}
+              root
             />
           </CardContent>
         </Card>

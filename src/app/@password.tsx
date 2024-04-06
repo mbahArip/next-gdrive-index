@@ -3,12 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { cn } from "~/utils";
+
 import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/utils";
 
-import { CheckSitePassword, SetSitePassword } from "./actions";
+import { CheckSitePassword, SetPassword, SetSitePassword } from "./actions";
 
 type Props = {
   path: string;
@@ -29,11 +30,16 @@ export default function Password({ path, errorMessage }: Props) {
 
     try {
       if (!input) throw new Error("Password is required");
-      const set = await SetSitePassword(input);
-      if (!set.success) throw new Error(set.message);
+      if (path === "global") {
+        const set = await SetSitePassword(input);
+        if (!set.success) throw new Error(set.message);
 
-      const check = await CheckSitePassword();
-      if (!check.success) throw new Error(check.message);
+        const check = await CheckSitePassword();
+        if (!check.success) throw new Error(check.message);
+      } else {
+        const set = await SetPassword(path, input);
+        if (!set.success) throw new Error(set.message);
+      }
 
       toast.success("Password accepted! Refreshing...", {
         id: "password",

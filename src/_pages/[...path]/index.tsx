@@ -1,22 +1,23 @@
 import axios from "axios";
-import gIndexConfig from "config";
-import { GetServerSidePropsContext } from "next";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-
 import ExplorerLayout from "components/Layout/Explorer";
 import LoaderLayout from "components/Layout/Loader";
 import PasswordLayout from "components/Layout/Password";
 import PreviewLayout from "components/Layout/Preview";
-
+import gIndexConfig from "config";
+import { GetServerSidePropsContext } from "next";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { IGDriveFiles } from "types/api/files";
+import {
+  APIGetFileResponse,
+  APIGetPasswordResponse,
+  APIGetReadmeResponse,
+} from "types/api/response";
+import { Constant } from "types/constant";
 import { decryptData, encryptData } from "utils/encryptionHelper/hash";
 import { gdriveFilesList } from "utils/gdrive";
 import gdrive from "utils/gdriveInstance";
 import { addNewPassword, checkPathPassword } from "utils/passwordHelper";
-
-import { IGDriveFiles } from "types/api/files";
-import { APIGetFileResponse, APIGetPasswordResponse, APIGetReadmeResponse } from "types/api/response";
-import { Constant } from "types/constant";
 
 interface FilePathPageProps {
   mappedEncryptedPath: Record<"name" | "id" | "mimeType", string>[];
@@ -44,7 +45,9 @@ export default function FilePathPage(props: FilePathPageProps) {
   useEffect(() => {
     setIsLoadingData(true);
 
-    const lastPathMimeType = props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].mimeType;
+    const lastPathMimeType =
+      props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1]
+        .mimeType;
     let isLastPathFile = false;
     if (lastPathMimeType === "application/vnd.google-apps.folder") {
       isLastPathFile = false;
@@ -61,13 +64,15 @@ export default function FilePathPage(props: FilePathPageProps) {
     });
     const _getData = axios.get<APIGetFileResponse>("/api/getData", {
       params: {
-        encryptedId: props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id,
+        encryptedId:
+          props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id,
         isFile: isLastPathFile ? "1" : undefined,
       },
     });
     const _getReadme = axios.get<APIGetReadmeResponse>("/api/getReadme", {
       params: {
-        encryptedId: props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id,
+        encryptedId:
+          props.mappedEncryptedPath[props.mappedEncryptedPath.length - 1].id,
       },
     });
 
@@ -77,13 +82,18 @@ export default function FilePathPage(props: FilePathPageProps) {
         if (passwordData.data.data && passwordData.data.data.length) {
           let isPathProtected = true;
           const savedPasswordCookie =
-            document.cookie.split(";").find((cookie) => cookie.startsWith(`${Constant.cookies_SitePassword}=`)) ??
-            undefined;
-          const savedPasswordValue = savedPasswordCookie?.split("=")[1] ?? undefined;
+            document.cookie
+              .split(";")
+              .find((cookie) =>
+                cookie.startsWith(`${Constant.cookies_SitePassword}=`),
+              ) ?? undefined;
+          const savedPasswordValue =
+            savedPasswordCookie?.split("=")[1] ?? undefined;
 
           if (savedPasswordValue) {
             // Check only nearest path
-            const nearestPassword = passwordData.data.data[passwordData.data.data.length - 1];
+            const nearestPassword =
+              passwordData.data.data[passwordData.data.data.length - 1];
             setNearestProtected(nearestPassword.relativePath);
             const isPasswordValid = checkPathPassword(
               nearestPassword.relativePath,
@@ -119,10 +129,15 @@ export default function FilePathPage(props: FilePathPageProps) {
   return (
     <LoaderLayout
       seo={{
-        title: props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].name,
+        title:
+          props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1]
+            .name,
         openGraph: {
           type: "website",
-          title: props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].name,
+          title:
+            props.mappedEncryptedPath[
+              (props.mappedEncryptedPath.length ?? 1) - 1
+            ].name,
           description: gIndexConfig.siteConfig.siteDescription,
           url: process.env.NEXT_PUBLIC_VERCEL_URL,
           siteName: gIndexConfig.siteConfig.siteName,
@@ -137,15 +152,15 @@ export default function FilePathPage(props: FilePathPageProps) {
       }}
     >
       {isLoadingData ? (
-        <div className='w-full h-full flex items-center justify-center'>
-          <div className='flex flex-col gap-4 items-center justify-center animate-pulse'>
-            <div className='w-fit h-fit relative grid place-items-center'>
+        <div className='flex h-full w-full items-center justify-center'>
+          <div className='flex animate-pulse flex-col items-center justify-center gap-4'>
+            <div className='relative grid h-fit w-fit place-items-center'>
               <img
                 src={gIndexConfig.siteConfig.siteIcon}
                 alt={gIndexConfig.siteConfig.siteName}
-                className='w-12 -top-1 relative'
+                className='relative -top-1 w-12'
               />
-              <div className='absolute w-12 h-12 bg-transparent border border-primary-50 rounded-full animate-ping' />
+              <div className='border-primary-50 absolute h-12 w-12 animate-ping rounded-full border bg-transparent' />
             </div>
             <span>Fetching {isFile ? "file info" : "folder contents"}...</span>
           </div>
@@ -157,9 +172,16 @@ export default function FilePathPage(props: FilePathPageProps) {
               path={nearestProtected}
               onSubmitted={(password) => {
                 const cookie =
-                  document.cookie.split(";").find((cookie) => cookie.startsWith(`${Constant.cookies_SitePassword}=`)) ??
-                  undefined;
-                addNewPassword(decodeURIComponent(nearestProtected), password, cookie?.split("=")[1] ?? undefined);
+                  document.cookie
+                    .split(";")
+                    .find((cookie) =>
+                      cookie.startsWith(`${Constant.cookies_SitePassword}=`),
+                    ) ?? undefined;
+                addNewPassword(
+                  decodeURIComponent(nearestProtected),
+                  password,
+                  cookie?.split("=")[1] ?? undefined,
+                );
                 router.reload();
               }}
             />
@@ -171,7 +193,11 @@ export default function FilePathPage(props: FilePathPageProps) {
                   data={data}
                   isProtected={false}
                   isFileProtected={isFileProtected}
-                  encryptedId={props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].id}
+                  encryptedId={
+                    props.mappedEncryptedPath[
+                      (props.mappedEncryptedPath.length ?? 1) - 1
+                    ].id
+                  }
                 />
               ) : (
                 <ExplorerLayout
@@ -180,7 +206,11 @@ export default function FilePathPage(props: FilePathPageProps) {
                   readmeFile={readmeFile}
                   isProtected={false}
                   isFileProtected={isFileProtected}
-                  encryptedId={props.mappedEncryptedPath[(props.mappedEncryptedPath.length ?? 1) - 1].id}
+                  encryptedId={
+                    props.mappedEncryptedPath[
+                      (props.mappedEncryptedPath.length ?? 1) - 1
+                    ].id
+                  }
                 />
               )}
             </>
@@ -223,7 +253,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   });
 
-  const [rootId, pathId] = await Promise.all([fetchRootId, Promise.all(fetchPathId)]);
+  const [rootId, pathId] = await Promise.all([
+    fetchRootId,
+    Promise.all(fetchPathId),
+  ]);
 
   if (pathId.some((path) => !path.data.length)) {
     return {

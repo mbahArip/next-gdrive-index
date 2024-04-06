@@ -53,13 +53,13 @@ if (!gdrive) {
   gdrive = google.drive({
     version: "v3",
     auth: serviceAccountAuth,
-    fetchImplementation: (url, init) =>
-      fetch(url, {
-        ...init,
-        next: {
-          revalidate: 3600,
-        },
-      }),
+    // fetchImplementation: (url, init) =>
+    //   fetch(url, {
+    //     ...init,
+    //     next: {
+    //       revalidate: 3600,
+    //     },
+    //   }),
   });
 }
 

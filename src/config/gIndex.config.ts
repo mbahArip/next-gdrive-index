@@ -1,9 +1,7 @@
-import { icons } from "lucide-react";
-import { Metadata } from "next";
-import { ToastPosition } from "react-hot-toast";
-import colors from "tailwindcss/colors";
+import { z } from "zod";
+import { Schema_Config } from "~/schema";
 
-const config: gIndexConfig = {
+const config: z.input<typeof Schema_Config> = {
   /**
    * If possible, please don't change this value
    * Even if you're creating a PR, just let me change it myself
@@ -11,19 +9,19 @@ const config: gIndexConfig = {
   version: "2.0",
   /**
    * Base path of the app, used for generating links
-   * If you're not using Vercel, you need to change this to your domain name
    *
-   * 2023/09/10: This is not used anymore, edit via env variable instead
+   * If you're using another port for development, you can set it here
    *
-   * @default process.env.NEXT_PUBLIC_VERCEL_URL
+   * @default process.env.NEXT_PUBLIC_DOMAIN
    */
   basePath:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`,
+      : `https://${process.env.NEXT_PUBLIC_DOMAIN}`,
 
   /**
    * DEPRECATED
+   * Since in 2.0 we're using server side data fetching, this is not needed anymore.
    *
    * Hashed key for fetching protected files / folders from the server
    * This key will bypass the file / folder password
@@ -35,9 +33,9 @@ const config: gIndexConfig = {
    * Used for all pages and api routes
    * Default is 5 minutes (300/60 = 5min)
    *
-   * @default "max-age=300, s-maxage=300, stale-while-revalidate, public"
+   * @default "max-age=0, s-maxage=60, stale-while-revalidate"
    */
-  cacheControl: "max-age=300, s-maxage=300, stale-while-revalidate, public",
+  cacheControl: "max-age=0, s-maxage=60, stale-while-revalidate",
 
   apiConfig: {
     /**
@@ -48,7 +46,8 @@ const config: gIndexConfig = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    rootFolder: "1KgPV6QB1GYT8fmn2uTfbtr9rDXqcRR0j",
+    rootFolder:
+      "49b52b93b109c0f8157af45a6a265fbd33f5e45293a70774780b53c96fee9ee1a6e78b077bea3476c13b9603af47d762",
     isTeamDrive: false, // Set this to true if you're using Team Drive
     defaultQuery: [
       "trashed = false",
@@ -57,8 +56,23 @@ const config: gIndexConfig = {
     defaultField:
       "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
     defaultOrder: "folder, name asc, modifiedTime desc",
-    itemsPerPage: 12,
-    searchResult: 10,
+    itemsPerPage: 50,
+    searchResult: 5,
+
+    /**
+     * By default, the app will use the thumbnail URL from Google Drive
+     *
+     * Sometimes, the thumbnail can't be accessed because of CORS policy
+     * If you're having this issue, you can set this to true
+     *
+     * This will make the api fetch the thumbnail and serve it from the server
+     * instead of using the Google Drive thumbnail
+     *
+     * This will increase the server load, so use it wisely
+     *
+     * Default: true
+     */
+    proxyThumbnail: true,
 
     /**
      * Special file name that will be used for certain purposes
@@ -74,7 +88,22 @@ const config: gIndexConfig = {
        */
       banner: ".banner",
     },
-    hiddenFiles: [".password", ".readme.md", ".banner"],
+    /**
+     * Reason why banner has multiple extensions:
+     * - If I use contains query, it will also match the file or folder that contains the word.
+     *   (e.g: File / folder with the name of "Test Password" will be matched)
+     * - If I use = query, it will only match the exact name, hence the multiple extensions
+     *
+     * You can add more extensions if you want
+     */
+    hiddenFiles: [
+      ".password",
+      ".readme.md",
+      ".banner",
+      ".banner.jpg",
+      ".banner.png",
+      ".banner.webp",
+    ],
 
     /**
      * Allow user to download protected file without password.
@@ -86,6 +115,13 @@ const config: gIndexConfig = {
     allowDownloadProtectedFile: false,
     /**
      * Duration in hours.
+     * In version 2, this will be used for download link expiration.
+     * If you need it under 1 hour, you can use math expression. (e.g: (5 / 60) * 1 = 5 minutes)
+     *
+     * This only affect when the user download the file
+     * For example if you set it for example 30 minutes (0.5)
+     * After 30 minutes, and the user still downloading the file, the download will NOT be interrupted
+     * But if the user refresh the page / trying to download again, the download link will be expired
      *
      * Default: 6 hours
      */
@@ -116,15 +152,15 @@ const config: gIndexConfig = {
     siteName: "next-gdrive-index",
     siteNameTemplate: "%s - next-gdrive-index",
     siteDescription: "A simple file browser for Google Drive",
-    siteIcon: "/flaticon.svg",
+    siteIcon: "/logo.svg",
     siteAuthor: "mbaharip",
-    favIcon: "/favicon.svg",
+    favIcon: "/favicon.png",
     /**
      * Next.js Metadata robots object
      *
      * ref: https://nextjs.org/docs/app/api-reference/functions/generate-metadata#robots
      */
-    robots: undefined,
+    robots: "noindex, nofollow",
     twitterHandle: "@mbaharip_",
 
     /**
@@ -159,7 +195,7 @@ const config: gIndexConfig = {
      * Tailwind color name.
      * Ref: https://tailwindcss.com/docs/customizing-colors
      */
-    defaultAccentColor: "teal",
+    // defaultAccentColor: "teal",
 
     /**
      * Site wide password protection
@@ -246,65 +282,62 @@ const config: gIndexConfig = {
 };
 
 export default config;
+// export interface gIndexConfig {
+//   version: string;
+//   basePath: string;
+//   cacheControl: string;
 
-interface gIndexConfig {
-  version: string;
-  basePath: string;
-  // masterKey: string;
-  cacheControl: string;
+//   apiConfig: {
+//     rootFolder: string;
+//     isTeamDrive: boolean;
+//     defaultQuery: string[];
+//     defaultField: string;
+//     defaultOrder: string;
+//     itemsPerPage: number;
+//     searchResult: number;
+//     proxyThumbnail: boolean;
 
-  apiConfig: {
-    rootFolder: string;
-    isTeamDrive: boolean;
-    defaultQuery: string[];
-    defaultField: string;
-    defaultOrder: string;
-    itemsPerPage: number;
-    searchResult: number;
+//     specialFile: {
+//       password: string;
+//       readme: string;
+//       banner: string;
+//     };
+//     hiddenFiles: string[];
 
-    specialFile: {
-      password: string;
-      readme: string;
-      banner: string;
-    };
-    hiddenFiles: string[];
+//     allowDownloadProtectedFile: boolean;
+//     temporaryTokenDuration: number;
+//     maxFileSize: number;
+//   };
+//   siteConfig: {
+//     siteName: string;
+//     siteNameTemplate?: string;
+//     siteDescription: string;
+//     siteIcon: string;
+//     siteAuthor?: string;
+//     favIcon: string;
+//     robots?: Metadata["robots"];
+//     twitterHandle?: string;
 
-    allowDownloadProtectedFile: boolean;
-    temporaryTokenDuration: number;
-    maxFileSize: number;
-  };
-  siteConfig: {
-    siteName: string;
-    siteNameTemplate?: string;
-    siteDescription: string;
-    siteIcon: string;
-    siteAuthor?: string;
-    favIcon: string;
-    robots?: Metadata["robots"];
-    twitterHandle?: string;
+//     footer: string | string[];
 
-    footer: string | string[];
+//     privateIndex: boolean;
+//     breadcrumbMax: number;
 
-    defaultAccentColor?: keyof typeof colors;
+//     toaster?: {
+//       position?: ToastPosition;
+//       duration?: number;
+//     };
 
-    privateIndex: boolean;
-    breadcrumbMax: number;
-
-    toaster?: {
-      position?: ToastPosition;
-      duration?: number;
-    };
-
-    navbarItems: {
-      icon: keyof typeof icons;
-      name: string;
-      href: string;
-      external?: boolean;
-    }[];
-    supports: {
-      name: string;
-      currency: string;
-      href: string;
-    }[];
-  };
-}
+//     navbarItems: {
+//       icon: keyof typeof icons;
+//       name: string;
+//       href: string;
+//       external?: boolean;
+//     }[];
+//     supports: {
+//       name: string;
+//       currency: string;
+//       href: string;
+//     }[];
+//   };
+// }

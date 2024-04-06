@@ -3,9 +3,7 @@ import { toast } from "react-toastify";
 export default function useCopyText() {
   return (text: string) => {
     if (!navigator.clipboard) {
-      toast.error(
-        "Your browser does not support copying to clipboard.",
-      );
+      toast.error("Your browser does not support copying to clipboard.");
       return;
     }
     if (!text) {

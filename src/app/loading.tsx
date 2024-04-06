@@ -1,7 +1,8 @@
 "use client";
 
-import Icon from "~/components/Icon";
 import { cn } from "~/utils";
+
+import Icon from "~/components/Icon";
 
 export default function RootLoading() {
   return (

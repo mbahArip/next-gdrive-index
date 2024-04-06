@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSlug from "remark-slug";
 import remarkToc from "remark-toc";
+
 import Icon from "~/components/Icon";
 
 import "./highlight.css";

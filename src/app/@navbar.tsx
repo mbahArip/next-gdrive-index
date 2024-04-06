@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { cn } from "~/utils";
+
 import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import {
@@ -17,6 +19,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "~/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,9 +43,10 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { Tooltip, TooltipContent } from "~/components/ui/tooltip";
-import config from "~/config/gIndex.config";
+
 import useMediaQuery from "~/hooks/useMediaQuery";
-import { cn } from "~/utils";
+
+import config from "~/config/gIndex.config";
 
 import { ClearPassword } from "./actions";
 
@@ -43,6 +56,7 @@ export default function Navbar() {
   const { theme, themes, setTheme } = useTheme();
 
   const [open, setOpen] = useState<boolean>(false);
+  const [themeOpen, setThemeOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (isDesktop) setOpen(false);
@@ -65,27 +79,16 @@ export default function Navbar() {
   }
 
   return (
-    <div
-      className={cn(
-        "relative left-0 top-0 z-50",
-        "h-12 w-full",
-        // "tablet:h-screen tablet:w-20",
-        "flex-shrink-0",
-      )}
-    >
+    <div className={cn("sticky left-0 top-0 z-50", "h-12 w-full")}>
       <nav
         slot='nav'
         className={cn(
           "bg-background",
-          "fixed left-0 top-0",
+          // "sticky left-0 top-0",
           "h-12 w-full",
-          // "tablet:h-screen tablet:w-20",
           "px-6 py-3",
-          // "tablet:px-3 tablet:py-6",
-          "flex flex-row items-center justify-between",
-          // "tablet:flex-col",
+          "flex flex-grow flex-row items-center justify-between",
           "border-b border-border",
-          // "tablet:border-b-0 tablet:border-r",
         )}
       >
         <div
@@ -94,136 +97,64 @@ export default function Navbar() {
             "mx-auto w-full max-w-screen-desktop",
           )}
         >
-          <Tooltip>
-            <TooltipTrigger>
-              <Link
-                href={"/"}
-                onClick={() => setOpen(false)}
-                className='flex items-center gap-3'
-              >
-                <img
-                  src={config.siteConfig.siteIcon}
-                  alt={config.siteConfig.siteName}
-                  className={cn("h-6 w-6 invert dark:invert-0")}
-                  loading='eager'
-                />
-                <span className={cn("large", "hidden", "tablet:block")}>
-                  {config.siteConfig.siteName}
-                </span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Back to Root folder</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <div className={cn("hidden", "tablet:flex")}>
-            {config.siteConfig.navbarItems.map((item) => (
-              <Tooltip key={item.name}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noopener noreferrer" : undefined}
-                    className={cn(
-                      "flex flex-col items-center justify-center",
-                      "opacity-80",
-                      "hover:opacity-100",
-                      pathname === item.href
-                        ? "cursor-default opacity-100"
-                        : "cursor-pointer",
-                      "p-1.5",
-                    )}
-                  >
-                    <Icon
-                      name={item.icon}
-                      className='text-foreground'
-                      size={20}
-                    />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side='bottom'>
-                  <p>{item.name}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-
-            <Separator
-              orientation='vertical'
-              className='mx-3'
+          <Link
+            href={"/"}
+            onClick={() => setOpen(false)}
+            className='flex items-center gap-3'
+          >
+            <img
+              src={config.siteConfig.siteIcon}
+              alt={config.siteConfig.siteName}
+              className={cn("h-10 w-10")}
+              loading='eager'
             />
+            <span className={cn("large", "hidden", "tablet:block")}>
+              {config.siteConfig.siteName}
+            </span>
+          </Link>
 
-            <DropdownMenu modal={false}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <div
+          {isDesktop ? (
+            <div className='flex'>
+              {config.siteConfig.navbarItems.map((item) => (
+                <Tooltip key={item.name}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      target={item.external ? "_blank" : undefined}
+                      rel={item.external ? "noopener noreferrer" : undefined}
                       className={cn(
                         "flex flex-col items-center justify-center",
                         "opacity-80",
                         "hover:opacity-100",
-                        "cursor-pointer",
+                        pathname === item.href
+                          ? "cursor-default opacity-100"
+                          : "cursor-pointer",
                         "p-1.5",
                       )}
                     >
                       <Icon
-                        name={
-                          theme === "system"
-                            ? "LaptopMinimal"
-                            : theme === "light"
-                            ? "Sun"
-                            : "Moon"
-                        }
+                        name={item.icon}
+                        className='text-foreground'
                         size={20}
                       />
-                    </div>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent side='bottom'>
-                  <p>Site theme</p>
-                </TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align='end'>
-                {themes.map((item) => (
-                  <DropdownMenuItem
-                    key={item}
-                    disabled={item === theme}
-                    className='w-full'
-                    onClick={() => setTheme(item)}
-                  >
-                    <div className='flex w-full items-center justify-between'>
-                      <span
-                        className={cn(
-                          "capitalize",
-                          // item === theme && "text-muted-foreground",
-                        )}
-                      >
-                        {item}
-                      </span>
-                      <Icon
-                        name={
-                          item === theme
-                            ? "Check"
-                            : item === "system"
-                            ? "LaptopMinimal"
-                            : item === "light"
-                            ? "Sun"
-                            : "Moon"
-                        }
-                        className={
-                          cn()
-                          // item === theme && "text-muted-foreground",
-                        }
-                        size={16}
-                      />
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side='bottom'>
+                    <p>{item.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
 
-            {config.siteConfig.supports.length && (
-              <DropdownMenu modal={false}>
+              <Separator
+                orientation='vertical'
+                className='mx-3'
+              />
+
+              <DropdownMenu
+                modal={false}
+                open={themeOpen}
+                onOpenChange={setThemeOpen}
+              >
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
@@ -237,146 +168,187 @@ export default function Navbar() {
                         )}
                       >
                         <Icon
-                          name='Heart'
+                          name={
+                            theme === "system"
+                              ? "LaptopMinimal"
+                              : theme === "light"
+                              ? "Sun"
+                              : "Moon"
+                          }
                           size={20}
                         />
                       </div>
                     </DropdownMenuTrigger>
                   </TooltipTrigger>
                   <TooltipContent side='bottom'>
-                    <p>Support</p>
+                    <p>Site theme</p>
                   </TooltipContent>
                 </Tooltip>
                 <DropdownMenuContent align='end'>
-                  {config.siteConfig.supports.map((item) => (
-                    <DropdownMenuItem key={item.name}>
-                      <Link
-                        href={item.href}
-                        target={"_blank"}
-                        rel={"noopener noreferrer"}
-                        className='flex w-full items-center justify-between gap-3'
-                      >
-                        <span>{item.name}</span>
-                        <span className='muted'>{item.currency}</span>
-                      </Link>
+                  {themes.map((item) => (
+                    <DropdownMenuItem
+                      key={item}
+                      disabled={item === theme}
+                      className='w-full'
+                      onClick={() => setTheme(item)}
+                    >
+                      <div className='flex w-full items-center justify-between'>
+                        <span
+                          className={cn(
+                            "capitalize",
+                            // item === theme && "text-muted-foreground",
+                          )}
+                        >
+                          {item}
+                        </span>
+                        <Icon
+                          name={
+                            item === theme
+                              ? "Check"
+                              : item === "system"
+                              ? "LaptopMinimal"
+                              : item === "light"
+                              ? "Sun"
+                              : "Moon"
+                          }
+                          className={
+                            cn()
+                            // item === theme && "text-muted-foreground",
+                          }
+                          size={16}
+                        />
+                      </div>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
 
-            <Dialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <div
-                      className={cn(
-                        "flex flex-col items-center justify-center",
-                        "opacity-80",
-                        "hover:opacity-100",
-                        "cursor-pointer",
-                        "p-1.5",
-                      )}
-                    >
-                      <Icon
-                        name='LogOut'
-                        className='text-red-500'
-                        size={20}
-                      />
-                    </div>
-                  </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent side='bottom'>
-                  <p>Clear all saved password</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <DialogContent>
-                <DialogTitle>Clear all saved password?</DialogTitle>
-                <DialogDescription>
-                  This action will clear all saved password from your browser.
-                  <br />
-                  You will need to re-enter the password for each
-                  password-protected folder.
-                  <br />
-                  <br />
-                  <b>Are you sure you want to continue?</b>
-                </DialogDescription>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant={"secondary"}>Cancel</Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button
-                      variant={"destructive"}
-                      onClick={onClearPassword}
-                    >
-                      Clear all saved password
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className={cn("flex", "tablet:hidden")}>
-            <Sheet
-              open={open}
-              onOpenChange={setOpen}
-            >
-              <SheetTrigger asChild>
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                >
-                  <Icon
-                    name='Menu'
-                    className='text-foreground'
-                  />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className='flex flex-col items-center gap-3 pt-12'>
-                <div className='flex w-full flex-grow flex-col gap-6 overflow-y-scroll'>
-                  <div className='flex flex-col'>
-                    {config.siteConfig.navbarItems.map((item) => (
-                      <Button
-                        key={item.name}
-                        variant={"ghost"}
-                        size={"sm"}
-                        asChild
-                      >
+              {config.siteConfig.supports.length && (
+                <DropdownMenu modal={false}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <div
+                          className={cn(
+                            "flex flex-col items-center justify-center",
+                            "opacity-80",
+                            "hover:opacity-100",
+                            "cursor-pointer",
+                            "p-1.5",
+                          )}
+                        >
+                          <Icon
+                            name='Heart'
+                            size={20}
+                          />
+                        </div>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom'>
+                      <p>Support</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align='end'>
+                    {config.siteConfig.supports.map((item) => (
+                      <DropdownMenuItem key={item.name}>
                         <Link
                           href={item.href}
-                          target={item.external ? "_blank" : undefined}
-                          rel={
-                            item.external ? "noopener noreferrer" : undefined
-                          }
+                          target={"_blank"}
+                          rel={"noopener noreferrer"}
                           className='flex w-full items-center justify-between gap-3'
-                          onClick={() => setOpen(false)}
                         >
-                          <div className='flex items-center gap-3'>
-                            <Icon
-                              name={item.icon}
-                              className='text-foreground'
-                              size={18}
-                            />
-                            {item.name}
-                          </div>
-                          {item.external && (
-                            <Icon
-                              name='ExternalLink'
-                              size={12}
-                              className='text-muted-foreground'
-                            />
-                          )}
+                          <span>{item.name}</span>
+                          <span className='muted'>{item.currency}</span>
                         </Link>
-                      </Button>
+                      </DropdownMenuItem>
                     ))}
-                  </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
 
-                  <div className='flex flex-col'>
-                    <p className='large'>Theme</p>
-                    <Separator className='my-1.5' />
+              <Dialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <div
+                        className={cn(
+                          "flex flex-col items-center justify-center",
+                          "opacity-80",
+                          "hover:opacity-100",
+                          "cursor-pointer",
+                          "p-1.5",
+                        )}
+                      >
+                        <Icon
+                          name='LogOut'
+                          className='text-red-500'
+                          size={20}
+                        />
+                      </div>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side='bottom'>
+                    <p>Clear all saved password</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <DialogContent>
+                  <DialogTitle>Clear all saved password?</DialogTitle>
+                  <DialogDescription>
+                    You will need to re-enter the password to access the
+                    protected content.
+                    <br />
+                    <b>Are you sure you want to continue?</b>
+                  </DialogDescription>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant={"secondary"}>Cancel</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        variant={"destructive"}
+                        onClick={onClearPassword}
+                      >
+                        Clear all saved password
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <div className='flex items-center gap-1.5'>
+              <Drawer
+                open={themeOpen}
+                onOpenChange={setThemeOpen}
+              >
+                <DrawerTrigger asChild>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                  >
+                    <Icon
+                      name={
+                        theme === "system"
+                          ? "LaptopMinimal"
+                          : theme === "light"
+                          ? "Sun"
+                          : "Moon"
+                      }
+                      size={18}
+                      className='text-foreground'
+                    />
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader className='text-start'>
+                    <DrawerTitle>Theme</DrawerTitle>
+                    <DrawerDescription>
+                      Choose your preferred theme
+                    </DrawerDescription>
+                  </DrawerHeader>
+
+                  <div className='flex flex-col px-4'>
                     {themes.map((item) => (
                       <Button
                         key={item}
@@ -388,7 +360,7 @@ export default function Navbar() {
                           setTheme(item);
                         }}
                       >
-                        <div className='flex w-full items-center justify-between gap-3'>
+                        <div className='flex w-full items-center justify-between'>
                           <span
                             className={cn(
                               "capitalize",
@@ -411,18 +383,45 @@ export default function Navbar() {
                               cn()
                               // item === theme && "text-muted-foreground",
                             }
-                            size={18}
+                            size={16}
                           />
                         </div>
                       </Button>
                     ))}
                   </div>
 
-                  {config.siteConfig.supports.length && (
+                  <DrawerFooter>
+                    <DrawerClose>
+                      <Button
+                        className='w-full'
+                        variant={"secondary"}
+                      >
+                        Close
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+              <Sheet
+                open={open}
+                onOpenChange={setOpen}
+              >
+                <SheetTrigger asChild>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                  >
+                    <Icon
+                      name='Menu'
+                      size={18}
+                      className='text-foreground'
+                    />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className='flex flex-col items-center gap-3 pt-12'>
+                  <div className='flex w-full flex-grow flex-col gap-6 overflow-y-scroll'>
                     <div className='flex flex-col'>
-                      <p className='large'>Support & Donation</p>
-                      <Separator className='my-1.5' />
-                      {config.siteConfig.supports.map((item) => (
+                      {config.siteConfig.navbarItems.map((item) => (
                         <Button
                           key={item.name}
                           variant={"ghost"}
@@ -430,64 +429,147 @@ export default function Navbar() {
                           asChild
                         >
                           <Link
-                            key={item.name}
                             href={item.href}
-                            target={"_blank"}
-                            rel={"noopener noreferrer"}
+                            target={item.external ? "_blank" : undefined}
+                            rel={
+                              item.external ? "noopener noreferrer" : undefined
+                            }
                             className='flex w-full items-center justify-between gap-3'
+                            onClick={() => setOpen(false)}
                           >
-                            <small>{item.name}</small>
-                            <small className='muted'>{item.currency}</small>
+                            <div className='flex items-center gap-3'>
+                              <Icon
+                                name={item.icon}
+                                className='text-foreground'
+                                size={18}
+                              />
+                              {item.name}
+                            </div>
+                            {item.external && (
+                              <Icon
+                                name='ExternalLink'
+                                size={12}
+                                className='text-muted-foreground'
+                              />
+                            )}
                           </Link>
                         </Button>
                       ))}
                     </div>
-                  )}
-                </div>
 
-                <SheetFooter className='w-full'>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant={"destructive"}
-                        className='gap-3'
-                        size={"sm"}
-                      >
-                        Clear all saved password
-                      </Button>
-                    </DialogTrigger>
+                    <div className='flex flex-col'>
+                      <p className='large'>Theme</p>
+                      <Separator className='my-1.5' />
+                      {themes.map((item) => (
+                        <Button
+                          key={item}
+                          variant={"ghost"}
+                          size={"sm"}
+                          className='w-full'
+                          disabled={item === theme}
+                          onClick={() => {
+                            setTheme(item);
+                          }}
+                        >
+                          <div className='flex w-full items-center justify-between gap-3'>
+                            <span
+                              className={cn(
+                                "capitalize",
+                                // item === theme && "text-muted-foreground",
+                              )}
+                            >
+                              {item}
+                            </span>
+                            <Icon
+                              name={
+                                item === theme
+                                  ? "Check"
+                                  : item === "system"
+                                  ? "LaptopMinimal"
+                                  : item === "light"
+                                  ? "Sun"
+                                  : "Moon"
+                              }
+                              className={
+                                cn()
+                                // item === theme && "text-muted-foreground",
+                              }
+                              size={18}
+                            />
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
 
-                    <DialogContent>
-                      <DialogTitle>Clear all saved password?</DialogTitle>
-                      <DialogDescription>
-                        This action will clear all saved password from your
-                        browser.
-                        <br />
-                        You will need to re-enter the password for each
-                        password-protected folder.
-                        <br />
-                        <br />
-                        <b>Are you sure you want to continue?</b>
-                      </DialogDescription>
-                      <DialogFooter className='gap-1.5'>
-                        <DialogClose asChild>
-                          <Button variant={"secondary"}>Cancel</Button>
-                        </DialogClose>
-                        <DialogClose asChild>
+                    {config.siteConfig.supports.length && (
+                      <div className='flex flex-col'>
+                        <p className='large'>Support & Donation</p>
+                        <Separator className='my-1.5' />
+                        {config.siteConfig.supports.map((item) => (
                           <Button
-                            variant={"destructive"}
-                            onClick={onClearPassword}
+                            key={item.name}
+                            variant={"ghost"}
+                            size={"sm"}
+                            asChild
                           >
-                            Clear all saved password
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              target={"_blank"}
+                              rel={"noopener noreferrer"}
+                              className='flex w-full items-center justify-between gap-3'
+                            >
+                              <small>{item.name}</small>
+                              <small className='muted'>{item.currency}</small>
+                            </Link>
                           </Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </SheetFooter>
-              </SheetContent>
-            </Sheet>
-          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <SheetFooter className='w-full'>
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          variant={"destructive"}
+                          className='w-full gap-3'
+                          size={"sm"}
+                        >
+                          Clear all saved password
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader className='text-left'>
+                          <DrawerTitle>Clear all saved password?</DrawerTitle>
+                          <DrawerDescription>
+                            You will need to re-enter the password to access the
+                            protected content.
+                            <br />
+                            <b>Are you sure you want to continue?</b>
+                          </DrawerDescription>
+                        </DrawerHeader>
+
+                        <DrawerFooter className='gap-1.5'>
+                          <DrawerClose asChild>
+                            <Button
+                              variant={"destructive"}
+                              onClick={onClearPassword}
+                            >
+                              Clear all saved password
+                            </Button>
+                          </DrawerClose>
+                          <DrawerClose asChild>
+                            <Button variant={"secondary"}>Cancel</Button>
+                          </DrawerClose>
+                        </DrawerFooter>
+                      </DrawerContent>
+                    </Drawer>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
         </div>
       </nav>
     </div>

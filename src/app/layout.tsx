@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
-import config from "~/config/gIndex.config";
 import { cn } from "~/utils";
+
+import config from "~/config/gIndex.config";
 
 import Footer from "./@footer";
 import Navbar from "./@navbar";
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
   creator: "mbaharip",
   icons: [
     {
-      url: config.siteConfig.siteIcon,
+      url: config.siteConfig.favIcon,
     },
   ],
   keywords: ["gdrive", "index", "nextjs", "reactjs"],
@@ -90,7 +91,7 @@ export default async function RootLayout({
     <html lang='en'>
       <body
         className={cn(
-          "bg-background font-sans text-foreground",
+          "h-full bg-background font-sans text-foreground",
           jetbrainsMono.variable,
           sourceSans3.variable,
         )}
@@ -101,36 +102,28 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div
+          <Navbar />
+          <main
+            slot='content'
             className={cn(
-              "h-full min-h-screen w-full overflow-x-hidden",
-              "flex flex-col items-start",
-              // "tablet:flex-row",
+              "mx-auto h-full w-full max-w-screen-desktop",
+              "relative left-0 top-0",
+              "flex flex-grow flex-col gap-3 p-6",
+              "tablet:gap-6",
             )}
           >
-            <Navbar />
-            <main
-              slot='content'
-              className={cn(
-                "mx-auto h-full min-h-screen w-full max-w-screen-desktop",
-                "relative left-0 top-0",
-                "flex flex-grow flex-col gap-3 p-6",
-                "tablet:gap-6",
-              )}
-            >
-              {config.siteConfig.privateIndex && !unlocked.success ? (
-                <Password
-                  path='global'
-                  errorMessage={unlocked.message}
-                />
-              ) : (
-                <>{children}</>
-              )}
-            </main>
-            {config.siteConfig.footer && (
-              <Footer content={formatFooter(config.siteConfig.footer)} />
+            {config.siteConfig.privateIndex && !unlocked.success ? (
+              <Password
+                path='global'
+                errorMessage={unlocked.message}
+              />
+            ) : (
+              <>{children}</>
             )}
-          </div>
+          </main>
+          {config.siteConfig.footer && (
+            <Footer content={formatFooter(config.siteConfig.footer)} />
+          )}
         </ThemeProvider>
       </body>
     </html>
