@@ -7,18 +7,16 @@ import FileBrowser from "./@explorer";
 import Header from "./@header";
 import HeaderButton from "./@header.button";
 import Markdown from "./@markdown";
-import { GetFiles } from "./actions";
+import { GetFiles, GetReadme } from "./actions";
 
 export const revalidate = 300;
 export const dynamic = "force-dynamic";
 
 export default async function RootPage() {
-  const data = await GetFiles({});
-  const readme = "";
-  // const [data, readme] = await Promise.all([
-  //   GetFiles({}),
-  //   GetReadme(undefined),
-  // ]);
+  const [data, readme] = await Promise.all([
+    GetFiles({}),
+    GetReadme(undefined),
+  ]);
 
   return (
     <div className={cn("h-fit w-full", "flex flex-col gap-3")}>

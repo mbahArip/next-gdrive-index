@@ -336,6 +336,7 @@ export async function GetFiles({
     let decryptedId: string | undefined;
     if (id) decryptedId = await decryptData(id);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
+
     const filterName = config.apiConfig.hiddenFiles
       .map((item) => `not name = '${item}'`)
       .join(" and ");
