@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
 import { z } from "zod";
 import { Schema_File } from "~/schema";
 import { cn } from "~/utils";
@@ -52,7 +53,7 @@ export default function PreviewAudio({ file }: Props) {
             size={32}
             className='animate-spin text-foreground'
           />
-          <p>Loading video...</p>
+          <p>Loading player...</p>
         </div>
       ) : error ? (
         <div className='flex h-full flex-col items-center justify-center gap-3'>

@@ -475,19 +475,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@iconify/icons-mdi@npm:~1.1.0":
-  version: 1.1.47
-  resolution: "@iconify/icons-mdi@npm:1.1.47"
-  checksum: 10c0/552c5750254b2504389eae2724ea2dfc090e7df938cc836936bdca1ef684d42e1bb416e1527ebc4ab94e2812ce69ac3a949b561d96004b97249526115265ff8e
+"@iconify/react@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "@iconify/react@npm:4.1.1"
+  dependencies:
+    "@iconify/types": "npm:^2.0.0"
+  peerDependencies:
+    react: ">=16"
+  checksum: 10c0/636fd1d953abd7562d7c4d9c60b5a5c6b202c5b59b0cfb7dab58c4cf5f66334f66d6736f5fe9cdc0e1b6b0c3a7d713f284a296c7fb154dbd20efd339fe0e5f6c
   languageName: node
   linkType: hard
 
-"@iconify/react@npm:^3.1.3":
-  version: 3.2.2
-  resolution: "@iconify/react@npm:3.2.2"
-  peerDependencies:
-    react: ">=16"
-  checksum: 10c0/7e1dc3c13ea4fb6363ce8caf22b66ad65d3eef92a30768d2d73dfd418bd8fae4ec98e718f1f66be3e258d5560ce2103938e8add086d1fa616f3b807e9f46c30d
+"@iconify/types@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@iconify/types@npm:2.0.0"
+  checksum: 10c0/65a3be43500c7ccacf360e136d00e1717f050b7b91da644e94370256ac66f582d59212bdb30d00788aab4fc078262e91c95b805d1808d654b72f6d2072a7e4b2
   languageName: node
   linkType: hard
 
@@ -6534,7 +6536,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-day-picker: "npm:^8.10.0"
     react-dom: "npm:^18.2.0"
-    react-h5-audio-player: "npm:^3.8.6"
+    react-h5-audio-player: "npm:^3.9.1"
     react-hook-form: "npm:^7.51.2"
     react-hot-toast: "npm:^2.4.1"
     react-is: "npm:^18.2.0"
@@ -7323,17 +7325,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-h5-audio-player@npm:^3.8.6":
-  version: 3.8.6
-  resolution: "react-h5-audio-player@npm:3.8.6"
+"react-h5-audio-player@npm:^3.9.1":
+  version: 3.9.1
+  resolution: "react-h5-audio-player@npm:3.9.1"
   dependencies:
     "@babel/runtime": "npm:^7.10.2"
-    "@iconify/icons-mdi": "npm:~1.1.0"
-    "@iconify/react": "npm:^3.1.3"
+    "@iconify/react": "npm:^4.1.1"
   peerDependencies:
     react: ^16.3.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
-  checksum: 10c0/0c35993da616df6bf0fc9a52aa3ab4da18403641cfb757e16945bbdbd713de9d49803b2303a417c199d1b8c3bf5777cf6d8b4fbb3167d5c690daca2a9f43fc52
+  checksum: 10c0/b260ff972be48500f4f89b4aba5a54b83e9dfb3d3edce9abff219953a759177b257eff43dfada4397f2a4f537f256628e5985cb98cbf004a4e55e629f78f10e6
   languageName: node
   linkType: hard
 
