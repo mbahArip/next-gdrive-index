@@ -65,20 +65,24 @@ export default function PreviewAudio({ file }: Props) {
           <span className='text-center text-destructive'>{error}</span>
         </div>
       ) : (
-        <AudioPlayer
-          autoPlay={false}
-          layout='stacked-reverse'
-          src={audioSrc}
-          showJumpControls={false}
-          showFilledVolume
-          style={{
-            borderRadius: "var(--radius)",
-          }}
-          onError={(e) => {
-            console.error(e);
-            setError("Could not preview this audio, try downloading the file");
-          }}
-        />
+        <div className='w-full'>
+          <AudioPlayer
+            autoPlay={false}
+            layout='stacked-reverse'
+            src={audioSrc}
+            showJumpControls={false}
+            showFilledVolume
+            style={{
+              borderRadius: "var(--radius)",
+            }}
+            onError={(e) => {
+              console.error(e);
+              setError(
+                "Could not preview this audio, try downloading the file",
+              );
+            }}
+          />
+        </div>
       )}
     </div>
   );
