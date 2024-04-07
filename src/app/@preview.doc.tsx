@@ -16,6 +16,7 @@ type Props = {
 
 export default function PreviewDoc({ file }: Props) {
   const [docSrc, setDocSrc] = useState<string>("");
+  const [docBuffer, setDocBuffer] = useState<ArrayBuffer>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -27,6 +28,10 @@ export default function PreviewDoc({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
+        const buffer = await fetch(
+          `/api/download/${file.encryptedId}?token=${token}`,
+        ).then((res) => res.arrayBuffer());
+        setDocBuffer(buffer);
         setDocSrc(`/api/download/${file.encryptedId}?token=${token}`);
       } catch (error) {
         const e = error as Error;
@@ -69,6 +74,9 @@ export default function PreviewDoc({ file }: Props) {
           documents={[
             {
               uri: docSrc,
+              fileData: docBuffer,
+              fileName: file.name,
+              fileType: file.mimeType,
             },
           ]}
           pluginRenderers={DocViewerRenderers}

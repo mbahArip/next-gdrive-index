@@ -26,7 +26,7 @@ export default function PreviewUnknown() {
             size={32}
             className='animate-spin text-foreground'
           />
-          <p>Loading image...</p>
+          <p>Loading content...</p>
         </div>
       ) : (
         <div
