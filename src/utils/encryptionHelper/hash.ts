@@ -17,10 +17,17 @@ const key = generateKey();
 const iv = Buffer.from(key);
 
 export async function encryptData(data: string): Promise<string> {
-  const cipher = crypto.createCipheriv("aes-128-cbc", key, iv);
-  return Buffer.concat([cipher.update(data, "utf-8"), cipher.final()]).toString(
-    "hex",
-  );
+  try {
+    const cipher = crypto.createCipheriv("aes-128-cbc", key, iv);
+    return Buffer.concat([
+      cipher.update(data, "utf-8"),
+      cipher.final(),
+    ]).toString("hex");
+  } catch (error) {
+    const e = error as Error;
+    console.error(e.message);
+    throw new Error(e.message);
+  }
 }
 
 export async function decryptData(hash: string): Promise<string> {
@@ -32,6 +39,10 @@ export async function decryptData(hash: string): Promise<string> {
       decipher.final(),
     ]).toString("utf-8");
   } catch (error) {
-    return "";
+    const e = error as Error;
+    console.error(e.message);
+    throw new Error(
+      "Failed to decrypt data, either invalid hash or encryption key.",
+    );
   }
 }

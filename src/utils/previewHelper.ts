@@ -17,10 +17,10 @@ const extensionsMap: Record<FileTypes, string[]> = {
     "mp4",
     "mkv",
     "webm",
-    "avi",
-    "mov",
-    "flv",
-    "wmv",
+    // "avi",
+    // "mov",
+    // "flv",
+    // "wmv",
     "mpg",
     "mpeg",
     "m4v",
@@ -131,7 +131,8 @@ export function getFileType(
 export function getPreviewIcon(fileExtension: string, mimeType: string) {
   if (fileExtension === "ts") {
     if (mimeType.includes("video")) {
-      return iconMap["video"];
+      // .ts video are not supported
+      return iconMap["unknown"];
     } else {
       return iconMap["code"];
     }

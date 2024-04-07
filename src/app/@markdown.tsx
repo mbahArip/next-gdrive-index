@@ -20,7 +20,7 @@ type Props = {
 };
 export default function Markdown({ content }: Props) {
   return (
-    <div className='markdown w-full rounded-[var(--radius)] bg-muted p-3'>
+    <div className='markdown w-full rounded-[var(--radius)] p-3'>
       <ReactMarkdown
         className='w-full'
         disallowedElements={["script"]}

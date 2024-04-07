@@ -83,7 +83,7 @@ export default function PreviewVideo({ file }: Props) {
             if (error instanceof Error) {
               setError(error.message);
             } else {
-              setError("An unknown error occurred");
+              setError("Failed to load video. (Probably not supported?)");
             }
           }}
         />

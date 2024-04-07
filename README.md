@@ -170,8 +170,8 @@ There are some changes on the configuration file, here's the list of changes:
 
 - `masterKey` **REMOVED**, we don't need this anymore
 
-- `apiConfig.rootFolder` **CHANGED**, you need to encrypt the folder ID first  
-  `https://drive-demo.mbaharip.com/api/internal/encrypt?q={{ folderId }}`
+- `apiConfig.rootFolder` **CHANGED**, you need to encrypt the folder ID on your localhost first  
+  `http://localhost:3000/api/internal/encrypt?q={{ folderId }}`
 
 - `apiConfig.proxyThumbnail` **ADDED**, default value is `true`
 - `siteConfig.siteNameTemplate` **ADDED**, default value is `%s - next-gdrive-index`
