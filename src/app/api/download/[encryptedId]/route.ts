@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import {
   CheckDownloadToken,
   CheckPassword,
@@ -50,7 +51,7 @@ If you've already entered the password, please make sure your browser is not blo
     const _filePaths = RedirectSearchFile(encryptedId);
     const _fileMeta = gdrive.files.get({
       fileId: decryptedId,
-      fields: "id, name, mimeType, fileExtension, webContentLink",
+      fields: "id, name, mimeType, size, fileExtension, webContentLink",
       supportsAllDrives: config.apiConfig.isTeamDrive,
     });
     const _fileContent = gdrive.files.get(
@@ -69,6 +70,7 @@ If you've already entered the password, please make sure your browser is not blo
       _fileContent,
       _filePaths,
     ]);
+
     if (!config.apiConfig.allowDownloadProtectedFile) {
       const checkPath = await CheckPaths(filePaths.split("/"));
       if (!checkPath.success) throw new Error("File not found");
@@ -107,6 +109,7 @@ If you've already entered the password, please make sure your browser is not blo
       config.apiConfig.maxFileSize &&
       fileSize > config.apiConfig.maxFileSize
     ) {
+      console.log("File size is too large, redirecting to webContentLink");
       return NextResponse.redirect(fileMeta.data.webContentLink, {
         status: 302,
         headers: {
@@ -141,19 +144,6 @@ If you've already entered the password, please make sure your browser is not blo
         "Cache-Control": config.cacheControl,
       },
     });
-    // const data = await GetFile(encryptedId);
-    // if (data.mimeType?.includes("folder"))
-    //   throw new Error("Can't download folder");
-    // if (!data.encryptedWebContentLink)
-    //   throw new Error("No download link found");
-
-    // const decryptedWebContent = await decryptData(data.encryptedWebContentLink);
-    // return new NextResponse(null, {
-    //   status: 302,
-    //   headers: {
-    //     Location: decryptedWebContent,
-    //   },
-    // });
   } catch (error) {
     const e = error as Error;
     console.error(e.message);
