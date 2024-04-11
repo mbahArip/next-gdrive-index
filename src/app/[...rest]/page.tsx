@@ -14,16 +14,9 @@ import { getFileType } from "~/utils/previewHelper";
 import FileBrowser from "../@explorer";
 import Header from "../@header";
 import HeaderButton from "../@header.button";
-import Markdown from "../@markdown";
 import Password from "../@password";
-import PreviewAction from "../@preview.action";
-import PreviewAudio from "../@preview.audio";
-import PreviewDoc from "../@preview.doc";
-import PreviewImage from "../@preview.image";
-import PreviewManga from "../@preview.manga";
-import PreviewRich from "../@preview.rich";
-import PreviewUnknown from "../@preview.unknown";
-import PreviewVideo from "../@preview.video";
+import FilePreviewLayout from "../@preview.layout";
+import Readme from "../@readme";
 import {
   CheckPassword,
   CheckPaths,
@@ -141,76 +134,51 @@ export default async function RestPage({ params: { rest } }: Props) {
         slot='content'
         className='w-full'
       >
-        <Card>
-          <CardHeader className='pb-0'>
-            {isFile ? (
-              <div className='flex w-full gap-3'>
-                <CardTitle className='line-clamp-2 flex-grow whitespace-pre-wrap break-all'>
-                  {data.name}
-                </CardTitle>
-              </div>
-            ) : (
-              <div className='flex w-full items-center justify-between gap-3'>
-                <CardTitle className='flex-grow'>Browse files</CardTitle>
-                <HeaderButton />
-              </div>
-            )}
-            <Separator />
-          </CardHeader>
-          <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
-            {isFile ? (
-              <div className='px-3'>
-                {fileType === "image" ? (
-                  <PreviewImage file={data} />
-                ) : fileType === "audio" ? (
-                  <PreviewAudio file={data} />
-                ) : fileType === "video" ? (
-                  <PreviewVideo file={data} />
-                ) : fileType === "code" ? (
-                  <PreviewRich
-                    file={data}
-                    code
-                  />
-                ) : fileType === "text" ? (
-                  <PreviewRich file={data} />
-                ) : fileType === "markdown" ? (
-                  <PreviewRich file={data} />
-                ) : fileType === "document" ? (
-                  <PreviewDoc file={data} />
-                ) : fileType === "pdf" ? (
-                  <PreviewDoc file={data} />
-                ) : fileType === "manga" ? (
-                  <PreviewManga file={data} />
-                ) : (
-                  <PreviewUnknown />
-                )}
-              </div>
-            ) : (
-              <FileBrowser
-                files={data.files}
-                nextPageToken={data.nextPageToken}
+        {isFile ? (
+          <FilePreviewLayout
+            data={data}
+            fileType={fileType || "unknown"}
+          />
+        ) : (
+          <>
+            <Card>
+              <CardHeader className='pb-0'>
+                <div className='flex w-full items-center justify-between gap-3'>
+                  <CardTitle className='flex-grow'>Browse files</CardTitle>
+                  <HeaderButton />
+                </div>
+                <Separator />
+              </CardHeader>
+              <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
+                <FileBrowser
+                  files={data.files}
+                  nextPageToken={data.nextPageToken}
+                />
+              </CardContent>
+            </Card>
+            {readme && (
+              <Readme
+                content={readme}
+                title={"README.md"}
               />
+              // <div
+              //   slot='readme'
+              //   className='w-full'
+              // >
+              //   <Card>
+              //     <CardHeader className='pb-0'>
+              //       <CardTitle>README.md</CardTitle>
+              //       <Separator />
+              //     </CardHeader>
+              //     <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
+              //       <Markdown content={readme} />
+              //     </CardContent>
+              //   </Card>
+              // </div>
             )}
-          </CardContent>
-        </Card>
+          </>
+        )}
       </div>
-      {readme && (
-        <div
-          slot='readme'
-          className='w-full'
-        >
-          <Card>
-            <CardHeader className='pb-0'>
-              <CardTitle>README.md</CardTitle>
-              <Separator />
-            </CardHeader>
-            <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
-              <Markdown content={readme} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-      {isFile && <PreviewAction file={data} />}
     </div>
   );
 }

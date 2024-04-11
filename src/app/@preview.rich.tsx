@@ -13,9 +13,11 @@ import { GetContent } from "./actions";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
+  view: "markdown" | "raw";
   code?: boolean;
 };
-export default function PreviewRich({ file, code }: Props) {
+export default function PreviewRich({ file, code, view }: Props) {
+  const [fetchedContent, setFetchedContent] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -30,11 +32,12 @@ export default function PreviewRich({ file, code }: Props) {
           setError("Looks like there is no content to preview");
           return;
         }
-        if (code) {
-          setContent(`\`\`\`${file.fileExtension}\n${text}\`\`\``);
-        } else {
-          setContent(text);
-        }
+        // setFetchedContent(text);
+        // if (code) {
+        //   setContent(`\`\`\`${file.fileExtension}\n${text}\`\`\``);
+        // } else {
+        setContent(text);
+        // }
       } catch (error) {
         const e = error as Error;
         console.error(e);
@@ -46,7 +49,7 @@ export default function PreviewRich({ file, code }: Props) {
   }, [file, code]);
 
   return (
-    <div className='flex min-h-[33dvh] w-full items-center justify-center py-3'>
+    <div className='flex h-fit min-h-[33dvh] w-full items-center justify-center py-3'>
       {loading ? (
         <div
           className={cn(
@@ -72,17 +75,27 @@ export default function PreviewRich({ file, code }: Props) {
         </div>
       ) : (
         <div
-          className={cn("relative w-full", expand ? "h-full" : "max-h-[50dvh]")}
+          className={cn(
+            "relative w-full overflow-hidden",
+            expand ? "h-full" : "max-h-[50dvh]",
+          )}
         >
           <div
             className={cn(
-              "h-full w-full",
+              "w-full overflow-hidden",
               expand
-                ? " [mask-image:linear-gradient(180deg,white_65%,white]"
-                : "max-h-[50dvh] [mask-image:linear-gradient(180deg,white_65%,rgba(255,255,255,0))]",
+                ? "[mask-image:linear-gradient(180deg,white_65%,white] h-full"
+                : "h-[50dvh] max-h-[50dvh] [mask-image:linear-gradient(180deg,white_65%,rgba(255,255,255,0))]",
             )}
           >
-            <Markdown content={content} />
+            <Markdown
+              content={
+                code && view === "markdown"
+                  ? `\`\`\`${file.fileExtension}\n${content}\`\`\``
+                  : content
+              }
+              view={view}
+            />
           </div>
           <div
             className={cn(
