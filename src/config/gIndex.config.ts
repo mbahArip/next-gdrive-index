@@ -13,12 +13,13 @@ const config: z.input<typeof Schema_Config> = {
    * If you're using another port for development, you can set it here
    *
    * @default process.env.NEXT_PUBLIC_DOMAIN
+   * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
   basePath:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
       : `https://${
-          process.env.NEXT_PUBLIC_VERCEL_URL || process.env.NEXT_PUBLIC_DOMAIN
+          process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
         }`,
 
   /**
