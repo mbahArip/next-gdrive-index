@@ -71,6 +71,8 @@ export const Schema_Config = z.object({
     robots: z.string().optional().default("noindex, nofollow"),
     twitterHandle: z.string().optional().default("@__mbaharip__"),
 
+    showFileExtension: z.boolean().optional().default(false),
+
     footer: z
       .string()
       .or(z.array(z.string()))

@@ -166,6 +166,17 @@ const config: z.input<typeof Schema_Config> = {
     twitterHandle: "@mbaharip_",
 
     /**
+     * Show file extension on the file name
+     * Example:
+     *    true       |   false
+     *    file.txt   |   file
+     *    100KB      |   txt / 100KB
+     *
+     * Default: false
+     */
+    showFileExtension: false,
+
+    /**
      * Footer content
      * You can use string or array of string for multiple lines
      * You can also set it to empty array if you don't want to use it
