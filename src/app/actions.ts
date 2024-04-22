@@ -216,8 +216,12 @@ export async function CheckPassword(
       q: query.join(" and "),
       fields: "files(id, name, mimeType, parents)",
       pageSize: 1000,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(config.apiConfig.isTeamDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: config.apiConfig.rootFolder,
+        corpora: "drive",
+      }),
     });
 
     // To save processing time, skip if password file not found
@@ -353,8 +357,12 @@ export async function GetFiles({
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: pageToken,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(config.apiConfig.isTeamDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: config.apiConfig.rootFolder,
+        corpora: "drive",
+      }),
     });
 
     const encryptedData: z.infer<typeof Schema_File>[] = [];
@@ -471,8 +479,12 @@ export async function SearchFile(
       orderBy: "name_natural desc",
       pageSize: config.apiConfig.searchResult,
       pageToken: nextPageToken,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(config.apiConfig.isTeamDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: config.apiConfig.rootFolder,
+        corpora: "drive",
+      }),
     });
     const encryptedData: z.infer<typeof Schema_File>[] = [];
     if (!data.data.files?.length)
@@ -593,8 +605,12 @@ export async function GetReadme(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(config.apiConfig.isTeamDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: config.apiConfig.rootFolder,
+        corpora: "drive",
+      }),
     });
     if (!data.files?.length) return null;
 
@@ -634,8 +650,12 @@ export async function GetBanner(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(config.apiConfig.isTeamDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: config.apiConfig.rootFolder,
+        corpora: "drive",
+      }),
     });
     if (!data.files?.length) return null;
 
