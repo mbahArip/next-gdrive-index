@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypePrism from "rehype-prism-plus";
 import rehypeRaw from "rehype-raw";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSlug from "remark-slug";
@@ -19,10 +20,11 @@ import "./highlight.css";
 type Props = {
   content: string;
   view: "markdown" | "raw";
+  className?: string;
 };
-export default function Markdown({ content, view }: Props) {
+export default function Markdown({ content, view, className }: Props) {
   return (
-    <div className='flex flex-col p-3'>
+    <div className={cn("flex flex-col p-3", className)}>
       <div
         className={cn(
           "markdown w-full rounded-[var(--radius)]",
@@ -42,7 +44,13 @@ export default function Markdown({ content, view }: Props) {
         <ReactMarkdown
           className='w-full'
           disallowedElements={["script"]}
-          remarkPlugins={[remarkGfm, remarkMath, remarkSlug, remarkToc]}
+          remarkPlugins={[
+            remarkGfm,
+            remarkMath,
+            remarkSlug,
+            remarkToc,
+            remarkBreaks,
+          ]}
           rehypePlugins={[
             rehypeKatex,
             rehypeRaw,

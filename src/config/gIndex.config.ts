@@ -23,6 +23,18 @@ const config: z.input<typeof Schema_Config> = {
         }`,
 
   /**
+   * Allow access to the deploy guide
+   * Will use the `/deploy` route, might be overlap with file / folder name
+   *
+   * Set this to false on final deployment
+   *
+   * I'm using this to show the deploy guide on my own demo deployment
+   *
+   * @default false
+   */
+  showDeployGuide: true,
+
+  /**
    * DEPRECATED
    * Since in 2.0 we're using server side data fetching, this is not needed anymore.
    *

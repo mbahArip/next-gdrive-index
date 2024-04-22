@@ -11,6 +11,8 @@ import { decryptData } from "~/utils/encryptionHelper/hash";
 import gdrive from "~/utils/gdriveInstance";
 import { getFileType } from "~/utils/previewHelper";
 
+import config from "~/config/gIndex.config";
+
 import FileBrowser from "../@explorer";
 import Header from "../@header";
 import HeaderButton from "../@header.button";
@@ -25,6 +27,7 @@ import {
   GetFiles,
   GetReadme,
 } from "../actions";
+import DeployGuidePage from "./deploy";
 
 export const revalidate = 300;
 export const dynamic = "force-dynamic";
@@ -39,6 +42,9 @@ export async function generateMetadata(
   { params: { rest } }: Props,
   parent: ResolvedMetadata,
 ): Promise<Metadata> {
+  if (rest[0] === "deploy" && config.showDeployGuide)
+    return { title: "Deploy Guide" };
+
   const paths = await CheckPaths(rest);
   if (!paths.success) return { title: "Not Found" };
 
@@ -71,6 +77,9 @@ export async function generateMetadata(
 }
 
 export default async function RestPage({ params: { rest } }: Props) {
+  if (rest[0] === "deploy" && config.showDeployGuide)
+    return <DeployGuidePage />;
+
   const paths = await CheckPaths(rest);
   if (!paths.success) notFound();
   const unlocked = await CheckPassword(paths.data);

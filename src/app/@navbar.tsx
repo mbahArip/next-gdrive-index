@@ -149,8 +149,33 @@ export default function Navbar() {
 
               <Separator
                 orientation='vertical'
-                className='mx-3'
+                className='mx-3 my-auto h-6'
               />
+
+              {config.showDeployGuide && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={"/deploy"}
+                      className={cn(
+                        "flex flex-col items-center justify-center",
+                        "opacity-80",
+                        "hover:opacity-100",
+                        "cursor-pointer",
+                        "p-1.5",
+                      )}
+                    >
+                      <Icon
+                        name={"Book"}
+                        size={20}
+                      />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side='bottom'>
+                    <p>Deploy Guide</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <DropdownMenu
                 modal={false}
@@ -267,6 +292,11 @@ export default function Navbar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
+
+              <Separator
+                orientation='vertical'
+                className='mx-3 my-auto h-6'
+              />
 
               <Dialog>
                 <Tooltip>
@@ -457,6 +487,29 @@ export default function Navbar() {
                           </Link>
                         </Button>
                       ))}
+
+                      {config.showDeployGuide && (
+                        <Button
+                          variant={"ghost"}
+                          size={"sm"}
+                          asChild
+                        >
+                          <Link
+                            href={"/deploy"}
+                            className='flex w-full items-center justify-between gap-3'
+                            onClick={() => setOpen(false)}
+                          >
+                            <div className='flex items-center gap-3'>
+                              <Icon
+                                name={"Book"}
+                                className='text-foreground'
+                                size={18}
+                              />
+                              Deploy Guide
+                            </div>
+                          </Link>
+                        </Button>
+                      )}
                     </div>
 
                     <div className='flex flex-col'>

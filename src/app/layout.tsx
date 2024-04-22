@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
+import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
 import { cn } from "~/utils";
 
 import config from "~/config/gIndex.config";
@@ -18,6 +18,13 @@ const sourceSans3 = Source_Sans_3({
   display: "auto",
   subsets: ["latin", "latin-ext"],
   variable: "--font-source-sans-3",
+});
+const outfit = Outfit({
+  weight: ["300", "400", "600", "700"],
+  style: ["normal"],
+  display: "auto",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-outfit",
 });
 const jetbrainsMono = JetBrains_Mono({
   weight: ["300", "400", "600", "700"],
@@ -94,6 +101,7 @@ export default async function RootLayout({
           "h-full bg-background font-sans text-foreground",
           jetbrainsMono.variable,
           sourceSans3.variable,
+          outfit.variable,
         )}
       >
         <ThemeProvider
