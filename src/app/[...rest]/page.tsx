@@ -11,6 +11,8 @@ import { decryptData } from "~/utils/encryptionHelper/hash";
 import gdrive from "~/utils/gdriveInstance";
 import { getFileType } from "~/utils/previewHelper";
 
+import config from "~/config/gIndex.config";
+
 import FileBrowser from "../@explorer";
 import Header from "../@header";
 import HeaderButton from "../@header.button";
@@ -102,6 +104,7 @@ export default async function RestPage({ params: { rest } }: Props) {
   const { data: file } = await gdrive.files.get({
     fileId: await decryptData(encryptedId),
     fields: "mimeType, fileExtension",
+    supportsAllDrives: config.apiConfig.isTeamDrive,
   });
   if (!file.mimeType?.includes("folder")) {
     promise.push(GetFile(encryptedId));

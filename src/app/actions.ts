@@ -258,6 +258,7 @@ export async function CheckPassword(
       {
         fileId: protectedFolder.id as string,
         alt: "media",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
       },
       {
         responseType: "text",
@@ -637,6 +638,7 @@ export async function GetReadme(
       {
         fileId: data.files[0].id as string,
         alt: "media",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
       },
       {
         responseType: "text",
