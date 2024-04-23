@@ -207,6 +207,10 @@ export async function CheckPassword(
     for (const path of paths) {
       ids.push(await decryptData(path.id));
     }
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
     const query: string[] = [
       `name = '${config.apiConfig.specialFile.password}'`,
       `trashed = false`,
@@ -216,10 +220,10 @@ export async function CheckPassword(
       q: query.join(" and "),
       fields: "files(id, name, mimeType, parents)",
       pageSize: 1000,
-      ...(config.apiConfig.isTeamDrive && {
+      ...(decryptedSharedDrive && {
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        driveId: config.apiConfig.rootFolder,
+        driveId: decryptedSharedDrive,
         corpora: "drive",
       }),
     });
@@ -342,6 +346,11 @@ export async function GetFiles({
     if (id) decryptedId = await decryptData(id);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const filterName = config.apiConfig.hiddenFiles
       .map((item) => `not name = '${item}'`)
       .join(" and ");
@@ -357,10 +366,10 @@ export async function GetFiles({
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: pageToken,
-      ...(config.apiConfig.isTeamDrive && {
+      ...(decryptedSharedDrive && {
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        driveId: config.apiConfig.rootFolder,
+        driveId: decryptedSharedDrive,
         corpora: "drive",
       }),
     });
@@ -466,6 +475,11 @@ export async function SearchFile(
   nextPageToken?: string;
 }> {
   try {
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name contains '${keyword}'`,
@@ -479,10 +493,10 @@ export async function SearchFile(
       orderBy: "name_natural desc",
       pageSize: config.apiConfig.searchResult,
       pageToken: nextPageToken,
-      ...(config.apiConfig.isTeamDrive && {
+      ...(decryptedSharedDrive && {
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        driveId: config.apiConfig.rootFolder,
+        driveId: decryptedSharedDrive,
         corpora: "drive",
       }),
     });
@@ -594,6 +608,11 @@ export async function GetReadme(
     if (encryptedId) decryptedId = await decryptData(encryptedId);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name = '${config.apiConfig.specialFile.readme}'`,
@@ -605,10 +624,10 @@ export async function GetReadme(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      ...(config.apiConfig.isTeamDrive && {
+      ...(decryptedSharedDrive && {
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        driveId: config.apiConfig.rootFolder,
+        driveId: decryptedSharedDrive,
         corpora: "drive",
       }),
     });
@@ -639,6 +658,11 @@ export async function GetBanner(
     if (encryptedId) decryptedId = await decryptData(encryptedId);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name contains '${config.apiConfig.specialFile.banner}'`,
@@ -650,10 +674,10 @@ export async function GetBanner(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      ...(config.apiConfig.isTeamDrive && {
+      ...(decryptedSharedDrive && {
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        driveId: config.apiConfig.rootFolder,
+        driveId: decryptedSharedDrive,
         corpora: "drive",
       }),
     });
