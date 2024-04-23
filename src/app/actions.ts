@@ -216,17 +216,24 @@ export async function CheckPassword(
       `trashed = false`,
       `(${ids.map((id) => `'${id}' in parents`).join(" or ")})`, // Filter by paths id
     ];
-    const { data: password } = await gdrive.files.list({
-      q: query.join(" and "),
-      fields: "files(id, name, mimeType, parents)",
-      pageSize: 1000,
-      ...(decryptedSharedDrive && {
-        supportsAllDrives: true,
-        includeItemsFromAllDrives: true,
-        driveId: decryptedSharedDrive,
-        corpora: "drive",
-      }),
-    });
+    const { data: password } = await gdrive.files
+      .list({
+        q: query.join(" and "),
+        fields: "files(id, name, mimeType, parents)",
+        pageSize: 1000,
+        ...(decryptedSharedDrive && {
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
+          driveId: decryptedSharedDrive,
+          corpora: "drive",
+        }),
+      })
+      .catch((error) => {
+        console.error(error);
+        throw new Error("Failed to get password file");
+      });
+
+    console.log(password);
 
     // To save processing time, skip if password file not found
     if (!password.files?.length) return { success: true };

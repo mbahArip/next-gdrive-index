@@ -1924,7 +1924,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/nprogress@npm:^0.2.2":
+"@types/nprogress@npm:^0.2.2, @types/nprogress@npm:^0.2.3":
   version: 0.2.3
   resolution: "@types/nprogress@npm:0.2.3"
   checksum: 10c0/cac0fe73aca79bc1472a1556f56303df72026f2fcd8dbe311fe84b1f46e454b9040c1e69223d94e3bf156a5986382170c52ebda19aa70f555f1b6855d8f744a6
@@ -6160,6 +6160,7 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.1"
     "@types/mime-types": "npm:^2.1.1"
     "@types/node": "npm:^20"
+    "@types/nprogress": "npm:^0.2.3"
     "@types/react": "npm:^18"
     "@types/react-dom": "npm:^18"
     "@types/three": "npm:^0.150.2"

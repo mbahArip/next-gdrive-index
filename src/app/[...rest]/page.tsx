@@ -86,7 +86,9 @@ export default async function RestPage({ params: { rest } }: Props) {
 
   if (!unlocked.success) {
     if (!unlocked.path)
-      throw new Error("No path returned from password checking");
+      throw new Error(
+        `No path returned from password checking, ${unlocked.message}`,
+      );
     return (
       <Password
         path={unlocked.path}
