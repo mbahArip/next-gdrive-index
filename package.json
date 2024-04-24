@@ -87,6 +87,7 @@
     "@types/jsonwebtoken": "^9.0.1",
     "@types/mime-types": "^2.1.1",
     "@types/node": "^20",
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/three": "^0.150.2",
