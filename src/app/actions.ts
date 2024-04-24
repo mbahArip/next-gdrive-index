@@ -120,6 +120,11 @@ export async function CheckPaths(paths: string[]): Promise<
     }
 > {
   try {
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const promises = [];
     for (const path of paths) {
       promises.push(
@@ -127,8 +132,12 @@ export async function CheckPaths(paths: string[]): Promise<
           .list({
             q: `name = '${decodeURIComponent(path)}' and trashed = false`,
             fields: "files(id, name, mimeType, parents)",
-            supportsAllDrives: config.apiConfig.isTeamDrive,
-            includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+            ...(decryptedSharedDrive && {
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              driveId: decryptedSharedDrive,
+              corpora: "drive",
+            }),
           })
           .then(({ data }) => {
             if (!data.files?.length) return null;
@@ -155,9 +164,13 @@ export async function CheckPaths(paths: string[]): Promise<
     const decryptedRootId = await decryptData(config.apiConfig.rootFolder);
     for (const [index, path] of data.entries()) {
       if (!valid) break;
-      // if first path, check if it's in root
+
       if (index === 0) {
-        if (path?.data[0].parents === decryptedRootId) break;
+        if (
+          path?.data[0].parents === decryptedRootId ||
+          path?.data[0].parents === decryptedSharedDrive
+        )
+          break;
       } else {
         if (path?.data[0].parents === data[index - 1]?.data[0].id) break;
       }
@@ -232,8 +245,6 @@ export async function CheckPassword(
         console.error(error);
         throw new Error("Failed to get password file");
       });
-
-    console.log(password);
 
     // To save processing time, skip if password file not found
     if (!password.files?.length) return { success: true };
