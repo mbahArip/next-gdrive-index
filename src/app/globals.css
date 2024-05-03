@@ -60,7 +60,8 @@ body {
 }
 @layer base {
   :root {
-    @apply text-[14px] tablet:text-[16px];
+    /* @apply text-[14px] tablet:text-[16px]; */
+    @apply text-[100%];
   }
   * {
     @apply border-border;

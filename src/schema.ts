@@ -83,15 +83,11 @@ export const Schema_Old_Config = z.object({
   }),
 });
 
-export const Schema_Config = z.object({
-  version: z.string(),
-  basePath: z.string(),
-  cacheControl: z.string(),
-  showDeployGuide: z.boolean(),
-
-  apiConfig: z.object({
+export const Schema_Config_API = z
+  .object({
     rootFolder: z.string(),
     isTeamDrive: z.boolean(),
+    sharedDrive: z.string().optional(),
     defaultQuery: z.array(z.string()),
     defaultField: z.string(),
     defaultOrder: z.string(),
@@ -109,67 +105,109 @@ export const Schema_Config = z.object({
     allowDownloadProtectedFile: z.boolean(),
     temporaryTokenDuration: z.number().positive(),
     maxFileSize: z.number().positive(),
-  }),
+  })
+  .refine(
+    (data) => {
+      if (data.isTeamDrive && !data.sharedDrive) return false;
+    },
+    { message: "sharedDrive is required when isTeamDrive is true" },
+  );
+export const Schema_Config_Site = z.object({
+  siteName: z.string(),
+  siteNameTemplate: z.string().optional().default("%s"),
+  siteDescription: z.string(),
+  siteIcon: z.string(),
+  siteAuthor: z.string().optional().default("mbaharip"),
+  favIcon: z.string(),
+  robots: z.string().optional().default("noindex, nofollow"),
+  twitterHandle: z.string().optional().default("@__mbaharip__"),
 
-  siteConfig: z.object({
-    siteName: z.string(),
-    siteNameTemplate: z.string().optional().default("%s"),
-    siteDescription: z.string(),
-    siteIcon: z.string(),
-    siteAuthor: z.string().optional().default("mbaharip"),
-    favIcon: z.string(),
-    robots: z.string().optional().default("noindex, nofollow"),
-    twitterHandle: z.string().optional().default("@__mbaharip__"),
+  showFileExtension: z.boolean().optional().default(false),
 
-    showFileExtension: z.boolean().optional().default(false),
+  footer: z.string().array().optional(),
 
-    footer: z
-      .string()
-      .or(z.array(z.string()))
-      .optional()
-      .default([
-        "{{ year }}",
-        "{{ repository }}",
-        "{{ author }}",
-        "{{ version }}",
-        "{{ siteName }}",
-        "{{ creator }}",
+  privateIndex: z.boolean().optional().default(false),
+  breadcrumbMax: z.number(),
+
+  toaster: z
+    .object({
+      position: z.enum([
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right",
       ]),
+      duration: z.number().positive(),
+    })
+    .optional()
+    .default({
+      position: "top-right",
+      duration: 5000,
+    }),
 
-    privateIndex: z.boolean().optional().default(false),
-    breadcrumbMax: z.number(),
-
-    toaster: z
-      .object({
-        position: z.enum([
-          "top-left",
-          "top-right",
-          "bottom-left",
-          "bottom-right",
-        ]),
-        duration: z.number().positive(),
-      })
-      .optional()
-      .default({
-        position: "top-right",
-        duration: 5000,
-      }),
-
-    navbarItems: z.array(
-      z.object({
-        icon: z.enum(Object.keys(icons) as [keyof typeof icons]),
-        name: z.string(),
-        href: z.string(),
-        external: z.boolean().optional().default(false),
-      }),
-    ),
-    supports: z.array(
-      z.object({
-        name: z.string(),
-        currency: z.string(),
-        href: z.string(),
-      }),
-    ),
-  }),
+  navbarItems: z.array(
+    z.object({
+      icon: z.enum(Object.keys(icons) as [keyof typeof icons]),
+      name: z.string(),
+      href: z.string(),
+      external: z.boolean().optional().default(false),
+    }),
+  ),
+  supports: z.array(
+    z.object({
+      name: z.string(),
+      currency: z.string(),
+      href: z.string(),
+    }),
+  ),
+});
+export const Schema_App_Configuration_Env = z.object({
+  GD_SERVICE_B64: z.string(),
+  ENCRYPTION_KEY: z.string(),
+  SITE_PASSWORD: z.string().optional(),
+  NEXT_PUBLIC_DOMAIN: z.string().optional(),
 });
 
+export const Schema_Config = z.object({
+  version: z.string(),
+  basePath: z.string(),
+  cacheControl: z.string(),
+  showDeployGuide: z.boolean(),
+
+  apiConfig: Schema_Config_API,
+
+  siteConfig: Schema_Config_Site,
+});
+
+export const Schema_ServiceAccount = z.object({
+  type: z.literal("service_account"),
+  project_id: z.string(),
+  private_key_id: z.string(),
+  private_key: z.string(),
+  client_email: z.string().email("Invalid client_email field"),
+  client_id: z.string(),
+  auth_uri: z.string().url(),
+  token_uri: z.string().url(),
+  auth_provider_x509_cert_url: z.string().url(),
+  client_x509_cert_url: z.string().url(),
+  universe_domain: z.string().optional(),
+});
+
+export const Schema_App_Configuration = z.object({
+  environment: Schema_App_Configuration_Env,
+  api: Schema_Config_API,
+  site: Schema_Config_Site,
+});
+
+export type ConfigurationCategory = keyof z.infer<
+  typeof Schema_App_Configuration
+>;
+export type ConfigurationKeys<
+  T extends keyof z.infer<typeof Schema_App_Configuration>,
+> = keyof z.infer<typeof Schema_App_Configuration>[T];
+export type ConfigurationValue<
+  T extends keyof z.infer<typeof Schema_App_Configuration>,
+  K extends keyof z.infer<typeof Schema_App_Configuration>[T],
+> = z.infer<typeof Schema_App_Configuration>[T][K];
+
+export type ConfigState = "idle" | "loading";

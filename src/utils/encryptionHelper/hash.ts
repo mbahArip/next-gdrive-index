@@ -14,14 +14,13 @@ const generateKey = () => {
   return data;
 };
 const key = generateKey();
-const iv = Buffer.from(key);
 
 export async function encryptData(
   data: string,
   encryptKey: string = key,
-  ivKey: Buffer = iv,
 ): Promise<string> {
   try {
+    const ivKey = Buffer.from(key);
     const cipher = crypto.createCipheriv("aes-128-cbc", encryptKey, ivKey);
     return Buffer.concat([
       cipher.update(data, "utf-8"),
@@ -37,9 +36,9 @@ export async function encryptData(
 export async function decryptData(
   hash: string,
   encryptKey: string = key,
-  ivKey: Buffer = iv,
 ): Promise<string> {
   try {
+    const ivKey = Buffer.from(key);
     const decipher = crypto.createDecipheriv("aes-128-cbc", encryptKey, ivKey);
 
     return Buffer.concat([

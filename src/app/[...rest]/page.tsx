@@ -86,7 +86,11 @@ export default async function RestPage({ params: { rest } }: Props) {
 
   if (!unlocked.success) {
     if (!unlocked.path)
-      throw new Error("No path returned from password checking");
+      throw new Error(
+        `No path returned from password checking${
+          unlocked.message && `, ${unlocked.message}`
+        }`,
+      );
     return (
       <Password
         path={unlocked.path}
@@ -104,6 +108,7 @@ export default async function RestPage({ params: { rest } }: Props) {
   const { data: file } = await gdrive.files.get({
     fileId: await decryptData(encryptedId),
     fields: "mimeType, fileExtension",
+    supportsAllDrives: config.apiConfig.isTeamDrive,
   });
   if (!file.mimeType?.includes("folder")) {
     promise.push(GetFile(encryptedId));

@@ -121,6 +121,11 @@ export async function CheckPaths(paths: string[]): Promise<
     }
 > {
   try {
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const promises = [];
     for (const path of paths) {
       promises.push(
@@ -128,8 +133,12 @@ export async function CheckPaths(paths: string[]): Promise<
           .list({
             q: `name = '${decodeURIComponent(path)}' and trashed = false`,
             fields: "files(id, name, mimeType, parents)",
-            supportsAllDrives: config.apiConfig.isTeamDrive,
-            includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+            ...(decryptedSharedDrive && {
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              driveId: decryptedSharedDrive,
+              corpora: "drive",
+            }),
           })
           .then(({ data }) => {
             if (!data.files?.length) return null;
@@ -156,9 +165,13 @@ export async function CheckPaths(paths: string[]): Promise<
     const decryptedRootId = await decryptData(config.apiConfig.rootFolder);
     for (const [index, path] of data.entries()) {
       if (!valid) break;
-      // if first path, check if it's in root
+
       if (index === 0) {
-        if (path?.data[0].parents === decryptedRootId) break;
+        if (
+          path?.data[0].parents === decryptedRootId ||
+          path?.data[0].parents === decryptedSharedDrive
+        )
+          break;
       } else {
         if (path?.data[0].parents === data[index - 1]?.data[0].id) break;
       }
@@ -208,18 +221,31 @@ export async function CheckPassword(
     for (const path of paths) {
       ids.push(await decryptData(path.id));
     }
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
     const query: string[] = [
       `name = '${config.apiConfig.specialFile.password}'`,
       `trashed = false`,
       `(${ids.map((id) => `'${id}' in parents`).join(" or ")})`, // Filter by paths id
     ];
-    const { data: password } = await gdrive.files.list({
-      q: query.join(" and "),
-      fields: "files(id, name, mimeType, parents)",
-      pageSize: 1000,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
-    });
+    const { data: password } = await gdrive.files
+      .list({
+        q: query.join(" and "),
+        fields: "files(id, name, mimeType, parents)",
+        pageSize: 1000,
+        ...(decryptedSharedDrive && {
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
+          driveId: decryptedSharedDrive,
+          corpora: "drive",
+        }),
+      })
+      .catch((error) => {
+        console.error(error);
+        throw new Error("Failed to get password file");
+      });
 
     // To save processing time, skip if password file not found
     if (!password.files?.length) return { success: true };
@@ -251,6 +277,7 @@ export async function CheckPassword(
       {
         fileId: protectedFolder.id as string,
         alt: "media",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
       },
       {
         responseType: "text",
@@ -339,6 +366,11 @@ export async function GetFiles({
     if (id) decryptedId = await decryptData(id);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const filterName = config.apiConfig.hiddenFiles
       .map((item) => `not name = '${item}'`)
       .join(" and ");
@@ -354,8 +386,12 @@ export async function GetFiles({
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: pageToken,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(decryptedSharedDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: decryptedSharedDrive,
+        corpora: "drive",
+      }),
     });
 
     const encryptedData: z.infer<typeof Schema_File>[] = [];
@@ -459,6 +495,11 @@ export async function SearchFile(
   nextPageToken?: string;
 }> {
   try {
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name contains '${keyword}'`,
@@ -472,8 +513,12 @@ export async function SearchFile(
       orderBy: "name_natural desc",
       pageSize: config.apiConfig.searchResult,
       pageToken: nextPageToken,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(decryptedSharedDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: decryptedSharedDrive,
+        corpora: "drive",
+      }),
     });
     const encryptedData: z.infer<typeof Schema_File>[] = [];
     if (!data.data.files?.length)
@@ -583,6 +628,11 @@ export async function GetReadme(
     if (encryptedId) decryptedId = await decryptData(encryptedId);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name = '${config.apiConfig.specialFile.readme}'`,
@@ -594,8 +644,12 @@ export async function GetReadme(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(decryptedSharedDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: decryptedSharedDrive,
+        corpora: "drive",
+      }),
     });
     if (!data.files?.length) return null;
 
@@ -603,6 +657,7 @@ export async function GetReadme(
       {
         fileId: data.files[0].id as string,
         alt: "media",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
       },
       {
         responseType: "text",
@@ -624,6 +679,11 @@ export async function GetBanner(
     if (encryptedId) decryptedId = await decryptData(encryptedId);
     else decryptedId = await decryptData(config.apiConfig.rootFolder);
 
+    let decryptedSharedDrive;
+    if (config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive) {
+      decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
+    }
+
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name contains '${config.apiConfig.specialFile.banner}'`,
@@ -635,8 +695,12 @@ export async function GetBanner(
       orderBy: config.apiConfig.defaultOrder,
       pageSize: config.apiConfig.itemsPerPage,
       pageToken: undefined,
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-      includeItemsFromAllDrives: config.apiConfig.isTeamDrive,
+      ...(decryptedSharedDrive && {
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        driveId: decryptedSharedDrive,
+        corpora: "drive",
+      }),
     });
     if (!data.files?.length) return null;
 
@@ -700,6 +764,7 @@ export async function CheckDownloadToken(token: string): Promise<{
     };
   }
 }
+
 export async function GenerateAESKey(): Promise<string> {
   try {
     const key = crypto.randomBytes(8).toString("hex");
@@ -715,8 +780,17 @@ export async function VerifyAESKey(
   key: string,
 ): Promise<boolean> {
   try {
-    const encrypt = await encryptData(data, key);
-    const decrypt = await decryptData(encrypt, key);
+    let paddedKey;
+    if (key.length < 16) {
+      paddedKey = key.padEnd(16, "0");
+    } else if (key.length > 16) {
+      paddedKey = key.slice(0, 16);
+    } else {
+      paddedKey = key;
+    }
+
+    const encrypt = await encryptData(data, paddedKey);
+    const decrypt = await decryptData(encrypt, paddedKey);
     return !!encrypt && !!decrypt;
   } catch (error) {
     return false;

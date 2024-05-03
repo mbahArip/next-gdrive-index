@@ -6,7 +6,7 @@ const config: z.input<typeof Schema_Config> = {
    * If possible, please don't change this value
    * Even if you're creating a PR, just let me change it myself
    */
-  version: "2.0.1",
+  version: "2.0.2",
   /**
    * Base path of the app, used for generating links
    *
@@ -62,8 +62,25 @@ const config: z.input<typeof Schema_Config> = {
      * Then, copy the folder id and paste it here
      */
     rootFolder:
-      "c760fc0eae9990d4accbc2134af21e45a378d412af2c78020070a9f9ac548b98fe61c4f6be953a8d7be6a035e6f7766c",
-    isTeamDrive: false, // Set this to true if you're using Team Drive
+      "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
+
+    /**
+     * If your rootfolder inside a shared drive, you NEED to set this to true
+     * If not, you can set this to false
+     *
+     * You also need to set the shared drive ID to make it work
+     * Make sure you have add your service account to the shared drive since the service account can't access the shared drive by default
+     *
+     * Where to get the shared drive id?
+     * Go to your Shared Drive > Click on the shared drive > copy the ID from the url
+     * ex: https://drive.google.com/drive/u/0/folders/:shared_drive_id
+     *
+     * Then you need to encrypt it using `/api/internal/encrypt?q=:shared_drive_id` route
+     */
+    isTeamDrive: true,
+    sharedDrive:
+      "77bfa156c9c9d159112fcb0494ed8545bdaf7a3d567cd760ba2e2e2cd33fcbfc",
+
     defaultQuery: [
       "trashed = false",
       "(not mimeType contains 'google-apps' or mimeType contains 'folder')",
@@ -191,7 +208,6 @@ const config: z.input<typeof Schema_Config> = {
 
     /**
      * Footer content
-     * You can use string or array of string for multiple lines
      * You can also set it to empty array if you don't want to use it
      *
      * Basic markdown is supported (bold, italic, and link)
@@ -203,6 +219,7 @@ const config: z.input<typeof Schema_Config> = {
      * - {{ author }} will be replaced with author from siteAuthor config above (If it's not set, it will be set to mbaharip)
      * - {{ version }} will be replaced with the current version
      * - {{ siteName }} will be replaced with the siteName config above
+     * - {{ handle }} will be replaced with the twitter handle from twitterHandle config above
      * - {{ creator }} will be replaced with mbaharip if you want to credit me
      */
     footer: [

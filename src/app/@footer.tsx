@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 
 type Props = {
   content: string;
@@ -9,7 +10,7 @@ export default function Footer({ content }: Props) {
   return (
     <footer className='w-full pb-3'>
       <ReactMarkdown
-        className='flex w-full select-none flex-col items-center justify-center'
+        className='flex w-full select-none flex-col items-center justify-center text-center'
         components={{
           p: ({ node, children, ...props }) => (
             <p
@@ -34,6 +35,7 @@ export default function Footer({ content }: Props) {
             );
           },
         }}
+        remarkPlugins={[remarkBreaks]}
       >
         {content}
       </ReactMarkdown>
