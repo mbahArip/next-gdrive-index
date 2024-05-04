@@ -33,7 +33,10 @@ export async function GET(
     const tokenValidity = await CheckDownloadToken(token);
     if (!tokenValidity.success) throw new Error(tokenValidity.message);
 
-    if (config.siteConfig.privateIndex) {
+    if (
+      config.siteConfig.privateIndex &&
+      !config.apiConfig.allowDownloadProtectedFile
+    ) {
       const unlocked = await CheckSitePassword();
       if (!unlocked.success) {
         return new NextResponse(
