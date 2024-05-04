@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { HslColor, HslColorPicker } from "react-colorful";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import {
@@ -17,11 +16,6 @@ import Markdown from "~/app/@markdown";
 import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 
 import { encryptData } from "~/utils/encryptionHelper/hash";
@@ -754,40 +748,6 @@ If you're migrating from previous version, you can load your old environment and
 }
 
 export function CustomizeTheme() {
-  const ColorLabel = ({
-    label,
-    value,
-    onChange,
-  }: {
-    label: string;
-    value: HslColor;
-    onChange: (newColor: HslColor) => void;
-  }) => {
-    return (
-      <div className='flex items-center gap-3'>
-        <span>{label}:</span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className='cursor-pointer rounded-sm border border-border bg-foreground p-0.5'>
-              <div
-                className={`size-4`}
-                style={{
-                  backgroundColor: `hsl(${value.h}, ${value.s}%, ${value.l}%)`,
-                }}
-              />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <HslColorPicker
-              color={value}
-              onChange={onChange}
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    );
-  };
-
   const [colors, setColors] = useState({
     primary: { h: 200, s: 50, l: 50 },
     secondary: { h: 200, s: 50, l: 50 },
@@ -805,16 +765,11 @@ export function CustomizeTheme() {
         <Separator />
       </CardHeader>
       <CardContent>
-        <Button>Not Preview</Button>
-        <div className='preview select-none'>
-          <Button>Button</Button>
-        </div>
-        <ColorLabel
-          label='Primary'
-          value={{ h: 200, s: 50, l: 50 }}
-          onChange={(e) => {
-            setColors((prev) => ({ ...prev, primary: e }));
-          }}
+        <Markdown
+          content={`#### Under Construction
+
+While I'm working on the theme customization, you can check [shadcn UI theme](https://ui.shadcn.com/themes) for now`}
+          view='markdown'
         />
       </CardContent>
     </Card>
