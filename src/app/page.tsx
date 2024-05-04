@@ -6,7 +6,7 @@ import { Separator } from "~/components/ui/separator";
 import FileBrowser from "./@explorer";
 import Header from "./@header";
 import HeaderButton from "./@header.button";
-import Markdown from "./@markdown";
+import Readme from "./@readme";
 import { GetFiles, GetReadme } from "./actions";
 
 export const revalidate = 300;
@@ -43,20 +43,24 @@ export default async function RootPage() {
         </Card>
       </div>
       {readme && (
-        <div
-          slot='readme'
-          className='w-full'
-        >
-          <Card>
-            <CardHeader className='pb-0'>
-              <CardTitle>README.md</CardTitle>
-              <Separator />
-            </CardHeader>
-            <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
-              <Markdown content={readme} />
-            </CardContent>
-          </Card>
-        </div>
+        <Readme
+          content={readme}
+          title={"README.md"}
+        />
+        // <div
+        //   slot='readme'
+        //   className='w-full'
+        // >
+        //   <Card>
+        //     <CardHeader className='pb-0'>
+        //       <CardTitle>README.md</CardTitle>
+        //       <Separator />
+        //     </CardHeader>
+        //     <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
+        //       <Markdown content={readme} />
+        //     </CardContent>
+        //   </Card>
+        // </div>
       )}
     </div>
   );

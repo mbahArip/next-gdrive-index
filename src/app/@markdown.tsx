@@ -6,10 +6,12 @@ import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypePrism from "rehype-prism-plus";
 import rehypeRaw from "rehype-raw";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSlug from "remark-slug";
 import remarkToc from "remark-toc";
+import { cn } from "~/utils";
 
 import Icon from "~/components/Icon";
 
@@ -17,41 +19,66 @@ import "./highlight.css";
 
 type Props = {
   content: string;
+  view: "markdown" | "raw";
+  className?: string;
 };
-export default function Markdown({ content }: Props) {
+export default function Markdown({ content, view, className }: Props) {
   return (
-    <div className='markdown w-full rounded-[var(--radius)] p-3'>
-      <ReactMarkdown
-        className='w-full'
-        disallowedElements={["script"]}
-        remarkPlugins={[remarkGfm, remarkMath, remarkSlug, remarkToc]}
-        rehypePlugins={[
-          rehypeKatex,
-          rehypeRaw,
-          [rehypePrism, { ignoreMissing: true }],
-        ]}
-        components={{
-          p: ({ node, children, ...props }) => (
-            <p
-              {...props}
-              className='paragraph text-balance'
-            >
-              {children}
-            </p>
-          ),
-          pre: PreComponent,
-          code: ({ node, inline, className, children, ...props }) => (
-            <code
-              className={`${className} font-mono !text-sm`}
-              {...props}
-            >
-              {children}
-            </code>
-          ),
-        }}
+    <div className={cn("flex flex-col p-3", className)}>
+      <div
+        className={cn(
+          "markdown w-full rounded-[var(--radius)]",
+          view !== "raw" && "hidden",
+        )}
       >
-        {content}
-      </ReactMarkdown>
+        <pre className='w-full whitespace-pre-wrap break-words bg-transparent !p-0 shadow shadow-background'>
+          {content}
+        </pre>
+      </div>
+      <div
+        className={cn(
+          "markdown w-full rounded-[var(--radius)]",
+          view !== "markdown" && "hidden",
+        )}
+      >
+        <ReactMarkdown
+          className='w-full'
+          disallowedElements={["script"]}
+          remarkPlugins={[
+            remarkGfm,
+            remarkMath,
+            remarkSlug,
+            remarkToc,
+            remarkBreaks,
+          ]}
+          rehypePlugins={[
+            rehypeKatex,
+            rehypeRaw,
+            [rehypePrism, { ignoreMissing: true }],
+          ]}
+          components={{
+            p: ({ node, children, ...props }) => (
+              <p
+                {...props}
+                className='paragraph text-balance'
+              >
+                {children}
+              </p>
+            ),
+            pre: PreComponent,
+            code: ({ node, inline, className, children, ...props }) => (
+              <code
+                className={`${className} font-mono !text-sm`}
+                {...props}
+              >
+                {children}
+              </code>
+            ),
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
     </div>
   );
 }

@@ -260,22 +260,34 @@ export default function FileGrid({ data }: Props) {
           {/* File data */}
           <div className='flex h-full w-full flex-col justify-between gap-1.5 px-3 py-1.5'>
             <span className='line-clamp-2 h-full whitespace-pre-wrap text-pretty break-all'>
-              {data.fileExtension
+              {config.siteConfig.showFileExtension
+                ? data.name
+                : data.fileExtension
                 ? data.name.replace(new RegExp(`.${data.fileExtension}$`), "")
                 : data.name}
             </span>
             <div className='muted flex items-center gap-1'>
-              <span className='line-clamp-1 whitespace-pre-wrap break-all text-sm'>
+              <span
+                className={cn(
+                  "line-clamp-1 whitespace-pre-wrap break-all text-sm",
+                  config.siteConfig.showFileExtension &&
+                    !data.mimeType.includes("folder")
+                    ? "hidden"
+                    : "",
+                )}
+              >
                 {data.mimeType.includes("folder")
                   ? "folder"
                   : data.fileExtension}
               </span>
               {!data.mimeType.includes("folder") && (
                 <>
-                  <Icon
-                    name='Slash'
-                    size={"0.875rem"}
-                  />
+                  {config.siteConfig.showFileExtension ? null : (
+                    <Icon
+                      name='Slash'
+                      size={"0.875rem"}
+                    />
+                  )}
                   <span className='whitespace-nowrap text-sm'>
                     {bytesToReadable(data.size || 0)}
                   </span>

@@ -51,11 +51,11 @@
   }
 
   .markdown ul {
-    @apply my-1.5 list-disc leading-loose;
+    @apply my-3 !list-outside list-disc leading-loose;
   }
 
   .markdown ol {
-    @apply my-1.5 list-decimal leading-loose;
+    @apply my-3 !list-inside list-decimal leading-loose;
   }
 
   .markdown li {
@@ -98,7 +98,7 @@
   }
 
   .markdown blockquote {
-    @apply my-2 rounded-r-[var(--radius)] border-l-4 border-l-primary bg-muted py-4 pl-2 text-foreground;
+    @apply my-2 rounded-r-[var(--radius)] border-l-4 border-l-primary/50 bg-muted/25 py-1.5 pl-3 text-foreground;
   }
 
   .markdown hr {

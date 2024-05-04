@@ -20,7 +20,7 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-source-sans-3)", ...tw.fontFamily.sans],
+        sans: ["var(--font-outfit)", ...tw.fontFamily.sans],
         mono: ["var(--font-jetbrains-mono)", ...tw.fontFamily.mono],
       },
       colors: {

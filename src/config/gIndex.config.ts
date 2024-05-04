@@ -13,13 +13,26 @@ const config: z.input<typeof Schema_Config> = {
    * If you're using another port for development, you can set it here
    *
    * @default process.env.NEXT_PUBLIC_DOMAIN
+   * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
   basePath:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
       : `https://${
-          process.env.NEXT_PUBLIC_VERCEL_URL || process.env.NEXT_PUBLIC_DOMAIN
+          process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
         }`,
+
+  /**
+   * Allow access to the deploy guide
+   * Will use the `/deploy` route, might be overlap with file / folder name
+   *
+   * Set this to false on final deployment
+   *
+   * I'm using this to show the deploy guide on my own demo deployment
+   *
+   * @default false
+   */
+  showDeployGuide: true,
 
   /**
    * DEPRECATED
@@ -52,16 +65,19 @@ const config: z.input<typeof Schema_Config> = {
     //   "c760fc0eae9990d4accbc2134af21e45a378d412af2c78020070a9f9ac548b98fe61c4f6be953a8d7be6a035e6f7766c",
     rootFolder:
       "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
+
     /**
-     * If your root folder inside a shared drive, set this to true
-     * If not, set this to false
+     * If your rootfolder inside a shared drive, you NEED to set this to true
+     * If not, you can set this to false
      *
-     * You need to set the shared drive id to make it work
+     * You also need to set the shared drive ID to make it work
+     * Make sure you have add your service account to the shared drive since the service account can't access the shared drive by default
+     *
      * Where to get the shared drive id?
-     * Go to your Shared Drives -> Click on the shared drive -> Copy the id from the url
+     * Go to your Shared Drive > Click on the shared drive > copy the ID from the url
      * ex: https://drive.google.com/drive/u/0/folders/:shared_drive_id
      *
-     * Then encrypt it using `/api/internal/encrypt?q=:shared_drive_id` route
+     * Then you need to encrypt it using `/api/internal/encrypt?q=:shared_drive_id` route
      */
     isTeamDrive: true,
     sharedDrive:
@@ -182,8 +198,18 @@ const config: z.input<typeof Schema_Config> = {
     twitterHandle: "@mbaharip_",
 
     /**
+     * Show file extension on the file name
+     * Example:
+     *    true       |   false
+     *    file.txt   |   file
+     *    100KB      |   txt / 100KB
+     *
+     * Default: false
+     */
+    showFileExtension: false,
+
+    /**
      * Footer content
-     * You can use string or array of string for multiple lines
      * You can also set it to empty array if you don't want to use it
      *
      * Basic markdown is supported (bold, italic, and link)
@@ -195,6 +221,7 @@ const config: z.input<typeof Schema_Config> = {
      * - {{ author }} will be replaced with author from siteAuthor config above (If it's not set, it will be set to mbaharip)
      * - {{ version }} will be replaced with the current version
      * - {{ siteName }} will be replaced with the siteName config above
+     * - {{ handle }} will be replaced with the twitter handle from twitterHandle config above
      * - {{ creator }} will be replaced with mbaharip if you want to credit me
      */
     footer: [

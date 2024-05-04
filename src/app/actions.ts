@@ -1,5 +1,6 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
@@ -761,5 +762,37 @@ export async function CheckDownloadToken(token: string): Promise<{
       success: false,
       message: e.message,
     };
+  }
+}
+
+export async function GenerateAESKey(): Promise<string> {
+  try {
+    const key = crypto.randomBytes(8).toString("hex");
+    return key;
+  } catch (error) {
+    const e = error as Error;
+    console.error(e.message);
+    throw new Error(e.message);
+  }
+}
+export async function VerifyAESKey(
+  data: string,
+  key: string,
+): Promise<boolean> {
+  try {
+    let paddedKey;
+    if (key.length < 16) {
+      paddedKey = key.padEnd(16, "0");
+    } else if (key.length > 16) {
+      paddedKey = key.slice(0, 16);
+    } else {
+      paddedKey = key;
+    }
+
+    const encrypt = await encryptData(data, paddedKey);
+    const decrypt = await decryptData(encrypt, paddedKey);
+    return !!encrypt && !!decrypt;
+  } catch (error) {
+    return false;
   }
 }

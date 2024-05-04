@@ -1,6 +1,8 @@
 import { Metadata } from "next";
-import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
+import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
 import { cn } from "~/utils";
+
+import { formatFooter } from "~/utils/footerFormatter";
 
 import config from "~/config/gIndex.config";
 
@@ -18,6 +20,13 @@ const sourceSans3 = Source_Sans_3({
   display: "auto",
   subsets: ["latin", "latin-ext"],
   variable: "--font-source-sans-3",
+});
+const outfit = Outfit({
+  weight: ["300", "400", "600", "700"],
+  style: ["normal"],
+  display: "auto",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-outfit",
 });
 const jetbrainsMono = JetBrains_Mono({
   weight: ["300", "400", "600", "700"],
@@ -68,24 +77,6 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const unlocked = await CheckSitePassword();
-  const formatFooter = (text: string | string[]): string => {
-    let toFormat: string;
-    if (Array.isArray(text)) {
-      toFormat = text.join(`\n\n`);
-    } else {
-      toFormat = text;
-    }
-    return toFormat
-      .replaceAll("{{ year }}", new Date().getFullYear().toString())
-      .replaceAll(
-        "{{ repository }}",
-        "[Repository](https://github.com/mbaharip/next-gdrive-index)",
-      )
-      .replaceAll("{{ author }}", config.siteConfig.siteAuthor || "mbaharip")
-      .replaceAll("{{ version }}", config.version || "0.0.0")
-      .replaceAll("{{ siteName }}", config.siteConfig.siteName)
-      .replaceAll("{{ creator }}", "mbaharip");
-  };
 
   return (
     <html lang='en'>
@@ -94,6 +85,7 @@ export default async function RootLayout({
           "h-full bg-background font-sans text-foreground",
           jetbrainsMono.variable,
           sourceSans3.variable,
+          outfit.variable,
         )}
       >
         <ThemeProvider
