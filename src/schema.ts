@@ -43,6 +43,7 @@ export const Schema_Old_Config = z.object({
   apiConfig: z.object({
     rootFolder: z.string(),
     isTeamDrive: z.boolean(),
+    sharedDrive: z.string().optional(),
     defaultQuery: z.array(z.string()),
     defaultField: z.string(),
     defaultOrder: z.string(),
