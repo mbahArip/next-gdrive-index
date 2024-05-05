@@ -78,7 +78,8 @@ export async function GET(
         responseType: "stream",
         headers: {
           "Accept-Ranges": "bytes",
-          "Range": ranges,
+          "Range":
+            ranges === "bytes=0-" ? `bytes=0-${1024 * 1024 - 1}` : ranges,
         },
       },
     );
