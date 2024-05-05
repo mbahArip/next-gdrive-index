@@ -59,7 +59,9 @@ export async function GET(
     const rangeSize = ranges.match(rangeRegex);
     if (rangeSize) {
       rangeStart = parseInt(rangeSize[1], 10);
-      rangeEnd = rangeSize ? parseInt(rangeSize[2], 10) : fileSize - 1;
+
+      const chunkSize = 1024 * 1024; // Load 1MB at a time
+      rangeEnd = Math.min(rangeStart + chunkSize, fileSize - 1);
     }
 
     const contentRange = `bytes=${rangeStart}-${Math.min(
