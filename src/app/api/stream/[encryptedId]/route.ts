@@ -34,11 +34,19 @@ export async function GET(
 
     const decryptedId = await decryptData(encryptedId);
 
-    const fileMeta = await gdrive.files.get({
-      fileId: decryptedId,
-      fields: "id, name, mimeType, size, fileExtension, webContentLink",
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-    });
+    const fileMeta = await gdrive.files.get(
+      {
+        fileId: decryptedId,
+        fields: "id, name, mimeType, size, fileExtension, webContentLink",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
+      },
+      {
+        headers: {
+          "Accept-Ranges": "bytes",
+          "Range": request.headers.get("Range") || "bytes=0-",
+        },
+      },
+    );
 
     const fileSize = Number(fileMeta.data.size || 0);
     if (!fileMeta.data.webContentLink)
