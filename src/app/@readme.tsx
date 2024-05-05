@@ -24,6 +24,7 @@ export default function Readme({ content, title }: Props) {
           title={title}
           view={view}
           onViewChange={setView}
+          fileType={"markdown"}
         />
         <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
           <Markdown
