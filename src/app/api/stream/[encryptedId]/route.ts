@@ -53,21 +53,18 @@ export async function GET(
       throw new Error("No download link found");
 
     const ranges = request.headers.get("Range") || "bytes=0-";
+    const chunkSize = 1 * 1024 * 1024; // Load 1MB at a time
     let rangeStart = 0;
-    let rangeEnd = fileSize - 1;
+    let rangeEnd = Math.min(chunkSize, fileSize - 1);
     const rangeRegex = /bytes=(\d+)-(\d+)?/;
     const rangeSize = ranges.match(rangeRegex);
     if (rangeSize) {
       rangeStart = parseInt(rangeSize[1], 10);
 
-      const chunkSize = 1024 * 1024; // Load 1MB at a time
       rangeEnd = Math.min(rangeStart + chunkSize, fileSize - 1);
     }
 
-    const contentRange = `bytes=${rangeStart}-${Math.min(
-      rangeEnd,
-      fileSize - 1,
-    )}/${fileSize}`;
+    const contentRange = `bytes=${rangeStart}-${rangeEnd}/${fileSize}`;
     const contentLength = rangeEnd ? rangeEnd - rangeStart + 1 : fileSize;
 
     const fileContent = await gdrive.files.get(
@@ -80,8 +77,7 @@ export async function GET(
         responseType: "stream",
         headers: {
           "Accept-Ranges": "bytes",
-          "Range":
-            ranges === "bytes=0-" ? `bytes=0-${1024 * 1024 - 1}` : ranges,
+          "Range": `bytes=${rangeStart}-${rangeEnd}`,
         },
       },
     );
