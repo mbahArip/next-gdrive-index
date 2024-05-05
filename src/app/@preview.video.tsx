@@ -8,8 +8,6 @@ import { cn } from "~/utils";
 
 import Icon from "~/components/Icon";
 
-import { decryptData } from "~/utils/encryptionHelper/hash";
-
 import { CreateDownloadToken } from "./actions";
 
 const Plyr = dynamic(() => import("plyr-react"), {
@@ -32,10 +30,6 @@ export default function PreviewVideo({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
-        const id = await decryptData(file.encryptedId);
-        // setVideoSrc(
-        //   `https://drive.usercontent.google.com/download?id=${id}&export=download&authuser=0`,
-        // );
         setVideoSrc(`/api/stream/${file.encryptedId}?token=${token}`);
       } catch (error) {
         const e = error as Error;
@@ -85,6 +79,7 @@ export default function PreviewVideo({ file }: Props) {
                 },
               ],
             }}
+            // crossOrigin='anonymous'
             options={{
               toggleInvert: true,
               settings: ["quality", "speed"],
