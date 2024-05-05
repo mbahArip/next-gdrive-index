@@ -25,14 +25,15 @@ export async function GET(
     if (!token) throw new Error("Token not found");
 
     // Only allow if referrer is from the same site
-    if (!request.headers.get("Referer")?.includes(config.basePath)) {
-      throw new Error("Invalid request");
-    }
+    // if (!request.headers.get("Referer")?.includes(config.basePath)) {
+    //   throw new Error("Invalid request");
+    // }
 
     const tokenValidity = await CheckDownloadToken(token);
     if (!tokenValidity.success) throw new Error(tokenValidity.message);
 
     const decryptedId = await decryptData(encryptedId);
+
     const fileMeta = await gdrive.files.get({
       fileId: decryptedId,
       fields: "id, name, mimeType, size, fileExtension, webContentLink",
