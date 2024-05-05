@@ -43,7 +43,7 @@ export async function GET(
       {
         headers: {
           "Accept-Ranges": "bytes",
-          "Range": request.headers.get("Range") || "bytes=0-",
+          "Range": request.headers.get("Range") || `bytes=0-${1024 * 1024 - 1}`,
         },
       },
     );
