@@ -25,28 +25,7 @@ export default function PreviewImage({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
-        await fetch(`/api/download/${file.encryptedId}?token=${token}`)
-          .then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch image");
-            return res.blob();
-          })
-          .then((blob) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              setImgSrc(reader.result as string);
-            };
-            reader.onerror = (e) => {
-              console.error(e);
-              setError(
-                "Could not preview this image, try downloading the file",
-              );
-            };
-            reader.readAsDataURL(blob);
-          })
-          .catch((e) => {
-            console.error(e.message);
-            setError(e.message);
-          });
+        setImgSrc(`/api/download/${file.encryptedId}?token=${token}&media=1`);
       } catch (error) {
         const e = error as Error;
         console.error(e);
@@ -87,6 +66,10 @@ export default function PreviewImage({ file }: Props) {
           src={imgSrc}
           alt={file.name}
           className='max-h-[70dvh] w-full rounded-[var(--radius)] bg-muted object-contain object-center'
+          onError={(e) => {
+            console.error(e);
+            setError("Could not preview this image, try downloading the file");
+          }}
         />
       )}
     </div>

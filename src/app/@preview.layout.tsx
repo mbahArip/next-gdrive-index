@@ -26,12 +26,13 @@ export default function FilePreviewLayout({ data, fileType }: Props) {
   const [view, setView] = useState<"markdown" | "raw">("markdown");
 
   return (
-    <>
+    <div className='flex flex-col gap-3'>
       <Card>
         <RichHeader
           title={data.name}
           view={view}
           onViewChange={setView}
+          fileType={fileType}
         />
         <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
           <div className='px-3'>
@@ -70,6 +71,6 @@ export default function FilePreviewLayout({ data, fileType }: Props) {
         </CardContent>
       </Card>
       <PreviewAction file={data} />
-    </>
+    </div>
   );
 }

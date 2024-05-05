@@ -1,14 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import ReactPlayer from "react-player";
 import { z } from "zod";
 import { Schema_File } from "~/schema";
 import { cn } from "~/utils";
 
 import Icon from "~/components/Icon";
 
+import { decryptData } from "~/utils/encryptionHelper/hash";
+
 import { CreateDownloadToken } from "./actions";
+
+const Plyr = dynamic(() => import("plyr-react"), {
+  ssr: false,
+});
 
 type Props = {
   file: z.infer<typeof Schema_File>;
@@ -26,7 +32,11 @@ export default function PreviewVideo({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
-        setVideoSrc(`/api/download/${file.encryptedId}?token=${token}`);
+        const id = await decryptData(file.encryptedId);
+        // setVideoSrc(
+        //   `https://drive.usercontent.google.com/download?id=${id}&export=download&authuser=0`,
+        // );
+        setVideoSrc(`/api/stream/${file.encryptedId}?token=${token}`);
       } catch (error) {
         const e = error as Error;
         console.error(e);
@@ -63,30 +73,62 @@ export default function PreviewVideo({ file }: Props) {
           <span className='text-center text-destructive'>{error}</span>
         </div>
       ) : (
-        <ReactPlayer
-          key={file.encryptedId}
-          url={videoSrc}
-          controls
-          pip
-          wrapper={({ children }) => (
-            <div className='h-[60dvh] w-full overflow-hidden rounded-[var(--radius)] bg-muted'>
-              {children}
-            </div>
-          )}
-          style={{
-            width: "100%",
-            height: "100%",
-            maxHeight: "60vh",
-          }}
-          onError={(error) => {
-            console.error(error.message);
-            if (error instanceof Error) {
-              setError(error.message);
-            } else {
-              setError("Failed to load video. (Probably not supported?)");
-            }
-          }}
-        />
+        <div className='h-full w-full'>
+          <Plyr
+            source={{
+              type: "video",
+              sources: [
+                {
+                  src: videoSrc,
+                  type: file.mimeType,
+                  size: file.size,
+                },
+              ],
+            }}
+            options={{
+              toggleInvert: true,
+              settings: ["quality", "speed"],
+              ratio: "16:9",
+              controls: [
+                "play-large",
+                "play",
+                "progress",
+                "current-time",
+                "duration",
+                "mute",
+                "volume",
+                "settings",
+                "pip",
+                "download",
+                "fullscreen",
+              ],
+            }}
+          />
+        </div>
+        // <ReactPlayer
+        //   key={file.encryptedId}
+        //   url={videoSrc}
+        //   controls
+        //   pip
+        //   wrapper={({ children }) => (
+        //     <div className='h-[60dvh] w-full overflow-hidden rounded-[var(--radius)] bg-muted'>
+        //       {children}
+        //     </div>
+        //   )}
+        //   style={{
+        //     width: "100%",
+        //     height: "100%",
+        //     maxHeight: "60vh",
+        //   }}
+        //   onError={(error) => {
+        //     console.error(error.message);
+        //     if (error instanceof Error) {
+        //       setError(error.message);
+        //     } else {
+        //       setError("Failed to load video. (Probably not supported?)");
+        //     }
+        //   }}
+        // />
       )}
     </div>
   );
