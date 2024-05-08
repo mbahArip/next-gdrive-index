@@ -152,31 +152,6 @@ export default function Navbar() {
                 className='mx-3 my-auto h-6'
               />
 
-              {config.showDeployGuide && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={"/deploy"}
-                      className={cn(
-                        "flex flex-col items-center justify-center",
-                        "opacity-80",
-                        "hover:opacity-100",
-                        "cursor-pointer",
-                        "p-1.5",
-                      )}
-                    >
-                      <Icon
-                        name={"Book"}
-                        size={20}
-                      />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side='bottom'>
-                    <p>Deploy Guide</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
               <DropdownMenu
                 modal={false}
                 open={themeOpen}
@@ -291,6 +266,32 @@ export default function Navbar() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+
+              {config.showDeployGuide && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={"/deploy"}
+                      className={cn(
+                        "flex items-center justify-center gap-1.5",
+                        "opacity-80",
+                        "hover:opacity-100",
+                        "cursor-pointer",
+                        "p-1.5",
+                      )}
+                    >
+                      <Icon
+                        name={"Book"}
+                        size={20}
+                      />
+                      <span className='text-sm'>Guide</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side='bottom'>
+                    <p>Deploy Guide</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
 
               <Separator
@@ -451,7 +452,7 @@ export default function Navbar() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent className='flex flex-col items-center gap-3 pt-12'>
-                  <div className='flex w-full flex-grow flex-col gap-6 overflow-y-scroll'>
+                  <div className='flex w-full flex-grow flex-col gap-6 overflow-y-auto'>
                     <div className='flex flex-col'>
                       {config.siteConfig.navbarItems.map((item) => (
                         <Button
