@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Schema_File } from "~/schema";
 
 import { decryptData, encryptData } from "~/utils/encryptionHelper/hash";
-import gdrive from "~/utils/gdriveInstance";
+import gdrive, { gdriveNoCache } from "~/utils/gdriveInstance";
 
 import { Constant } from "~/types/constant";
 
@@ -230,7 +230,7 @@ export async function CheckPassword(
       `trashed = false`,
       `(${ids.map((id) => `'${id}' in parents`).join(" or ")})`, // Filter by paths id
     ];
-    const { data: password } = await gdrive.files
+    const { data: password } = await gdriveNoCache.files
       .list({
         q: query.join(" and "),
         fields: "files(id, name, mimeType, parents)",
@@ -635,7 +635,8 @@ export async function GetReadme(
     }
 
     const query: string[] = [
-      ...config.apiConfig.defaultQuery,
+      "trashed = false",
+      "(not mimeType contains 'folder')",
       `name = '${config.apiConfig.specialFile.readme}'`,
       `'${decryptedId}' in parents`,
     ];
@@ -654,9 +655,56 @@ export async function GetReadme(
     });
     if (!data.files?.length) return null;
 
+    let file;
+
+    if (data.files.length === 1) {
+      file = data.files[0];
+    } else {
+      // Check by mimetype, use google-apps.shortcut last
+      file = data.files.find((item) => item.mimeType === "text/markdown");
+      if (!file) {
+        file = data.files.find(
+          (item) => item.mimeType === "application/vnd.google-apps.shortcut",
+        );
+      }
+    }
+
+    if (!file) return null;
+    if (
+      file.mimeType !== "text/markdown" &&
+      file.mimeType !== "application/vnd.google-apps.shortcut"
+    )
+      return null;
+
+    if (file.mimeType === "application/vnd.google-apps.shortcut") {
+      const { data: shortcutData } = (await gdrive.files.get({
+        fileId: file.id as string,
+        fields: "shortcutDetails",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
+      })) as {
+        data: { shortcutDetails: { targetId: string; targetMimeType: string } };
+      };
+      if (!shortcutData.shortcutDetails.targetId) return null;
+      if (shortcutData.shortcutDetails.targetMimeType !== "text/markdown")
+        return null;
+
+      const { data: content } = await gdrive.files.get(
+        {
+          fileId: shortcutData.shortcutDetails.targetId,
+          alt: "media",
+          supportsAllDrives: config.apiConfig.isTeamDrive,
+        },
+        {
+          responseType: "text",
+        },
+      );
+
+      return content as string;
+    }
+
     const { data: content } = await gdrive.files.get(
       {
-        fileId: data.files[0].id as string,
+        fileId: file.id as string,
         alt: "media",
         supportsAllDrives: config.apiConfig.isTeamDrive,
       },
