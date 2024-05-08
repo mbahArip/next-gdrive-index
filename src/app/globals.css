@@ -75,7 +75,7 @@ body {
     @apply h-1.5 w-1.5;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-background;
+    @apply bg-primary/5;
   }
   ::-webkit-scrollbar-thumb {
     @apply rounded-full bg-primary/25 hover:bg-primary/50;
