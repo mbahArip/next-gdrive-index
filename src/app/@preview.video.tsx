@@ -12,6 +12,21 @@ import { CreateDownloadToken } from "./actions";
 
 const Plyr = dynamic(() => import("plyr-react"), {
   ssr: false,
+  loading: () => (
+    <div
+      className={cn(
+        "h-auto min-h-[50dvh] w-full",
+        "flex flex-grow flex-col items-center justify-center gap-3",
+      )}
+    >
+      <Icon
+        name='LoaderCircle'
+        size={32}
+        className='animate-spin text-foreground'
+      />
+      <p>Loading player...</p>
+    </div>
+  ),
 });
 
 type Props = {
@@ -78,6 +93,7 @@ export default function PreviewVideo({ file }: Props) {
                   size: file.size,
                 },
               ],
+              poster: `/api/thumb/${file.encryptedId}?size=1000`,
             }}
             // crossOrigin='anonymous'
             options={{
@@ -97,33 +113,17 @@ export default function PreviewVideo({ file }: Props) {
                 "download",
                 "fullscreen",
               ],
+              volume: 0.5,
+              muted: false,
+              loop: { active: false },
+              speed: { selected: 1, options: [0.5, 1, 1.5, 2] },
+              keyboard: {
+                focused: true,
+                global: true,
+              },
             }}
           />
         </div>
-        // <ReactPlayer
-        //   key={file.encryptedId}
-        //   url={videoSrc}
-        //   controls
-        //   pip
-        //   wrapper={({ children }) => (
-        //     <div className='h-[60dvh] w-full overflow-hidden rounded-[var(--radius)] bg-muted'>
-        //       {children}
-        //     </div>
-        //   )}
-        //   style={{
-        //     width: "100%",
-        //     height: "100%",
-        //     maxHeight: "60vh",
-        //   }}
-        //   onError={(error) => {
-        //     console.error(error.message);
-        //     if (error instanceof Error) {
-        //       setError(error.message);
-        //     } else {
-        //       setError("Failed to load video. (Probably not supported?)");
-        //     }
-        //   }}
-        // />
       )}
     </div>
   );

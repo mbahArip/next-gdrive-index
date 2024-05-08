@@ -6,6 +6,9 @@ import { Schema_File } from "~/schema";
 import { cn } from "~/utils";
 
 import Icon from "~/components/Icon";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+
+import config from "~/config/gIndex.config";
 
 import { CreateDownloadToken } from "./actions";
 
@@ -13,7 +16,10 @@ type Props = {
   file: z.infer<typeof Schema_File>;
 };
 export default function PreviewImage({ file }: Props) {
-  const [imgSrc, setImgSrc] = useState<string>("");
+  const [imgSrc, setImgSrc] = useState<string>(
+    `/api/thumb/${file.encryptedId}?size=4`,
+  );
+  const [imgLoaded, setImgLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -25,7 +31,31 @@ export default function PreviewImage({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
-        setImgSrc(`/api/download/${file.encryptedId}?token=${token}&media=1`);
+
+        const streamURL = new URL(
+          `/api/thumb/${file.encryptedId}?size=1000`,
+          config.basePath,
+        );
+        streamURL.searchParams.set("token", token);
+        fetch(streamURL, {
+          headers: {
+            Range: `bytes=0-${(file.size || 1) - 1}`,
+          },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Could not load image");
+            }
+            return res.blob();
+          })
+          .then((blob) => {
+            const urlobject = URL.createObjectURL(blob);
+            setImgSrc(urlobject);
+            const timeout = setTimeout(() => {
+              setImgLoaded(true);
+              clearTimeout(timeout);
+            }, 150); // Add a delay to show the image
+          });
       } catch (error) {
         const e = error as Error;
         console.error(e);
@@ -62,15 +92,38 @@ export default function PreviewImage({ file }: Props) {
           <span className='text-center text-destructive'>{error}</span>
         </div>
       ) : (
-        <img
-          src={imgSrc}
-          alt={file.name}
-          className='max-h-[70dvh] w-full rounded-[var(--radius)] bg-muted object-contain object-center'
-          onError={(e) => {
-            console.error(e);
-            setError("Could not preview this image, try downloading the file");
-          }}
-        />
+        <div className='h-fit w-full space-y-3 overflow-hidden rounded-[var(--radius)]'>
+          <img
+            src={imgSrc}
+            alt={file.name}
+            className={cn(
+              "h-full max-h-[70dvh] w-full bg-muted object-contain object-center transition",
+              imgLoaded ? "blur-none" : "animate-pulse blur",
+            )}
+            onError={(e) => {
+              console.error(e);
+              setError(
+                "Could not preview this image, try downloading the file",
+              );
+            }}
+          />
+
+          <Alert className='bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-500'>
+            <div className='flex items-start gap-3'>
+              <Icon
+                name='TriangleAlert'
+                className='size-5'
+              />
+              <div className='flex flex-col'>
+                <AlertTitle>Preview Only</AlertTitle>
+                <AlertDescription>
+                  This image is a preview and may not be the full resolution.
+                  Please download the file for the full resolution.
+                </AlertDescription>
+              </div>
+            </div>
+          </Alert>
+        </div>
       )}
     </div>
   );
