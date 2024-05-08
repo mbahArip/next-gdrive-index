@@ -242,6 +242,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
+      process.env.NODE_ENV === "development" ? "Development Mode" : "",
     ],
 
     /**
