@@ -95,6 +95,7 @@ export const Schema_Config_API = z
     itemsPerPage: z.number().positive(),
     searchResult: z.number().positive(),
     proxyThumbnail: z.boolean(),
+    streamMaxSize: z.number(),
 
     specialFile: z.object({
       password: z.string(),
