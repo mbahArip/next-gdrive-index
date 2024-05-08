@@ -3,12 +3,14 @@
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 
+import isDev from "~/utils/isDev";
+
 type Props = {
   content: string;
 };
 export default function Footer({ content }: Props) {
   return (
-    <footer className='w-full pb-3'>
+    <footer className='flex w-full items-center justify-center pb-3'>
       <ReactMarkdown
         className='flex w-full select-none flex-col items-center justify-center text-center'
         components={{
@@ -39,6 +41,11 @@ export default function Footer({ content }: Props) {
       >
         {content}
       </ReactMarkdown>
+      {isDev && (
+        <div className='fixed bottom-0 z-[999] rounded-t-[var(--radius)] border border-border bg-primary px-3 py-1 text-xs text-primary-foreground'>
+          Dev Mode
+        </div>
+      )}
     </footer>
   );
 }
