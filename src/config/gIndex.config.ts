@@ -8,7 +8,7 @@ const config: z.input<typeof Schema_Config> = {
    * If possible, please don't change this value
    * Even if you're creating a PR, just let me change it myself
    */
-  version: "2.0.2",
+  version: "2.0.3",
   /**
    * Base path of the app, used for generating links
    *
@@ -36,18 +36,8 @@ const config: z.input<typeof Schema_Config> = {
   showDeployGuide: true,
 
   /**
-   * DEPRECATED
-   * Since in 2.0 we're using server side data fetching, this is not needed anymore.
-   *
-   * Hashed key for fetching protected files / folders from the server
-   * This key will bypass the file / folder password
-   */
-  // masterKey: "masterkey",
-
-  /**
    * How long the cache will be stored in the browser
    * Used for all pages and api routes
-   * Default is 5 minutes (300/60 = 5min)
    *
    * @default "max-age=0, s-maxage=60, stale-while-revalidate"
    */
@@ -62,8 +52,6 @@ const config: z.input<typeof Schema_Config> = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    // rootFolder:
-    //   "c760fc0eae9990d4accbc2134af21e45a378d412af2c78020070a9f9ac548b98fe61c4f6be953a8d7be6a035e6f7766c",
     rootFolder:
       "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
 
@@ -196,11 +184,12 @@ const config: z.input<typeof Schema_Config> = {
      * Site Name will be used for default metadata title
      * Site Name Template will be used if the page has a title
      * %s will be replaced with the page title
+     * %t will be replaced with the site name
      *
      * You can set it to undefined if you don't want to use it
      */
     siteName: "next-gdrive-index",
-    siteNameTemplate: "%s - next-gdrive-index",
+    siteNameTemplate: "%s - %t",
     siteDescription: "A simple file browser for Google Drive",
     siteIcon: "/logo.svg",
     siteAuthor: "mbaharip",
@@ -243,21 +232,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
-      isDev ? "Development Mode" : "",
     ],
-
-    /**
-     * DEPRECATED
-     * Since we're using shadcn/ui now, please refer to their theming documentation
-     * https://ui.shadcn.com/docs/theming
-     *
-     * Or you can use their themes, and replace the color in /src/app/globals.css
-     * https://ui.shadcn.com/themes
-     *
-     * Tailwind color name.
-     * Ref: https://tailwindcss.com/docs/customizing-colors
-     */
-    // defaultAccentColor: "teal",
 
     /**
      * Site wide password protection
