@@ -503,6 +503,9 @@ export default function HeaderButton({ children }: PropsWithChildren) {
 }
 
 function SearchResultItem({ data }: { data: z.infer<typeof Schema_File> }) {
+  const [thumbnailURL, setThumbnailURL] = useState<string>(
+    `/api/thumb/${data.encryptedId}?size=2`,
+  );
   const router = useRouter();
   return (
     <div
@@ -542,9 +545,14 @@ function SearchResultItem({ data }: { data: z.infer<typeof Schema_File> }) {
             data.mimeType.startsWith("image")) ? (
             <>
               <img
-                src={`/api/thumb/${data.encryptedId}`}
+                src={thumbnailURL}
                 alt={data.name}
-                className='size-16 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover tablet:size-12'
+                onLoad={(e) => {
+                  if (thumbnailURL.includes("size=2")) {
+                    setThumbnailURL(`/api/thumb/${data.encryptedId}`);
+                  }
+                }}
+                className='size-16 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover tablet:size-20'
               />
 
               {data.mimeType.startsWith("video") && (
@@ -564,7 +572,7 @@ function SearchResultItem({ data }: { data: z.infer<typeof Schema_File> }) {
                   ? "Folder"
                   : getPreviewIcon(data.fileExtension || "", data.mimeType)
               }
-              className='size-16 flex-shrink-0 flex-grow-0 p-3 tablet:size-12'
+              className='size-16 flex-shrink-0 flex-grow-0 p-3 tablet:size-20'
             />
           )}
         </div>
