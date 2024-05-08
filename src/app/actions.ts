@@ -268,7 +268,8 @@ export async function CheckPassword(
     const currentFolder = paths[folderIndex];
     if (!cookiesValue[currentFolder.id])
       throw {
-        message: `Password for '${currentFolder.path}' is not set, please enter the password`,
+        // message: `Password for '${currentFolder.path}' is not set, please enter the password`,
+        message: `Please enter password for '${currentFolder.path}'`,
         path: currentFolder.id,
       };
 

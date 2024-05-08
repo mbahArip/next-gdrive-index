@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { Schema_Config } from "~/schema";
 
+import isDev from "~/utils/isDev";
+
 const config: z.input<typeof Schema_Config> = {
   /**
    * If possible, please don't change this value
@@ -15,12 +17,11 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : `https://${
-          process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
-        }`,
+  basePath: isDev
+    ? "http://localhost:3000"
+    : `https://${
+        process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
+      }`,
 
   /**
    * Allow access to the deploy guide
@@ -107,6 +108,21 @@ const config: z.input<typeof Schema_Config> = {
      * Default: true
      */
     proxyThumbnail: true,
+
+    /**
+     * Only show preview for files that are smaller than this size
+     * If the file is larger than this size, it will show "can't preview" message instead
+     *
+     * Why?
+     * Since the stream endpoint are counted as a bandwidth usage
+     * I want to limit the preview to only small files
+     * It also to prevent abuse from the user
+     *
+     * You can also set this to 0 to disable the limit
+     *
+     * Default: 100MB
+     */
+    streamMaxSize: 100 * 1024 * 1024,
 
     /**
      * Special file name that will be used for certain purposes
@@ -227,6 +243,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
+      isDev ? "Development Mode" : "",
     ],
 
     /**

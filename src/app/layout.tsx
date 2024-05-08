@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
+import "plyr-react/plyr.css";
 import { cn } from "~/utils";
 
 import { formatFooter } from "~/utils/footerFormatter";

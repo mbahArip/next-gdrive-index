@@ -105,14 +105,14 @@ export default function Password({ path, checkPaths, errorMessage }: Props) {
         className={cn("h-48 w-64 object-contain")}
       />
       <div className='flex flex-col items-center justify-center'>
-        <h3 className='text-pretty text-center'>
+        <h3 className='text-balance text-center'>
           {path === "global"
             ? "This site are password protected"
             : "The folder or file you are trying to access is password protected"}
         </h3>
-        <span className='muted text-pretty text-center'>
+        {/* <span className='muted text-pretty text-center'>
           Please enter the password to access the content
-        </span>
+        </span> */}
       </div>
 
       <form

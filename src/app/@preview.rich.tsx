@@ -36,7 +36,7 @@ export default function PreviewRich({ file, code, view }: Props) {
         // if (code) {
         //   setContent(`\`\`\`${file.fileExtension}\n${text}\`\`\``);
         // } else {
-        setContent(text);
+        setContent(text.trim());
         // }
       } catch (error) {
         const e = error as Error;
@@ -91,7 +91,7 @@ export default function PreviewRich({ file, code, view }: Props) {
             <Markdown
               content={
                 code && view === "markdown"
-                  ? `\`\`\`${file.fileExtension}\n${content}\`\`\``
+                  ? `\`\`\`${file.fileExtension}\n${content}`
                   : content
               }
               view={view}
@@ -99,23 +99,26 @@ export default function PreviewRich({ file, code, view }: Props) {
           </div>
           <div
             className={cn(
-              "absolute bottom-0 z-10 flex w-full items-center justify-center py-3 transition",
-              expand
-                ? "pointer-events-none opacity-0"
-                : "pointer-events-auto opacity-100",
+              "bottom-0 z-10 flex w-full items-center justify-center py-3 transition",
+              expand ? "relative" : "absolute",
+              // expand
+              //   ? "pointer-events-none opacity-0"
+              //   : "pointer-events-auto opacity-100",
             )}
           >
             <Button
               size={"sm"}
+              variant={"secondary"}
+              className='gap-1.5'
               onClick={() => {
-                setExpand(true);
+                setExpand((prev) => !prev);
               }}
             >
               <Icon
-                name='ChevronDown'
+                name={expand ? "ChevronUp" : "ChevronDown"}
                 size={16}
               />
-              Expand
+              {expand ? "Collapse" : "Expand"}
             </Button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import { z } from "zod";
 import { Schema_File } from "~/schema";
@@ -10,7 +10,27 @@ import { cn } from "~/utils";
 import Icon from "~/components/Icon";
 
 import { CreateDownloadToken } from "./actions";
-import "./r5-style.css";
+
+// import "./r5-style.css";
+
+const Plyr = dynamic(() => import("plyr-react"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className={cn(
+        "h-auto min-h-[50dvh] w-full",
+        "flex flex-grow flex-col items-center justify-center gap-3",
+      )}
+    >
+      <Icon
+        name='LoaderCircle'
+        size={32}
+        className='animate-spin text-foreground'
+      />
+      <p>Loading player...</p>
+    </div>
+  ),
+});
 
 type Props = {
   file: z.infer<typeof Schema_File>;
@@ -28,7 +48,7 @@ export default function PreviewAudio({ file }: Props) {
           return;
         }
         const token = await CreateDownloadToken();
-        setAudioSrc(`/api/download/${file.encryptedId}?token=${token}`);
+        setAudioSrc(`/api/stream/${file.encryptedId}?token=${token}`);
       } catch (error) {
         const e = error as Error;
         console.error(e);
@@ -66,20 +86,43 @@ export default function PreviewAudio({ file }: Props) {
         </div>
       ) : (
         <div className='w-full'>
-          <AudioPlayer
-            autoPlay={false}
-            layout='stacked-reverse'
-            src={audioSrc}
-            showJumpControls={false}
-            showFilledVolume
-            style={{
-              borderRadius: "var(--radius)",
+          <Plyr
+            source={{
+              type: "audio",
+              sources: [
+                {
+                  src: audioSrc,
+                  type: file.mimeType,
+                  size: file.size,
+                },
+              ],
+              title: file.name,
             }}
-            onError={(e) => {
-              console.error(e);
-              setError(
-                "Could not preview this audio, try downloading the file",
-              );
+            options={{
+              controls: [
+                "play-large",
+                "play",
+                "progress",
+                "current-time",
+                "duration",
+                "mute",
+                "volume",
+                "settings",
+                "fullscreen",
+              ],
+              volume: 0.5,
+              muted: false,
+              loop: {
+                active: false,
+              },
+              speed: {
+                selected: 1,
+                options: [0.5, 1, 1.5, 2],
+              },
+              keyboard: {
+                focused: true,
+                global: false,
+              },
             }}
           />
         </div>

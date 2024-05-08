@@ -25,6 +25,7 @@ import { Separator } from "~/components/ui/separator";
 import useMediaQuery from "~/hooks/useMediaQuery";
 import bytesToReadable from "~/utils/bytesFormat";
 import { durationToReadable } from "~/utils/durationFormat";
+import { getFileType } from "~/utils/previewHelper";
 
 import config from "~/config/gIndex.config";
 
@@ -42,6 +43,14 @@ export default function PreviewAction({ file }: Props) {
       file.mimeType.startsWith("audio")
     );
   }, [file]);
+  const showViewDoc = useMemo<boolean>(() => {
+    const fileExtensionFallback = file.name.split(".").pop();
+    const fileExt = file.fileExtension ?? fileExtensionFallback;
+    if (!fileExt) return false;
+    const fileType = getFileType(fileExt, file.mimeType);
+    return fileType === "document" || fileType === "pdf";
+  }, [file]);
+
   const fileInfo = useMemo<{ label: string; value: string }[]>(() => {
     const value = [
       {
@@ -152,6 +161,38 @@ export default function PreviewAction({ file }: Props) {
         id: `download-${file.encryptedId}`,
       });
       setDownloading(false);
+    }
+  };
+  const onOpenViewer = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.loading("Creating view token...", {
+      id: `view-${file.encryptedId}`,
+    });
+    try {
+      const token = await CreateDownloadToken();
+      if (!token) throw new Error("Failed to create view token");
+      const streamURL = new URL(
+        `/api/stream/${file.encryptedId}`,
+        config.basePath,
+      );
+      streamURL.searchParams.set("token", token);
+      toast.success("Opening viewer link...", {
+        id: `view-${file.encryptedId}`,
+      });
+
+      const timeout = setTimeout(() => {
+        clearTimeout(timeout);
+        const viewerUrl = new URL(`/gview`, "https://docs.google.com");
+        viewerUrl.searchParams.set("url", streamURL.toString());
+        viewerUrl.searchParams.set("embedded", "true");
+        window.open(viewerUrl.toString(), "_blank");
+      }, 150);
+    } catch (error) {
+      const e = error as Error;
+      console.error(e.message);
+      toast.error(e.message, {
+        id: `view-${file.encryptedId}`,
+      });
     }
   };
 
@@ -277,6 +318,20 @@ export default function PreviewAction({ file }: Props) {
                   size={16}
                 />
                 Raw Link
+              </Button>
+            ) : null}
+            {showViewDoc ? (
+              <Button
+                size={"sm"}
+                variant={"outline"}
+                className='gap-3'
+                onClick={onOpenViewer}
+              >
+                <Icon
+                  name='ExternalLink'
+                  size={16}
+                />
+                Open in Viewer
               </Button>
             ) : null}
             <Button

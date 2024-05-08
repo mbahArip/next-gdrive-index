@@ -57,22 +57,8 @@ If you've already entered the password, please make sure your browser is not blo
       fields: "id, name, mimeType, size, fileExtension, webContentLink",
       supportsAllDrives: config.apiConfig.isTeamDrive,
     });
-    const _fileContent = gdrive.files.get(
-      {
-        fileId: decryptedId,
-        alt: "media",
-        supportsAllDrives: config.apiConfig.isTeamDrive,
-      },
-      {
-        responseType: "stream",
-      },
-    );
 
-    const [fileMeta, fileContent, filePaths] = await Promise.all([
-      _fileMeta,
-      _fileContent,
-      _filePaths,
-    ]);
+    const [fileMeta, filePaths] = await Promise.all([_fileMeta, _filePaths]);
 
     if (!config.apiConfig.allowDownloadProtectedFile) {
       const checkPath = await CheckPaths(filePaths.split("/"));
@@ -112,15 +98,23 @@ If you've already entered the password, please make sure your browser is not blo
       config.apiConfig.maxFileSize &&
       fileSize > config.apiConfig.maxFileSize
     ) {
-      console.log("File size is too large, redirecting to webContentLink");
-      return NextResponse.redirect(fileMeta.data.webContentLink, {
+      const contentUrl = new URL(fileMeta.data.webContentLink);
+      contentUrl.searchParams.set("confirm", "1");
+      return NextResponse.redirect(contentUrl, {
         status: 302,
-        headers: {
-          ...request.headers,
-          "Cache-Control": config.cacheControl,
-        },
       });
     }
+
+    const fileContent = await gdrive.files.get(
+      {
+        fileId: decryptedId,
+        alt: "media",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
+      },
+      {
+        responseType: "stream",
+      },
+    );
 
     const fileBuffer = await new Promise<Buffer>((resolve, reject) => {
       const chunks: Buffer[] = [];
@@ -138,7 +132,6 @@ If you've already entered the password, please make sure your browser is not blo
     return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
-        ...request.headers,
         "Content-Type": fileMeta.data.mimeType || "application/octet-stream",
         "Content-Length": fileBuffer.length.toString(),
         "Content-Disposition": `attachment; filename="${encodeURIComponent(
