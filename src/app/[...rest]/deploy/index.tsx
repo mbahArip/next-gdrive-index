@@ -175,6 +175,22 @@ export default function DeployGuidePage() {
             view='markdown'
             className='px-0'
           />
+
+          <Alert className='bg-blue-50 text-blue-600 dark:bg-blue-950/25 dark:text-blue-500'>
+            <div className='flex items-start gap-3'>
+              <Icon
+                name='Info'
+                className='size-5'
+              />
+              <div className='flex flex-col'>
+                <AlertTitle>About this guide</AlertTitle>
+                <AlertDescription>
+                  <p className='w-full whitespace-pre-wrap text-pretty'>{`If you're from previous version, your deployment might have this deployment guide.
+You can disable it from the config files, there a new setting called 'showDeployGuide' you need to set to false.`}</p>
+                </AlertDescription>
+              </div>
+            </div>
+          </Alert>
         </CardContent>
       </Card>
 
