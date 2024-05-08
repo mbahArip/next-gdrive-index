@@ -29,6 +29,7 @@ import {
 
 import useMediaQuery from "~/hooks/useMediaQuery";
 import bytesToReadable from "~/utils/bytesFormat";
+import { durationToReadable } from "~/utils/durationFormat";
 import { getPreviewIcon } from "~/utils/previewHelper";
 
 import config from "~/config/gIndex.config";
@@ -42,14 +43,16 @@ export default function FileList({ data }: Props) {
   const pathname = usePathname();
 
   const filePath = useMemo<string>(() => {
-    // const currentPath = pathname.startsWith("/e") ? pathname : `/e${pathname}`;
-    // Set to pathname to remove the /e prefix
     const path = [pathname, encodeURIComponent(data.name)]
       .join("/")
       .replace(/\/+/g, "/");
 
     return new URL(path, config.basePath).pathname;
   }, [data, pathname]);
+
+  const [thumbnailURL, setThumbnailURL] = useState<string>(
+    `/api/thumb/${data.encryptedId}?size=2`,
+  );
   const [actionOpen, setActionOpen] = useState<boolean>(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -218,9 +221,14 @@ export default function FileList({ data }: Props) {
               data.mimeType.startsWith("image")) ? (
               <>
                 <img
-                  src={`/api/thumb/${data.encryptedId}`}
+                  src={thumbnailURL}
                   alt={data.name}
-                  className='size-16 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover tablet:size-12'
+                  onLoad={(e) => {
+                    if (thumbnailURL.includes("size=2")) {
+                      setThumbnailURL(`/api/thumb/${data.encryptedId}`);
+                    }
+                  }}
+                  className='size-16 flex-shrink-0 flex-grow-0 rounded-[var(--radius)] object-cover tablet:size-20'
                 />
 
                 {data.mimeType.startsWith("video") && (
@@ -230,6 +238,11 @@ export default function FileList({ data }: Props) {
                       className='absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground fill-muted p-1.5 text-muted opacity-75'
                       size={24}
                     />
+                    <div className='absolute bottom-0 right-0 z-10 bg-background px-1 py-0.5 text-[10px] text-foreground tablet:text-xs'>
+                      {durationToReadable(
+                        data.videoMediaMetadata?.durationMillis || 0,
+                      )}
+                    </div>
                   </>
                 )}
               </>
@@ -240,13 +253,13 @@ export default function FileList({ data }: Props) {
                     ? "Folder"
                     : getPreviewIcon(data.fileExtension || "", data.mimeType)
                 }
-                className='size-16 flex-shrink-0 flex-grow-0 p-3 tablet:size-12'
+                className='size-16 flex-shrink-0 flex-grow-0 p-3 tablet:size-20'
               />
             )}
           </div>
 
           {/* File data */}
-          <div className='flex w-full flex-col'>
+          <div className='flex flex-grow flex-col'>
             <span className='line-clamp-1 whitespace-pre-wrap break-all'>
               {config.siteConfig.showFileExtension
                 ? data.name

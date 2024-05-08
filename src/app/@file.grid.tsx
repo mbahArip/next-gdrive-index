@@ -51,6 +51,9 @@ export default function FileGrid({ data }: Props) {
     return new URL(path, config.basePath).pathname;
   }, [data, pathname]);
 
+  const [thumbnailURL, setThumbnailURL] = useState<string>(
+    `/api/thumb/${data.encryptedId}?size=2`,
+  );
   const [actionOpen, setActionOpen] = useState<boolean>(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -220,13 +223,23 @@ export default function FileGrid({ data }: Props) {
               data.mimeType.startsWith("image")) ? (
               <>
                 <img
-                  src={`/api/thumb/${data.encryptedId}`}
+                  src={thumbnailURL}
                   alt={data.name}
+                  onLoad={(e) => {
+                    if (thumbnailURL.includes("size=2")) {
+                      setThumbnailURL(`/api/thumb/${data.encryptedId}`);
+                    }
+                  }}
                   className='rounded-top-[var(--radius)] absolute -z-0 h-32 w-full flex-shrink-0 flex-grow-0 object-cover opacity-50'
                 />
                 <img
-                  src={`/api/thumb/${data.encryptedId}`}
+                  src={thumbnailURL}
                   alt={data.name}
+                  onLoad={(e) => {
+                    if (thumbnailURL.includes("size=2")) {
+                      setThumbnailURL(`/api/thumb/${data.encryptedId}`);
+                    }
+                  }}
                   className='relative z-0 h-32 w-full flex-shrink-0 flex-grow-0 object-contain backdrop-blur'
                 />
 
