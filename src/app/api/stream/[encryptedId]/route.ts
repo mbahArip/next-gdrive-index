@@ -9,6 +9,7 @@ import {
 
 import { decryptData } from "~/utils/encryptionHelper/hash";
 import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
+import isDev from "~/utils/isDev";
 
 import config from "~/config/gIndex.config";
 
@@ -30,10 +31,7 @@ export async function GET(
     if (!token) throw new Error("Token not found");
 
     // Only allow if the request is from the same domain or the referer is the same domain
-    if (
-      process.env.NODE_ENV === "production" &&
-      !request.headers.get("Referer")?.includes(config.basePath)
-    ) {
+    if (!isDev && !request.headers.get("Referer")?.includes(config.basePath)) {
       throw new Error("Invalid request");
     }
 

@@ -306,6 +306,7 @@ export function Configuration() {
 
       const configContent: string = `import { z } from "zod";
 import { Schema_Config } from "~/schema";
+import isDev from "~/utils/isDev";
 
 const config: z.input<typeof Schema_Config> = {
   /**
@@ -322,8 +323,7 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath:
-    process.env.NODE_ENV === "development"
+  basePath: isDev
       ? "http://localhost:3000"
       : \`https://\${process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL}\`,
 
@@ -555,6 +555,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
+      isDev ? "Development Mode" : "",
     ],
 
     /**

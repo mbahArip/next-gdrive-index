@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { decryptData } from "~/utils/encryptionHelper/hash";
+import isDev from "~/utils/isDev";
 
 import config from "~/config/gIndex.config";
 
@@ -20,10 +21,7 @@ export async function GET(
     const size = searchParams.get("size") || "512";
 
     // Only allow if the request is from the same domain or the referer is the same domain
-    if (
-      process.env.NODE_ENV === "production" &&
-      !request.headers.get("Referer")?.includes(config.basePath)
-    ) {
+    if (!isDev && !request.headers.get("Referer")?.includes(config.basePath)) {
       throw new Error("Invalid request");
     }
 

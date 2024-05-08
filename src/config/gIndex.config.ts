@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { Schema_Config } from "~/schema";
 
+import isDev from "~/utils/isDev";
+
 const config: z.input<typeof Schema_Config> = {
   /**
    * If possible, please don't change this value
@@ -15,12 +17,11 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : `https://${
-          process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
-        }`,
+  basePath: isDev
+    ? "http://localhost:3000"
+    : `https://${
+        process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
+      }`,
 
   /**
    * Allow access to the deploy guide
@@ -242,7 +243,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
-      process.env.NODE_ENV === "development" ? "Development Mode" : "",
+      isDev ? "Development Mode" : "",
     ],
 
     /**
