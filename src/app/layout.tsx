@@ -41,7 +41,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(config.basePath),
   title: {
     default: config.siteConfig.siteName,
-    template: config.siteConfig.siteNameTemplate || "%s",
+    template:
+      config.siteConfig.siteNameTemplate?.replace(
+        "%t",
+        config.siteConfig.siteName,
+      ) || "%s",
   },
   description: config.siteConfig.siteDescription,
   authors: config.siteConfig.siteAuthor
