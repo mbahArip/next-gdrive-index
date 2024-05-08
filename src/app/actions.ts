@@ -269,7 +269,7 @@ export async function CheckPassword(
     if (!cookiesValue[currentFolder.id])
       throw {
         // message: `Password for '${currentFolder.path}' is not set, please enter the password`,
-        message: null,
+        message: `Please enter password for '${currentFolder.path}'`,
         path: currentFolder.id,
       };
 
