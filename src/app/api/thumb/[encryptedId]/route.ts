@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { decryptData } from "~/utils/encryptionHelper/hash";
-import gdrive from "~/utils/gdriveInstance";
 
 import config from "~/config/gIndex.config";
 
@@ -20,6 +19,14 @@ export async function GET(
     const searchParams = new URL(request.nextUrl).searchParams;
     const size = searchParams.get("size") || "512";
 
+    // Only allow if the request is from the same domain or the referer is the same domain
+    if (
+      process.env.NODE_ENV === "production" &&
+      !request.headers.get("Referer")?.includes(config.basePath)
+    ) {
+      throw new Error("Invalid request");
+    }
+
     const validSize = z.coerce.number().safeParse(size);
     if (!validSize.success) {
       throw new Error("Invalid size");
@@ -32,20 +39,6 @@ export async function GET(
       },
     );
     const decryptedId = await decryptData(encryptedId);
-
-    const fileMeta = await gdrive.files.get({
-      fileId: decryptedId,
-      fields:
-        "id, name, mimeType, fileExtension, webContentLink, thumbnailLink",
-      supportsAllDrives: config.apiConfig.isTeamDrive,
-    });
-
-    if (
-      !fileMeta.data.mimeType?.startsWith("image") &&
-      !fileMeta.data.mimeType?.startsWith("video")
-    ) {
-      return defaultImage;
-    }
 
     const url = `https://drive.google.com/thumbnail?id=${decryptedId}&sz=w${size}`;
 
