@@ -412,6 +412,21 @@ const config: z.input<typeof Schema_Config> = {
      * Default: true
      */
     proxyThumbnail: ${configuration.api.proxyThumbnail ? "true" : "false"}, 
+    
+    /**
+     * Only show preview for files that are smaller than this size
+     * If the file is larger than this size, it will show "can't preview" message instead
+     *
+     * Why?
+     * Since the stream endpoint are counted as a bandwidth usage
+     * I want to limit the preview to only small files
+     * It also to prevent abuse from the user
+     *
+     * You can also set this to 0 to disable the limit
+     * 
+     * Default: 100MB
+     */
+    streamMaxSize: ${100 * 1024 * 1024},
 
     /**
      * Special file name that will be used for certain purposes
