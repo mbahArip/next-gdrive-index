@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import {
@@ -32,7 +32,7 @@ If you are new to this project, you can follow along from the beginning.
 But if you've already deployed the app before and want to upgrade from v1, you can skip to the [Migrating from v1](#migrating) section.  
 You can also use this guide to [configure the app](#config) and [customize the theme](#theme).  
 
-**We recommend you to use this deployment guide on a desktop browser for optimal experience.**
+**We recommend you to use this deployment guide on a desktop browser.**
 
 _**Note:** This guide assumes you have a basic understanding of how to deploy a Next.js app on Vercel or other platforms._`;
 
@@ -161,7 +161,11 @@ const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
     rootFolder: "",
     isTeamDrive: false,
     sharedDrive: "",
+    itemsPerPage: 50,
+    searchResult: 5,
+
     proxyThumbnail: true,
+    streamMaxSize: 100 * 1024 * 1024,
 
     allowDownloadProtectedFile: false,
     temporaryTokenDuration: 6,
@@ -170,8 +174,8 @@ const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
   site: {
     ...config.siteConfig,
     siteName: "next-gdrive-index",
-    siteNameTemplate: "%s",
-    siteDescription: "A simple Google Drive Index using Next.js",
+    siteNameTemplate: "%s - %t",
+    siteDescription: "A Google Drive Index built using Next.js",
     siteAuthor: "mbahArip",
     twitterHandle: "@mbahArip",
 
@@ -195,9 +199,6 @@ const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
 };
 
 export function Configuration() {
-  const fileConfigRef = useRef<HTMLInputElement>(null);
-  const fileEnvRef = useRef<HTMLInputElement>(null);
-
   const [loading, setLoading] = useState<boolean>(true);
   const [configuration, setConfiguration] =
     useState<z.input<typeof Schema_App_Configuration>>(initialConfiguration);
@@ -342,7 +343,6 @@ const config: z.input<typeof Schema_Config> = {
   /**
    * How long the cache will be stored in the browser
    * Used for all pages and api routes
-   * Default is 5 minutes (300/60 = 5min)
    *
    * @default "max-age=0, s-maxage=60, stale-while-revalidate"
    */
@@ -395,8 +395,8 @@ const config: z.input<typeof Schema_Config> = {
       "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
     defaultOrder: "folder, name asc, modifiedTime desc",
 
-    itemsPerPage: 50,
-    searchResult: 5,
+    itemsPerPage: ${configuration.api.itemsPerPage},
+    searchResult: ${configuration.api.searchResult},
 
     /**
      * By default, the app will use the thumbnail URL from Google Drive
@@ -426,7 +426,7 @@ const config: z.input<typeof Schema_Config> = {
      * 
      * Default: 100MB
      */
-    streamMaxSize: ${100 * 1024 * 1024},
+    streamMaxSize: ${configuration.api.streamMaxSize},
 
     /**
      * Special file name that will be used for certain purposes
@@ -555,21 +555,7 @@ const config: z.input<typeof Schema_Config> = {
     footer: [
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
-      isDev ? "Development Mode" : "",
     ],
-
-    /**
-     * DEPRECATED
-     * Since we're using shadcn/ui now, please refer to their theming documentation
-     * https://ui.shadcn.com/docs/theming
-     *
-     * Or you can use their themes, and replace the color in /src/app/globals.css
-     * https://ui.shadcn.com/themes
-     *
-     * Tailwind color name.
-     * Ref: https://tailwindcss.com/docs/customizing-colors
-     */
-    // defaultAccentColor: "teal",
 
     /**
      * Site wide password protection
@@ -626,11 +612,11 @@ const config: z.input<typeof Schema_Config> = {
 
 export default config;`;
 
-      // downloadBlob(new Blob([envContent], { type: "text/plain" }), "env");
-      // downloadBlob(
-      //   new Blob([configContent], { type: "text/typescript" }),
-      //   "gindex.config.ts",
-      // );
+      downloadBlob(new Blob([envContent], { type: "text/plain" }), "env");
+      downloadBlob(
+        new Blob([configContent], { type: "text/typescript" }),
+        "gindex.config.ts",
+      );
 
       toast.success("Configuration file downloaded!", {
         id: "download-config",
