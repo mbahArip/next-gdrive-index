@@ -123,6 +123,8 @@ export default function ApiConfig({
                       );
                     }
                     set("api", "isTeamDrive", config.api.isTeamDrive || false);
+                    set("api", "itemsPerPage", config.api.itemsPerPage || 50);
+                    set("api", "searchResult", config.api.searchResult || 5);
                     set(
                       "api",
                       "proxyThumbnail",
@@ -142,6 +144,11 @@ export default function ApiConfig({
                       "api",
                       "maxFileSize",
                       config.api.maxFileSize || 4 * 1024 * 1024,
+                    );
+                    set(
+                      "api",
+                      "streamMaxSize",
+                      config.api.streamMaxSize || 100 * 1024 * 1024,
                     );
 
                     fileInput.value = "";
@@ -269,6 +276,82 @@ This ID will be encrypted in the config file`}
           </ConfigInput>
         )}
 
+        <div className='grid grid-cols-1 gap-3 tablet:grid-cols-2'>
+          <ConfigInput<ConfigurationKeys<"api">>
+            key='itemsPerPage'
+            title='Items Per Page'
+            description={`Set how many items to display per page in the file list.          
+It's recommended to set this to a reasonable number, since it will affect the load time of the page.
+
+Default is 50.`}
+            error={error.get.itemsPerPage}
+            required
+          >
+            <Input
+              id='itemsPerPage'
+              name='itemsPerPage'
+              type='number'
+              value={get.api.itemsPerPage}
+              min={1}
+              onChange={(e) => {
+                if (error.get.itemsPerPage) {
+                  error.set("itemsPerPage", "");
+                }
+                set("api", "itemsPerPage", parseInt(e.target.value));
+              }}
+              onBlur={async () => {
+                try {
+                  const value = get.api.itemsPerPage;
+                  error.set("itemsPerPage", "");
+
+                  if (value <= 0)
+                    throw new Error("Items Per Page must be more than 0");
+                } catch (err) {
+                  const e = err as Error;
+                  error.set("itemsPerPage", e.message);
+                }
+              }}
+            />
+          </ConfigInput>
+
+          <ConfigInput<ConfigurationKeys<"api">>
+            key='searchResult'
+            title='Search Result'
+            description={`Set how many items to display in the search result.
+It's recommended to set this to a small number, since it will affect the load time of the page.
+
+Default is 5.`}
+            error={error.get.searchResult}
+            required
+          >
+            <Input
+              id='searchResult'
+              name='searchResult'
+              type='number'
+              value={get.api.searchResult}
+              min={1}
+              onChange={(e) => {
+                if (error.get.searchResult) {
+                  error.set("searchResult", "");
+                }
+                set("api", "searchResult", parseInt(e.target.value));
+              }}
+              onBlur={async () => {
+                try {
+                  const value = get.api.searchResult;
+                  error.set("searchResult", "");
+
+                  if (value <= 0)
+                    throw new Error("Search Result must be more than 0");
+                } catch (err) {
+                  const e = err as Error;
+                  error.set("searchResult", e.message);
+                }
+              }}
+            />
+          </ConfigInput>
+        </div>
+
         <ConfigInput<ConfigurationKeys<"api">>
           key='proxyThumbnail'
           title='Proxy Thumbnail'
@@ -393,6 +476,53 @@ Set to 0 to disable the limit.`}
               } catch (err) {
                 const e = err as Error;
                 error.set("maxFileSize", e.message);
+              }
+            }}
+          />
+        </ConfigInput>
+
+        <ConfigInput<ConfigurationKeys<"api">>
+          key='streamMaxSize'
+          title='Max Stream Size (in MB)'
+          description={`For previewing large files, the file will be streamed in chunks.
+There are response limit in some deploy platform like Vercel, also Google Drive will return 403 error if we tried using fetch to download large file on client.
+
+Make sure it's within reasonable size, since it will count towards your server bandwidth usage.
+This will also affect the maximum file size that can be previewed. Especially for media files like video, audio, and images.
+(Manga preview will automatically limited to the first 5MB)
+
+Default is 100MB, set to 0 to disable the limit.`}
+          error={error.get.streamMaxSize}
+          required
+        >
+          <Input
+            id='streamMaxSize'
+            name='streamMaxSize'
+            type='number'
+            value={get.api.streamMaxSize / 1024 / 1024}
+            min={0}
+            onChange={(e) => {
+              if (error.get.maxFileSize) {
+                error.set("streamMaxSize", "");
+              }
+              set(
+                "api",
+                "streamMaxSize",
+                parseInt(e.target.value) * 1024 * 1024,
+              );
+            }}
+            onBlur={async () => {
+              try {
+                const value = get.api.streamMaxSize;
+                error.set("streamMaxSize", "");
+
+                if (value < 0)
+                  throw new Error(
+                    "Max stream size must be more than or equal to 0",
+                  );
+              } catch (err) {
+                const e = err as Error;
+                error.set("streamMaxSize", e.message);
               }
             }}
           />
