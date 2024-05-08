@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { CheckDownloadToken } from "~/app/actions";
+import {
+  CheckDownloadToken,
+  CheckPassword,
+  CheckPaths,
+  RedirectSearchFile,
+} from "~/app/actions";
 
 import { decryptData } from "~/utils/encryptionHelper/hash";
 import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
@@ -24,17 +29,21 @@ export async function GET(
     const token = sp.get("token");
     if (!token) throw new Error("Token not found");
 
-    // Only allow if referrer is from the same site
-    // if (!request.headers.get("Referer")?.includes(config.basePath)) {
-    //   throw new Error("Invalid request");
-    // }
+    // Only allow if the request is from the same domain or the referer is the same domain
+    if (
+      process.env.NODE_ENV === "production" &&
+      !request.headers.get("Referer")?.includes(config.basePath)
+    ) {
+      throw new Error("Invalid request");
+    }
 
     const tokenValidity = await CheckDownloadToken(token);
     if (!tokenValidity.success) throw new Error(tokenValidity.message);
 
     const decryptedId = await decryptData(encryptedId);
 
-    const fileMeta = await gdrive.files.get(
+    const _filePaths = RedirectSearchFile(encryptedId);
+    const _fileMeta = gdrive.files.get(
       {
         fileId: decryptedId,
         fields: "id, name, mimeType, size, fileExtension, webContentLink",
@@ -48,12 +57,55 @@ export async function GET(
       },
     );
 
+    const [filePaths, fileMeta] = await Promise.all([_filePaths, _fileMeta]);
+
+    const isFull =
+      Number(request.headers.get("Range")?.split("-")[1] || 0) ===
+      Number(fileMeta.data.size || "1") - 1;
+
     const fileSize = Number(fileMeta.data.size || 0);
     if (!fileMeta.data.webContentLink)
       throw new Error("No download link found");
 
+    if (
+      config.apiConfig.streamMaxSize &&
+      fileSize > config.apiConfig.streamMaxSize
+    ) {
+      throw new Error("File is too large to stream");
+    }
+
+    if (!config.apiConfig.allowDownloadProtectedFile) {
+      const checkPath = await CheckPaths(filePaths.split("/"));
+      if (!checkPath.success) throw new Error("File not found");
+      const unlocked = await CheckPassword(checkPath.data);
+      if (!unlocked.success) {
+        if (!unlocked.path)
+          throw new Error("No path returned from password checking");
+
+        const lockedIndex = checkPath.data.findIndex(
+          (path) => path.id === unlocked.path,
+        );
+        // Get all path until the locked index, then join them
+        const path = checkPath.data
+          .slice(0, lockedIndex + 1)
+          .map((path) => path.path)
+          .join("/");
+        return new NextResponse(
+          `The file you're trying to access is protected by password.
+Please open the file link and enter the password to access the file, then try to download the file again.
+
+Protected Path: ${new URL(path, config.basePath).toString()}
+
+If you've already entered the password, please make sure your browser is not blocking cookies from this site.`,
+          {
+            status: 401,
+          },
+        );
+      }
+    }
+
     const ranges = request.headers.get("Range") || "bytes=0-";
-    const chunkSize = 1 * 1024 * 1024; // Load 1MB at a time
+    const chunkSize = 5 * 1024 * 1024; // Load 5MB at a time
     let rangeStart = 0;
     let rangeEnd = Math.min(chunkSize, fileSize - 1);
     const rangeRegex = /bytes=(\d+)-(\d+)?/;
@@ -61,7 +113,11 @@ export async function GET(
     if (rangeSize) {
       rangeStart = parseInt(rangeSize[1], 10);
 
-      rangeEnd = Math.min(rangeStart + chunkSize, fileSize - 1);
+      if (isFull) {
+        rangeEnd = fileSize - 1;
+      } else {
+        rangeEnd = Math.min(rangeStart + chunkSize, fileSize - 1);
+      }
     }
 
     const contentRange = `bytes=${rangeStart}-${rangeEnd}/${fileSize}`;
@@ -72,6 +128,7 @@ export async function GET(
         fileId: decryptedId,
         alt: "media",
         supportsAllDrives: config.apiConfig.isTeamDrive,
+        acknowledgeAbuse: true,
       },
       {
         responseType: "stream",
@@ -107,66 +164,8 @@ export async function GET(
         "Content-Length": fileLength || contentLength.toString(),
         "Content-Type": fileMeta.data.mimeType || "application/octet-stream",
         "Accept-Ranges": "bytes",
-        // 'Content-Disposition': `attachment; filename="${encodeURIComponent(fileMeta.data.name || `Untitled.${fileMeta.data.fileExtension}`)}"`,
       },
     });
-
-    // async function* readStream() {
-    //   for await (const chunk of fileContent.data as any) {
-    //     yield chunk;
-    //   }
-    // }
-    // function iteratorToStream(iterator: AsyncGenerator<any>) {
-    //   return new ReadableStream({
-    //     async pull(controller) {
-    //       const { done, value } = await iterator.next();
-    //       if (done) {
-    //         controller.close();
-    //       } else {
-    //         controller.enqueue(value);
-    //       }
-    //     },
-    //   });
-    // }
-    // const stream: ReadableStream = iteratorToStream(readStream());
-
-    // const res = new Response(stream, {
-    //   status: 206,
-    //   headers: {
-    //     "Content-Type": fileMeta.data.mimeType || "application/octet-stream",
-    //     "Content-Disposition": `attachment; filename="${encodeURIComponent(
-    //       fileMeta.data.name || `Untitled.${fileMeta.data.fileExtension}`,
-    //     )}"`,
-    //     "Content-Length": contentLength.toString(),
-    //     "Content-Range": ranges ? contentRange : "",
-    //   },
-    // });
-    // NextResponse.next(res);
-    // new NextResponse(stream, {
-    //   status: request.headers.get("Range") ? 206 : 200,
-    //   headers: {
-    //     "Content-Type": fileMeta.data.mimeType || "application/octet-stream",
-    //     "Content-Disposition": `attachment; filename="${encodeURIComponent(
-    //       fileMeta.data.name || `Untitled.${fileMeta.data.fileExtension}`,
-    //     )}"`,
-    //     "Content-Length": fileSize.toString(),
-    //     "Accept-Ranges": "bytes",
-    //     "Range": ranges ? `bytes ${rangeStart}-${rangeEnd}/${fileSize}` : "",
-    //   },
-    // });
-
-    // return new NextResponse(stream, {
-    //   status: 206,
-    //   headers: {
-    //     "Content-Type": fileMeta.data.mimeType || "application/octet-stream",
-    //     "Content-Disposition": `attachment; filename="${encodeURIComponent(
-    //       fileMeta.data.name || `Untitled.${fileMeta.data.fileExtension}`,
-    //     )}"`,
-    //     "Content-Length": fileSize.toString(),
-    //     "Accept-Ranges": "bytes",
-    //     "Range": ranges ? `bytes ${rangeStart}-${rangeEnd}/${fileSize}` : "",
-    //   },
-    // });
   } catch (error) {
     const e = error as Error;
     console.error(e.message);
