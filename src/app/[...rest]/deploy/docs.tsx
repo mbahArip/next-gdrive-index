@@ -1345,8 +1345,8 @@ body {
               </Button>
             </div>
             <span className='text-sm text-muted-foreground'>
-              It is recommended to use "Copy CSS Code" button to copy the CSS
-              code
+              It is recommended to use &apos;Copy CSS Code&apos; button to copy
+              the CSS code
             </span>
           </div>
         </div>
