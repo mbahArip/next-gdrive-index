@@ -17,7 +17,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
-import ConfigInput from "./@form.input";
+import ConfigInput from "./@form.input-config";
 
 type Props = {
   state: {

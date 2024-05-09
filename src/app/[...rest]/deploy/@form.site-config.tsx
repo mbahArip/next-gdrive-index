@@ -22,7 +22,7 @@ import { parseConfigFile } from "~/utils/parseConfigFile";
 
 import config from "~/config/gIndex.config";
 
-import ConfigInput from "./@form.input";
+import ConfigInput from "./@form.input-config";
 
 type Props = {
   state: {

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -9,6 +10,8 @@ import {
   ConfigurationKeys,
   ConfigurationValue,
   Schema_App_Configuration,
+  Schema_Theme,
+  ThemeKeys,
 } from "~/schema";
 import { cn } from "~/utils";
 
@@ -16,15 +19,29 @@ import Markdown from "~/app/@markdown";
 import Icon from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import { Separator } from "~/components/ui/separator";
+import { Textarea } from "~/components/ui/textarea";
 
 import { encryptData } from "~/utils/encryptionHelper/hash";
+import { parseThemeValue } from "~/utils/parseConfigFile";
 
 import config from "~/config/gIndex.config";
 
 import ApiConfig from "./@form.api-config";
 import EnvironmentConfig from "./@form.env-config";
 import SiteConfig from "./@form.site-config";
+import ThemeForm from "./@form.theme";
+import ThemePreview from "./@theme-preview";
 
 export const getting_started = `Welcome to the deployment guide! This guide will help you to deploy the application to Vercel or similar services.
 
@@ -198,6 +215,23 @@ const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
   },
 };
 
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+
+  const afterClick = () => {
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      removeEventListener("click", afterClick);
+    }, 100);
+  };
+  anchor.addEventListener("click", afterClick, false);
+
+  anchor.click();
+}
+
 export function Configuration() {
   const [loading, setLoading] = useState<boolean>(true);
   const [configuration, setConfiguration] =
@@ -280,23 +314,6 @@ export function Configuration() {
         throw new Error(
           "Please fix all the errors before downloading the configuration file.",
         );
-      }
-
-      function downloadBlob(blob: Blob, filename: string) {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = filename;
-
-        const afterClick = () => {
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-            removeEventListener("click", afterClick);
-          }, 100);
-        };
-        anchor.addEventListener("click", afterClick, false);
-
-        anchor.click();
       }
 
       let envContent = Object.entries(configuration.environment)
@@ -750,29 +767,589 @@ If you're migrating from previous version, you can load your old environment and
 }
 
 export function CustomizeTheme() {
-  const [colors, setColors] = useState({
-    primary: { h: 200, s: 50, l: 50 },
-    secondary: { h: 200, s: 50, l: 50 },
+  const [initialTheme] = useState<{
+    light: z.input<typeof Schema_Theme>;
+    dark: z.input<typeof Schema_Theme>;
+  }>({
+    light: {
+      "background": "0 0% 100%",
+      "foreground": "0 0% 3.9%",
+      "card": "0 0% 100%",
+      "card-foreground": "0 0% 3.9%",
+      "popover": "0 0% 100%",
+      "popover-foreground": "0 0% 3.9%",
+      "primary": "0 0% 9%",
+      "primary-foreground": "0 0% 98%",
+      "secondary": "0 0% 96.1%",
+      "secondary-foreground": "0 0% 9%",
+      "muted": "0 0% 96.1%",
+      "muted-foreground": "0 0% 45.1%",
+      "accent": "0 0% 96.1%",
+      "accent-foreground": "0 0% 9%",
+      "destructive": "0 84.2% 60.2%",
+      "destructive-foreground": "0 0% 98%",
+      "border": "0 0% 89.8%",
+      "input": "0 0% 89.8%",
+      "ring": "0 0% 89.8%",
+      "radius": "0.5rem",
+    },
+    dark: {
+      "background": "0 0% 3.9%",
+      "foreground": "0 0% 98%",
+      "card": "0 0% 3.9%",
+      "card-foreground": "0 0% 98%",
+      "popover": "0 0% 3.9%",
+      "popover-foreground": "0 0% 98%",
+      "primary": "0 0% 98%",
+      "primary-foreground": "0 0% 9%",
+      "secondary": "0 0% 14.9%",
+      "secondary-foreground": "0 0% 98%",
+      "muted": "0 0% 14.9%",
+      "muted-foreground": "0 0% 63.9%",
+      "accent": "0 0% 14.9%",
+      "accent-foreground": "0 0% 98%",
+      "destructive": "0 62.8% 30.6%",
+      "destructive-foreground": "0 0% 98%",
+      "border": "0 0% 14.9%",
+      "input": "0 0% 14.9%",
+      "ring": "0 0% 14.9%",
+      "radius": "0.5rem",
+    },
   });
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<{
+    light: z.input<typeof Schema_Theme>;
+    dark: z.input<typeof Schema_Theme>;
+  }>(initialTheme);
+
+  const [dialog, setDialog] = useState<boolean>(false);
+  const [cssLoading, setCssLoading] = useState<boolean>(false);
+
+  function onThemeChange(
+    theme: "light" | "dark",
+    key: ThemeKeys,
+    value: string,
+  ) {
+    setTheme((prev) => ({
+      ...prev,
+      [theme]: {
+        ...prev[theme],
+        [key]: value,
+      },
+    }));
+  }
+
+  function onSelectedThemeReset(theme: "light" | "dark", key: ThemeKeys) {
+    setTheme((prev) => ({
+      ...prev,
+      [theme]: {
+        ...prev[theme],
+        [key]: initialTheme[theme][key],
+      },
+    }));
+  }
+  function onThemeReset() {
+    setTheme(initialTheme);
+  }
+  function isChanged(t: "light" | "dark", key: ThemeKeys): boolean {
+    return t === "light"
+      ? theme.light[key] !== initialTheme.light[key]
+      : theme.dark[key] !== initialTheme.dark[key];
+  }
 
   return (
     <Card>
       <CardHeader className='pb-0'>
-        <CardTitle
-          className='text-3xl'
-          id='theme'
-        >
-          Customize Theme
-        </CardTitle>
+        <div className='flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between'>
+          <CardTitle
+            className='text-3xl'
+            id='theme'
+          >
+            Customize Theme
+          </CardTitle>
+
+          <div className='flex w-full items-center gap-3 tablet:w-fit'>
+            <Button
+              size='sm'
+              variant={"outline"}
+              onClick={(e) => {
+                e.preventDefault();
+
+                try {
+                  const fileInput = document.createElement("input");
+                  fileInput.type = "file";
+                  fileInput.accept = ".css";
+                  fileInput.onchange = async (fileEvent) => {
+                    const file = (fileEvent.target as HTMLInputElement)
+                      .files?.[0];
+                    if (!file) return toast.error("No file selected");
+                    const fileName = file.name;
+                    if (fileName !== "globals.css")
+                      return toast.error("Please select globals.css file");
+
+                    const reader = new FileReader();
+                    reader.onload = async (read) => {
+                      const result = read.target?.result as string;
+                      if (!result) return toast.error("Failed to read file");
+                      const themeRegex =
+                        /\/\* Shadcn\/ui theme \*\/.*?\:root \{(.*?)\}.*?.dark \{(.*?) \}/gm;
+                      const themeMatch = themeRegex.exec(
+                        result.replace(/\r\n/g, ""),
+                      );
+                      if (!themeMatch)
+                        return toast.error(
+                          "Can't find theme, are you sure it's the right file?",
+                        );
+                      const lightTheme = themeMatch[1]
+                        .replace(/\s{2,4}/g, "\n")
+                        .split("\n")
+                        .map((v) => v.trim())
+                        .filter(
+                          (v) =>
+                            v.length &&
+                            (v.startsWith("/*") && v.endsWith("*/")
+                              ? false
+                              : true),
+                        );
+                      const darkTheme = themeMatch[2]
+                        .replace(/\s{2,4}/g, "\n")
+                        .split("\n")
+                        .map((v) => v.trim())
+                        .filter(
+                          (v) =>
+                            v.length &&
+                            (v.startsWith("/*") && v.endsWith("*/")
+                              ? false
+                              : true),
+                        );
+
+                      // Loop through the theme and set it
+                      for (const key in lightTheme) {
+                        const [k, v] = lightTheme[key]
+                          .split(":")
+                          .map((v) => v.replace("--", "").trim());
+                        const hslRegex = /\d\s\d.*?\%\s\d.*?\%;/g;
+                        if (hslRegex.test(v)) {
+                          const color = parseThemeValue(v);
+                          onThemeChange(
+                            "light",
+                            k as ThemeKeys,
+                            `${color.h} ${color.s}% ${color.l}%`,
+                          );
+                        } else {
+                          onThemeChange("light", k as ThemeKeys, v);
+                        }
+                      }
+                      for (const key in darkTheme) {
+                        const [k, v] = darkTheme[key]
+                          .split(":")
+                          .map((v) => v.replace("--", "").trim());
+                        const hslRegex = /\d\s\d.*?\%\s\d.*?\%;/g;
+                        if (hslRegex.test(v)) {
+                          const color = parseThemeValue(v);
+                          onThemeChange(
+                            "dark",
+                            k as ThemeKeys,
+                            `${color.h} ${color.s}% ${color.l}%`,
+                          );
+                        } else {
+                          onThemeChange("dark", k as ThemeKeys, v);
+                        }
+                      }
+
+                      fileInput.value = "";
+                      toast.success("Theme loaded successfully");
+                    };
+                    reader.readAsText(file);
+                  };
+                  fileInput.click();
+                } catch (error) {
+                  const e = error as Error;
+                  console.error(e);
+                  toast.error(e.message);
+                }
+              }}
+            >
+              Load CSS
+            </Button>
+            <Dialog
+              open={dialog}
+              onOpenChange={setDialog}
+            >
+              <DialogTrigger>
+                <Button
+                  size='sm'
+                  variant={"outline"}
+                >
+                  Paste Code
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Paste Theme</DialogTitle>
+                  <DialogDescription>
+                    Paste the CSS code from your theme file
+                    <br />
+                    <Link
+                      href={"https://ui.shadcn.com/themes"}
+                      target='_blank'
+                      className='text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
+                    >
+                      Get themes from shadcn/ui
+                    </Link>
+                  </DialogDescription>
+                </DialogHeader>
+                <form
+                  className='space-y-3'
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setCssLoading(true);
+
+                    try {
+                      const formData = new FormData(
+                        e.target as HTMLFormElement,
+                      );
+                      const css = formData.get("css-paste") as string;
+                      if (!css) throw new Error("No CSS code provided");
+
+                      const flatten = css.trim().replace(/\n/g, "");
+                      const themeRegex =
+                        /\@layer base.*?\:root \{(.*?)\}.*?.dark \{(.*?) \}/gm;
+                      const themeMatch = themeRegex.exec(
+                        flatten.replace(/\r\n/g, ""),
+                      );
+                      if (!themeMatch)
+                        throw new Error(
+                          "Unknown format, please refer to shadcn/ui theme",
+                        );
+
+                      const lightTheme = themeMatch[1]
+                        .replace(/\s{2,4}/g, "\n")
+                        .split("\n")
+                        .map((v) => v.trim())
+                        .filter(
+                          (v) =>
+                            v.length &&
+                            (v.startsWith("/*") && v.endsWith("*/")
+                              ? false
+                              : true),
+                        );
+                      const darkTheme = themeMatch[2]
+                        .replace(/\s{2,4}/g, "\n")
+                        .split("\n")
+                        .map((v) => v.trim())
+                        .filter(
+                          (v) =>
+                            v.length &&
+                            (v.startsWith("/*") && v.endsWith("*/")
+                              ? false
+                              : true),
+                        );
+
+                      for (const key in lightTheme) {
+                        const [k, v] = lightTheme[key]
+                          .split(":")
+                          .map((v) => v.replace("--", "").trim());
+                        const color = parseThemeValue(v);
+                        const hslRegex = /\d\s\d.*?\%\s\d.*?\%;/g;
+                        if (hslRegex.test(v)) {
+                          const color = parseThemeValue(v);
+                          onThemeChange(
+                            "light",
+                            k as ThemeKeys,
+                            `${color.h} ${color.s}% ${color.l}%`,
+                          );
+                        } else {
+                          onThemeChange("light", k as ThemeKeys, v);
+                        }
+                      }
+                      for (const key in darkTheme) {
+                        const [k, v] = darkTheme[key]
+                          .split(":")
+                          .map((v) => v.replace("--", "").trim());
+                        const color = parseThemeValue(v);
+                        const hslRegex = /\d\s\d.*?\%\s\d.*?\%;/g;
+                        if (hslRegex.test(v)) {
+                          const color = parseThemeValue(v);
+                          onThemeChange(
+                            "dark",
+                            k as ThemeKeys,
+                            `${color.h} ${color.s}% ${color.l}%`,
+                          );
+                        } else {
+                          onThemeChange("dark", k as ThemeKeys, v);
+                        }
+                      }
+
+                      toast.success("Theme loaded successfully");
+                      setDialog(false);
+                    } catch (error) {
+                      const e = error as Error;
+                      console.error(e);
+                      toast.error(e.message);
+                    } finally {
+                      setCssLoading(false);
+                    }
+                  }}
+                >
+                  <Textarea
+                    id='css-paste'
+                    name='css-paste'
+                    className='w-full'
+                    rows={10}
+                    placeholder='Please refer to shadcn/ui theme for the theme code'
+                  />
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        type='reset'
+                      >
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      size={"sm"}
+                      disabled={cssLoading}
+                      type='submit'
+                    >
+                      <div className='relative flex w-full items-center justify-center'>
+                        <span className='relative transition-all duration-300 ease-in-out'>
+                          Load Theme
+                        </span>
+                        <Icon
+                          name='LoaderCircle'
+                          className={cn(
+                            "animate-spin transition-all",
+                            cssLoading
+                              ? "ml-1.5 size-4 opacity-100"
+                              : "ml-0 size-0 opacity-0",
+                          )}
+                        />
+                      </div>
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button
+              size='sm'
+              variant={"destructive"}
+              onClick={onThemeReset}
+            >
+              Reset All
+            </Button>
+          </div>
+        </div>
         <Separator />
       </CardHeader>
       <CardContent>
-        <Markdown
-          content={`#### Under Construction
+        <div className='grid grid-cols-1 gap-6 py-3 tablet:grid-cols-2'>
+          <div className='col-span-full flex w-full items-center'>
+            <Button
+              size='sm'
+              variant={currentTheme === "light" ? "default" : "outline"}
+              onClick={() => setCurrentTheme("light")}
+              className='w-full rounded-r-none'
+            >
+              Light Theme
+            </Button>
+            <Button
+              size='sm'
+              variant={currentTheme === "dark" ? "default" : "outline"}
+              onClick={() => setCurrentTheme("dark")}
+              className='w-full rounded-l-none'
+            >
+              Dark Theme
+            </Button>
+          </div>
+          <div className='flex flex-col gap-3'>
+            <ThemeForm
+              currentTheme={currentTheme}
+              state={{
+                get: theme,
+                set: onThemeChange,
+              }}
+            />
+            <Button
+              size={"sm"}
+              variant={"secondary"}
+              onClick={(e) => {
+                e.preventDefault();
+                const otherTheme = currentTheme === "light" ? "dark" : "light";
+                setTheme((prev) => ({
+                  ...prev,
+                  [otherTheme]: {
+                    ...prev[currentTheme],
+                    radius: "0.5rem",
+                  },
+                }));
+                toast.success(
+                  `${currentTheme
+                    .slice(0, 1)
+                    .toUpperCase()}${currentTheme.slice(
+                    1,
+                  )} theme copied to ${otherTheme} theme`,
+                );
+              }}
+            >
+              Copy to {currentTheme === "light" ? "Dark" : "Light"} Theme
+            </Button>
+          </div>
 
-While I'm working on the theme customization, you can check [shadcn UI theme](https://ui.shadcn.com/themes) for now`}
-          view='markdown'
-        />
+          <ThemePreview
+            theme={currentTheme === "light" ? theme.light : theme.dark}
+          />
+
+          <Separator className='col-span-full' />
+
+          <div className='col-span-full flex w-full flex-col items-end justify-center gap-1.5'>
+            <div className='flex items-center gap-3'>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={async (e) => {
+                  try {
+                    const style = `@layer base {
+  :root {
+  ${Object.entries(theme.light)
+    .map(([key, value]) => `  --${key}: ${value};`.replace(";;", ";"))
+    .join("\n")}
+  }
+
+  .dark {
+  ${Object.entries(theme.dark)
+    .map(([key, value]) => `    --${key}: ${value};`.replace(";;", ";"))
+    .join("\n")}
+  }
+}`;
+
+                    await navigator.clipboard.writeText(style);
+                    toast.success("CSS code copied to clipboard");
+                  } catch (error) {
+                    const e = error as Error;
+                    console.error(e);
+                    toast.error(e.message);
+                  }
+                }}
+              >
+                Copy CSS Code
+              </Button>
+              <Button
+                size={"sm"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  toast.loading("Creating CSS file...", {
+                    id: "download-css",
+                  });
+                  try {
+                    const css = `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Shadcn/ui theme */
+@layer base {
+  :root {
+  ${Object.entries(theme.light)
+    .map(([key, value]) => `  --${key}: ${value};`.replace(";;", ";"))
+    .join("\n")}
+  }
+
+  .dark {
+  ${Object.entries(theme.dark)
+    .map(([key, value]) => `    --${key}: ${value};`.replace(";;", ";"))
+    .join("\n")}
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+@layer base {
+  :root {
+    /* @apply text-[14px] tablet:text-[16px]; */
+    @apply text-[100%];
+  }
+  * {
+    @apply border-border;
+    /* @apply outline outline-1 outline-red-500; */
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  ::-webkit-scrollbar {
+    @apply h-1.5 w-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-primary/5;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-primary/25 hover:bg-primary/50;
+  }
+
+  /* Typography */
+  h1 {
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
+  }
+  h2 {
+    @apply scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0;
+  }
+  h3 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+  }
+  h4 {
+    @apply scroll-m-20 text-xl font-semibold tracking-tight;
+  }
+  .paragraph {
+    @apply leading-7 [&:not(:first-child)]:mt-6;
+  }
+  blockquote {
+    @apply mt-6 border-l-2 pl-6 italic;
+  }
+  ul {
+    @apply my-6 ml-6 list-disc [&>li]:mt-2;
+  }
+  .lead {
+    @apply text-xl text-muted-foreground;
+  }
+  .large {
+    @apply text-lg font-semibold;
+  }
+  .muted {
+    @apply text-sm text-muted-foreground;
+  }
+  small {
+    @apply text-sm font-medium leading-none;
+  }
+}`;
+                    const blob = new Blob([css], { type: "text/css" });
+                    downloadBlob(blob, "globals.css");
+                    toast.success("CSS downloaded successfully", {
+                      id: "download-css",
+                    });
+                  } catch (error) {
+                    const e = error as Error;
+                    console.error(e);
+                    toast.error(e.message, {
+                      id: "download-css",
+                    });
+                  }
+                }}
+              >
+                Download CSS
+              </Button>
+            </div>
+            <span className='text-sm text-muted-foreground'>
+              It is recommended to use "Copy CSS Code" button to copy the CSS
+              code
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

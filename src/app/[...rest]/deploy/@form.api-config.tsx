@@ -23,7 +23,7 @@ import { Separator } from "~/components/ui/separator";
 import { decryptData } from "~/utils/encryptionHelper/hash";
 import { parseConfigFile } from "~/utils/parseConfigFile";
 
-import ConfigInput from "./@form.input";
+import ConfigInput from "./@form.input-config";
 
 type Props = {
   state: {

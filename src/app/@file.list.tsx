@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import nProgress from "nprogress";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -38,8 +39,9 @@ import { CreateDownloadToken } from "./actions";
 
 type Props = {
   data: z.infer<typeof Schema_File>;
+  disabled?: boolean;
 };
-export default function FileList({ data }: Props) {
+export default function FileList({ data, disabled }: Props) {
   const pathname = usePathname();
 
   const filePath = useMemo<string>(() => {
@@ -121,7 +123,10 @@ export default function FileList({ data }: Props) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem onClick={onCopy}>
+              <DropdownMenuItem
+                onClick={onCopy}
+                disabled={disabled}
+              >
                 <Icon
                   name='Link'
                   className='mr-3'
@@ -130,7 +135,10 @@ export default function FileList({ data }: Props) {
                 Copy link
               </DropdownMenuItem>
               {data.mimeType.includes("folder") ? null : (
-                <DropdownMenuItem onClick={onDownload}>
+                <DropdownMenuItem
+                  onClick={onDownload}
+                  disabled={disabled}
+                >
                   <Icon
                     name='Download'
                     className='mr-3'
@@ -169,7 +177,10 @@ export default function FileList({ data }: Props) {
               </DrawerHeader>
               <div className='grid gap-1.5 px-4'>
                 <DrawerClose asChild>
-                  <Button onClick={onCopy}>
+                  <Button
+                    onClick={onCopy}
+                    disabled={disabled}
+                  >
                     <Icon
                       name='Link'
                       className='mr-3'
@@ -180,7 +191,10 @@ export default function FileList({ data }: Props) {
                 </DrawerClose>
                 {data.mimeType.includes("folder") ? null : (
                   <DrawerClose asChild>
-                    <Button onClick={onDownload}>
+                    <Button
+                      onClick={onDownload}
+                      disabled={disabled}
+                    >
                       <Icon
                         name='Download'
                         className='mr-3'
@@ -202,6 +216,14 @@ export default function FileList({ data }: Props) {
         )}
       </div>
       <Link
+        onClick={async (e) => {
+          if (disabled) {
+            e.preventDefault();
+            e.stopPropagation();
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            nProgress.done(true);
+          }
+        }}
         href={filePath}
         className={cn(
           "relative",
@@ -279,7 +301,7 @@ export default function FileList({ data }: Props) {
               >
                 {data.mimeType.includes("folder")
                   ? "folder"
-                  : data.fileExtension}
+                  : data.fileExtension || "unknown"}
               </span>
               {!data.mimeType.includes("folder") && (
                 <>

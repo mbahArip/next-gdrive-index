@@ -1,4 +1,5 @@
 // Used for configuration on deploy guide page
+import { HslColor } from "react-colorful";
 import { z } from "zod";
 import {
   Schema_Config,
@@ -76,4 +77,13 @@ export function parseConfigFile(config: string):
     const e = error as Error;
     return { success: false, message: e.message };
   }
+}
+
+export function parseThemeValue(color: string): HslColor {
+  const [h, s, l] = color.split(" ");
+  return {
+    h: parseFloat(h),
+    s: parseFloat(s),
+    l: parseFloat(l),
+  };
 }

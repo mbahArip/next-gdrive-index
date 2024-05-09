@@ -42,7 +42,7 @@ export default function Footer({ content }: Props) {
         {content}
       </ReactMarkdown>
       {isDev && (
-        <div className='fixed bottom-0 z-[999] rounded-t-[var(--radius)] border border-border bg-primary px-3 py-1 text-xs text-primary-foreground'>
+        <div className='fixed bottom-0 z-[999] rounded-t-[var(--radius)] border border-b-0 border-border bg-primary px-3 py-1 text-xs text-primary-foreground'>
           Dev Mode
         </div>
       )}

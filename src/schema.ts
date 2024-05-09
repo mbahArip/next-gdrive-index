@@ -236,3 +236,4 @@ export const Schema_Theme = z.object({
   "ring": z.string(),
   "radius": z.string(),
 });
+export type ThemeKeys = keyof z.infer<typeof Schema_Theme>;
