@@ -1,4 +1,4 @@
-![E:\Dev Project\drive-manager\public\og.png](file:///e%3A/Dev%20Project/drive-manager/public/og.png)
+![banner](/public/og.png)
 
 <p align='center'>
 	<a href='https://drive-demo.mbaharip.com' target='_blank'>Demo Site</a>
