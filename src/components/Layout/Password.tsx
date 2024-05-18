@@ -52,7 +52,6 @@ export default function Password({ path, checkPaths, errorMessage }: Props) {
       toast.success("Password accepted! Refreshing...", {
         id: "password",
       });
-      console.log("Password accepted! Refreshing...");
       router.refresh();
     } catch (error) {
       const e = error as Error;

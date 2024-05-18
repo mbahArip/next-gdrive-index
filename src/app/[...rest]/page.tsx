@@ -103,12 +103,6 @@ export default async function RestPage({ params: { rest } }: Props) {
       return values as [{ files: z.infer<typeof Schema_File>[]; nextPageToken?: string }, string];
     }
   });
-  console.log(
-    rest.map((item, index, array) => ({
-      label: decodeURIComponent(item),
-      href: index === array.length - 1 ? undefined : `${item}`,
-    })),
-  );
 
   return (
     <div className={cn("h-fit w-full", "flex flex-col gap-3")}>

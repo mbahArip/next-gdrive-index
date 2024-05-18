@@ -639,7 +639,6 @@ export async function GetReadme(encryptedId: string | undefined): Promise<string
       }),
     });
 
-    console.log(data.files?.length);
     if (!data.files?.length) return null;
 
     let file;
