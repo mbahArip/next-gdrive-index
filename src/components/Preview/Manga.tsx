@@ -17,9 +17,8 @@ import {
 } from "~/components/ui/carousel";
 import { Progress } from "~/components/ui/progress";
 
-import { cn } from "~/utils/cn";
-
 import useMediaQuery from "~/hooks/useMediaQuery";
+import { cn } from "~/utils/cn";
 
 import { Schema_File } from "~/types/schema";
 

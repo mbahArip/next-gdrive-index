@@ -3,9 +3,8 @@
 import { Status } from "~/components/Global";
 import { Button } from "~/components/ui/button";
 
-import { cn } from "~/utils/cn";
-
 import useRouter from "~/hooks/usePRouter";
+import { cn } from "~/utils/cn";
 
 export default function NotFound() {
   const router = useRouter();

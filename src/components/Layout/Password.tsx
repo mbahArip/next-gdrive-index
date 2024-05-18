@@ -8,9 +8,8 @@ import { Icon, Loader } from "~/components/Global";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { cn } from "~/utils/cn";
-
 import useLoading from "~/hooks/useLoading";
+import { cn } from "~/utils/cn";
 
 import { CheckPassword, CheckSitePassword, SetPassword, SetSitePassword } from "actions";
 

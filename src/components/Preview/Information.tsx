@@ -13,12 +13,11 @@ import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTrigger } from "~/components/ui/drawer";
 import { Separator } from "~/components/ui/separator";
 
+import useMediaQuery from "~/hooks/useMediaQuery";
 import { bytesToReadable } from "~/utils/bytesFormat";
 import { cn } from "~/utils/cn";
 import { durationToReadable } from "~/utils/durationFormat";
 import { getFileType } from "~/utils/previewHelper";
-
-import useMediaQuery from "~/hooks/useMediaQuery";
 
 import { ButtonState, Schema_File } from "~/types/schema";
 
