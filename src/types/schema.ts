@@ -133,12 +133,7 @@ export const Schema_Config_Site = z.object({
 
   toaster: z
     .object({
-      position: z.enum([
-        "top-left",
-        "top-right",
-        "bottom-left",
-        "bottom-right",
-      ]),
+      position: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]),
       duration: z.number().positive(),
     })
     .optional()
@@ -201,12 +196,10 @@ export const Schema_App_Configuration = z.object({
   site: Schema_Config_Site,
 });
 
-export type ConfigurationCategory = keyof z.infer<
+export type ConfigurationCategory = keyof z.infer<typeof Schema_App_Configuration>;
+export type ConfigurationKeys<T extends keyof z.infer<typeof Schema_App_Configuration>> = keyof z.infer<
   typeof Schema_App_Configuration
->;
-export type ConfigurationKeys<
-  T extends keyof z.infer<typeof Schema_App_Configuration>,
-> = keyof z.infer<typeof Schema_App_Configuration>[T];
+>[T];
 export type ConfigurationValue<
   T extends keyof z.infer<typeof Schema_App_Configuration>,
   K extends keyof z.infer<typeof Schema_App_Configuration>[T],

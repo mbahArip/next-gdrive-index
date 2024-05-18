@@ -15,17 +15,11 @@ const generateKey = () => {
 };
 const key = generateKey();
 
-export async function encryptData(
-  data: string,
-  encryptKey: string = key,
-): Promise<string> {
+export async function encryptData(data: string, encryptKey: string = key): Promise<string> {
   try {
     const ivKey = Buffer.from(key);
     const cipher = crypto.createCipheriv("aes-128-cbc", encryptKey, ivKey);
-    return Buffer.concat([
-      cipher.update(data, "utf-8"),
-      cipher.final(),
-    ]).toString("hex");
+    return Buffer.concat([cipher.update(data, "utf-8"), cipher.final()]).toString("hex");
   } catch (error) {
     const e = error as Error;
     console.error(e.message);
@@ -33,23 +27,15 @@ export async function encryptData(
   }
 }
 
-export async function decryptData(
-  hash: string,
-  encryptKey: string = key,
-): Promise<string> {
+export async function decryptData(hash: string, encryptKey: string = key): Promise<string> {
   try {
     const ivKey = Buffer.from(key);
     const decipher = crypto.createDecipheriv("aes-128-cbc", encryptKey, ivKey);
 
-    return Buffer.concat([
-      decipher.update(hash, "hex"),
-      decipher.final(),
-    ]).toString("utf-8");
+    return Buffer.concat([decipher.update(hash, "hex"), decipher.final()]).toString("utf-8");
   } catch (error) {
     const e = error as Error;
     console.error(e.message);
-    throw new Error(
-      "Failed to decrypt data, either invalid hash or encryption key.",
-    );
+    throw new Error("Failed to decrypt data, either invalid hash or encryption key.");
   }
 }
