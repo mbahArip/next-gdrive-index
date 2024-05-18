@@ -1,12 +1,8 @@
 // Used for configuration on deploy guide page
 import { HslColor } from "react-colorful";
 import { z } from "zod";
-import {
-  Schema_Config,
-  Schema_Config_API,
-  Schema_Config_Site,
-  Schema_Old_Config,
-} from "~/schema";
+
+import { Schema_Config, Schema_Config_API, Schema_Config_Site, Schema_Old_Config } from "~/types/schema";
 
 export function parseConfigFile(config: string):
   | {
@@ -60,14 +56,9 @@ export function parseConfigFile(config: string):
 
     const parseJSON = JSON.parse(configuration);
     const version: string | undefined = parseJSON.version;
-    if (!version)
-      throw new Error(
-        "Version not found, please check your configuration file.",
-      );
+    if (!version) throw new Error("Version not found, please check your configuration file.");
 
-    const data = parseJSON as
-      | z.infer<typeof Schema_Old_Config>
-      | z.infer<typeof Schema_Config>;
+    const data = parseJSON as z.infer<typeof Schema_Old_Config> | z.infer<typeof Schema_Config>;
 
     return {
       api: data.apiConfig as z.infer<typeof Schema_Config_API>,

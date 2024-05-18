@@ -2,42 +2,28 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { cn } from "~/utils";
 
-import Icon from "~/components/Icon";
+import { Icon } from "~/components/Global";
 import { Button } from "~/components/ui/button";
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+import { cn } from "~/utils/cn";
+
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div
-      className={cn(
-        "mx-auto h-full w-full max-w-md",
-        "flex flex-grow flex-col items-center justify-center gap-3",
-      )}
-    >
+    <div className={cn("mx-auto h-full w-full max-w-md", "flex flex-grow flex-col items-center justify-center gap-3")}>
       <Icon
         name='CircleX'
-        size={32}
+        size={"2rem"}
         className='text-destructive'
       />
       <div className='flex flex-col'>
-        <span className='text-center text-destructive'>
-          Something went wrong
-        </span>
-        <span className='text-center text-sm text-destructive'>
-          More details can be found in the console
-        </span>
+        <span className='text-center text-destructive'>Something went wrong</span>
+        <span className='text-center text-sm text-destructive'>More details can be found in the console</span>
       </div>
       <code className='w-full whitespace-pre-wrap rounded-[var(--radius)] bg-muted px-3 py-1.5 text-sm text-muted-foreground'>
         {error.message}

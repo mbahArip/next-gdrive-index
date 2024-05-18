@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import {
-  CheckDownloadToken,
-  CheckPassword,
-  CheckPaths,
-  RedirectSearchFile,
-} from "~/app/actions";
-
-import { decryptData } from "~/utils/encryptionHelper/hash";
+import { decryptData } from "~/utils/encryptionHelper";
 import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
-import isDev from "~/utils/isDev";
+import { isDev } from "~/utils/isDev";
 
-import config from "~/config/gIndex.config";
+import { CheckDownloadToken, CheckPassword, CheckPaths, RedirectSearchFile } from "actions";
+import config from "config";
 
 export const dynamic = "force-dynamic";
 
@@ -57,18 +51,12 @@ export async function GET(
 
     const [filePaths, fileMeta] = await Promise.all([_filePaths, _fileMeta]);
 
-    const isFull =
-      Number(request.headers.get("Range")?.split("-")[1] || 0) ===
-      Number(fileMeta.data.size || "1") - 1;
+    const isFull = Number(request.headers.get("Range")?.split("-")[1] || 0) === Number(fileMeta.data.size || "1") - 1;
 
     const fileSize = Number(fileMeta.data.size || 0);
-    if (!fileMeta.data.webContentLink)
-      throw new Error("No download link found");
+    if (!fileMeta.data.webContentLink) throw new Error("No download link found");
 
-    if (
-      config.apiConfig.streamMaxSize &&
-      fileSize > config.apiConfig.streamMaxSize
-    ) {
+    if (config.apiConfig.streamMaxSize && fileSize > config.apiConfig.streamMaxSize) {
       throw new Error("File is too large to stream");
     }
 
@@ -77,12 +65,9 @@ export async function GET(
       if (!checkPath.success) throw new Error("File not found");
       const unlocked = await CheckPassword(checkPath.data);
       if (!unlocked.success) {
-        if (!unlocked.path)
-          throw new Error("No path returned from password checking");
+        if (!unlocked.path) throw new Error("No path returned from password checking");
 
-        const lockedIndex = checkPath.data.findIndex(
-          (path) => path.id === unlocked.path,
-        );
+        const lockedIndex = checkPath.data.findIndex((path) => path.id === unlocked.path);
         // Get all path until the locked index, then join them
         const path = checkPath.data
           .slice(0, lockedIndex + 1)

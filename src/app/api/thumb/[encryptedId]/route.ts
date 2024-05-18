@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { decryptData } from "~/utils/encryptionHelper/hash";
-import isDev from "~/utils/isDev";
+import { decryptData } from "~/utils/encryptionHelper";
+import { isDev } from "~/utils/isDev";
 
-import config from "~/config/gIndex.config";
+import config from "config";
 
 type Props = {
   params: {
@@ -12,10 +12,7 @@ type Props = {
   };
 };
 
-export async function GET(
-  request: NextRequest,
-  { params: { encryptedId } }: Props,
-) {
+export async function GET(request: NextRequest, { params: { encryptedId } }: Props) {
   try {
     const searchParams = new URL(request.nextUrl).searchParams;
     const size = searchParams.get("size") || "512";
@@ -30,12 +27,9 @@ export async function GET(
       throw new Error("Invalid size");
     }
 
-    const defaultImage = NextResponse.redirect(
-      new URL("/og.png", config.basePath),
-      {
-        status: 302,
-      },
-    );
+    const defaultImage = NextResponse.redirect(new URL("/og.png", config.basePath), {
+      status: 302,
+    });
     const decryptedId = await decryptData(encryptedId);
 
     const url = `https://drive.google.com/thumbnail?id=${decryptedId}&sz=w${size}`;

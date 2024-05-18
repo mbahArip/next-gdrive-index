@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { Schema_Config } from "~/schema";
 
-import isDev from "~/utils/isDev";
+import { isDev } from "~/utils/isDev";
+
+import { Schema_Config } from "~/types/schema";
 
 const config: z.input<typeof Schema_Config> = {
   /**
@@ -19,9 +20,7 @@ const config: z.input<typeof Schema_Config> = {
    */
   basePath: isDev
     ? "http://localhost:3000"
-    : `https://${
-        process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL
-      }`,
+    : `https://${process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL}`,
 
   /**
    * Allow access to the deploy guide
@@ -52,8 +51,7 @@ const config: z.input<typeof Schema_Config> = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    rootFolder:
-      "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
+    rootFolder: "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
 
     /**
      * If your rootfolder inside a shared drive, you NEED to set this to true
@@ -69,13 +67,9 @@ const config: z.input<typeof Schema_Config> = {
      * Then you need to encrypt it using `/api/internal/encrypt?q=:shared_drive_id` route
      */
     isTeamDrive: true,
-    sharedDrive:
-      "77bfa156c9c9d159112fcb0494ed8545bdaf7a3d567cd760ba2e2e2cd33fcbfc",
+    sharedDrive: "77bfa156c9c9d159112fcb0494ed8545bdaf7a3d567cd760ba2e2e2cd33fcbfc",
 
-    defaultQuery: [
-      "trashed = false",
-      "(not mimeType contains 'google-apps' or mimeType contains 'folder')",
-    ],
+    defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
     defaultField:
       "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
     defaultOrder: "folder, name asc, modifiedTime desc",
@@ -134,14 +128,7 @@ const config: z.input<typeof Schema_Config> = {
      *
      * You can add more extensions if you want
      */
-    hiddenFiles: [
-      ".password",
-      ".readme.md",
-      ".banner",
-      ".banner.jpg",
-      ".banner.png",
-      ".banner.webp",
-    ],
+    hiddenFiles: [".password", ".readme.md", ".banner", ".banner.jpg", ".banner.png", ".banner.webp"],
 
     /**
      * Allow user to download protected file without password.
@@ -229,10 +216,7 @@ const config: z.input<typeof Schema_Config> = {
      * - {{ handle }} will be replaced with the twitter handle from twitterHandle config above
      * - {{ creator }} will be replaced with mbaharip if you want to credit me
      */
-    footer: [
-      "{{ siteName }} *v{{ version }}* @ {{ repository }}",
-      "{{ year }} - Made with ❤️ by **{{ author }}**",
-    ],
+    footer: ["{{ siteName }} *v{{ version }}* @ {{ repository }}", "{{ year }} - Made with ❤️ by **{{ author }}**"],
 
     /**
      * Site wide password protection

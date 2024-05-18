@@ -70,18 +70,6 @@ const extensionsMap: Record<FileTypes, string[]> = {
   manga: ["cbz"],
 };
 
-// const previewMap: Record<FileTypes | "unknown", (props: PreviewProps) => JSX.Element> = {
-//   image: ImagePreview,
-//   audio: AudioPreview,
-//   video: VideoPreview,
-//   markdown: RichPreview,
-//   pdf: DocumentPreview,
-//   document: DocumentPreview,
-//   code: CodePreview,
-//   text: CodePreview,
-//   manga: MangaPreview,
-//   unknown: UnknownPreview,
-// };
 const iconMap: Record<FileTypes | "unknown", keyof typeof icons> = {
   image: "Image",
   audio: "Music",
@@ -96,24 +84,7 @@ const iconMap: Record<FileTypes | "unknown", keyof typeof icons> = {
   unknown: "File",
 };
 
-// export function getPreviewComponent(fileExtension: string, mimeType: string) {
-//   if (fileExtension === "ts") {
-//     if (mimeType.includes("video")) {
-//       return previewMap["video"];
-//     } else {
-//       return previewMap["code"];
-//     }
-//   }
-//   const type = Object.keys(extensionsMap).find((key) =>
-//     extensionsMap[key as keyof typeof extensionsMap].includes(fileExtension),
-//   );
-//   return previewMap[type as keyof typeof previewMap] ?? previewMap["unknown"];
-// }
-
-export function getFileType(
-  fileExtension: string,
-  mimeType: string,
-): FileTypes | "unknown" {
+export function getFileType(fileExtension: string, mimeType: string): FileTypes | "unknown" {
   if (fileExtension === "ts") {
     if (mimeType.includes("video")) {
       return "video";

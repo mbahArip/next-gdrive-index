@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import {
-  CheckDownloadToken,
-  CheckPassword,
-  CheckPaths,
-  CheckSitePassword,
-  RedirectSearchFile,
-} from "~/app/actions";
-
-import { decryptData } from "~/utils/encryptionHelper/hash";
+import { decryptData } from "~/utils/encryptionHelper";
 import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
 
-import config from "~/config/gIndex.config";
+import { CheckDownloadToken, CheckPassword, CheckPaths, CheckSitePassword, RedirectSearchFile } from "actions";
+import config from "config";
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +26,7 @@ export async function GET(
     const tokenValidity = await CheckDownloadToken(token);
     if (!tokenValidity.success) throw new Error(tokenValidity.message);
 
-    if (
-      config.siteConfig.privateIndex &&
-      !config.apiConfig.allowDownloadProtectedFile
-    ) {
+    if (config.siteConfig.privateIndex && !config.apiConfig.allowDownloadProtectedFile) {
       const unlocked = await CheckSitePassword();
       if (!unlocked.success) {
         return new NextResponse(
@@ -65,12 +55,9 @@ If you've already entered the password, please make sure your browser is not blo
       if (!checkPath.success) throw new Error("File not found");
       const unlocked = await CheckPassword(checkPath.data);
       if (!unlocked.success) {
-        if (!unlocked.path)
-          throw new Error("No path returned from password checking");
+        if (!unlocked.path) throw new Error("No path returned from password checking");
 
-        const lockedIndex = checkPath.data.findIndex(
-          (path) => path.id === unlocked.path,
-        );
+        const lockedIndex = checkPath.data.findIndex((path) => path.id === unlocked.path);
         // Get all path until the locked index, then join them
         const path = checkPath.data
           .slice(0, lockedIndex + 1)
@@ -91,13 +78,9 @@ If you've already entered the password, please make sure your browser is not blo
     }
 
     const fileSize = Number(fileMeta.data.size || 0);
-    if (!fileMeta.data.webContentLink)
-      throw new Error("No download link found");
+    if (!fileMeta.data.webContentLink) throw new Error("No download link found");
 
-    if (
-      config.apiConfig.maxFileSize &&
-      fileSize > config.apiConfig.maxFileSize
-    ) {
+    if (config.apiConfig.maxFileSize && fileSize > config.apiConfig.maxFileSize) {
       const contentUrl = new URL(fileMeta.data.webContentLink);
       contentUrl.searchParams.set("confirm", "1");
       return NextResponse.redirect(contentUrl, {

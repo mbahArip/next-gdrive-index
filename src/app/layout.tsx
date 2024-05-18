@@ -1,19 +1,18 @@
 import { Metadata } from "next";
 import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
 import "plyr-react/plyr.css";
-import { cn } from "~/utils";
 
+import { Footer, Navbar, Password, ThemeProvider } from "~/components/Layout";
+import ToTop from "~/components/Layout/ToTop";
+
+import { cn } from "~/utils/cn";
 import { formatFooter } from "~/utils/footerFormatter";
 
-import config from "~/config/gIndex.config";
+import { CheckSitePassword } from "actions";
+import config from "config";
 
-import Footer from "./@footer";
-import Navbar from "./@navbar";
-import Password from "./@password";
-import { CheckSitePassword } from "./actions";
 import "./globals.css";
 import "./markdown.css";
-import ThemeProvider from "./theme-provider";
 
 const sourceSans3 = Source_Sans_3({
   weight: ["300", "400", "600", "700"],
@@ -41,11 +40,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(config.basePath),
   title: {
     default: config.siteConfig.siteName,
-    template:
-      config.siteConfig.siteNameTemplate?.replace(
-        "%t",
-        config.siteConfig.siteName,
-      ) || "%s",
+    template: config.siteConfig.siteNameTemplate?.replace("%t", config.siteConfig.siteName) || "%s",
   },
   description: config.siteConfig.siteDescription,
   authors: config.siteConfig.siteAuthor
@@ -78,10 +73,14 @@ export const metadata: Metadata = {
   robots: config.siteConfig.robots,
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
-  const unlocked = await CheckSitePassword();
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  let unlocked: Awaited<ReturnType<typeof CheckSitePassword>> = {
+    success: true,
+    message: "",
+  };
+  if (config.siteConfig.privateIndex) {
+    unlocked = await CheckSitePassword();
+  }
 
   return (
     <html lang='en'>
@@ -118,9 +117,8 @@ export default async function RootLayout({
               <>{children}</>
             )}
           </main>
-          {config.siteConfig.footer && (
-            <Footer content={formatFooter(config.siteConfig.footer)} />
-          )}
+          {config.siteConfig.footer && <Footer content={formatFooter(config.siteConfig.footer)} />}
+          <ToTop />
         </ThemeProvider>
       </body>
     </html>

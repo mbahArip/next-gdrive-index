@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { decryptData } from "~/utils/encryptionHelper/hash";
+import { decryptData } from "~/utils/encryptionHelper";
 import gdrive from "~/utils/gdriveInstance";
 
-import config from "~/config/gIndex.config";
+import config from "config";
 
 type Props = {
   params: {
@@ -11,10 +11,7 @@ type Props = {
   };
 };
 
-export async function GET(
-  request: NextRequest,
-  { params: { encryptedId } }: Props,
-) {
+export async function GET(request: NextRequest, { params: { encryptedId } }: Props) {
   try {
     const decryptedId = await decryptData(encryptedId);
     const { data } = await gdrive.files.get({
