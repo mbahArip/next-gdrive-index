@@ -1,201 +1,175 @@
-![next-gdrive-index](./public/og.png)
+![E:\Dev Project\drive-manager\public\og.png](file:///e%3A/Dev%20Project/drive-manager/public/og.png)
 
 <p align='center'>
-  <a href='https://drive-demo.mbaharip.com'>Demo</a>
-  ·
-  <a href='https://github.com/mbahArip/next-gdrive-index/wiki/Deploying'>Deploying Guide</a>
-  ·
-  <a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ'>FAQ</a>
+	<a href='https://drive-demo.mbaharip.com' target='_blank'>Demo Site</a>
+		·
+	<a href='https://drive-demo.mbaharip.com/deploy' target='_blank'>Deploy / Version Upgrade Guide</a>
+		·
+	<a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ' target='_blank'>FAQ</a>
+</p>
+<p align='center'>
+	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index?label=prod' alt='Demo version' />
+	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index/v2?label=dev' alt='Dev' />
 </p>
 
-## Version 2 is here!
+---
 
-It seems there are some bugs on mobile devices that prevent the files list from rendering properly.  
-So I will use this chance to upgrade the project to `Next.js 14`, use `shadcn/ui`, and also add some new features.
+<!-- Generate TOC -->
 
-There also some changes on the configuration file, so make sure to read the [Migration Guide](#migration-guide) if you're upgrading from version 1.x.
+## Table of Contents
 
-Here's what changed in version 2:
-
-### New Features
-
-- **Theme Select**, light mode? dark mode? you choose.
-- **[shadcn/ui](https://ui.shadcn.com/)**, change the UI library to `shadcn/ui`.
-- **Faster Response Time**, added cache to improve the response time.
-- **Revalidate Data**, data fetching now utilizing revalidate. (can be changed from config file)
-  > You can manually revalidate the data by sending POST request to `/api/revalidate` with `Authorization` header set to `{{ process.env.SITE_PASSWORD }}`.
-
-### Changed
-
-- **General Layout**, New fresh look with `shadcn/ui`.
-- **Download Link**, Added token that will be expired after x hour(s). (can be changed from config file)
-- **Raw Link**, Raw link only available for image, video, and audio files. Raw link are recommended for hosting web project assets or comments on forum.
-- **Footer**, now you can customize the footer from config file, also added support for Markdown.
-- **Data Fetching**, now using `Server Actions` instead of `API Routes`.
-- **Encryption**, moved to `Server Actions`.
-- **Typescript Config**, target changed from `ES5` to `ES2021`.
-- **Environment Variable**, now focus on Server Side Environment Variable.
-  - `NEXT_PUBLIC_ENCRYPTION_KEY` changed to `ENCRYPTION_KEY`.
-  - `NEXT_PUBLIC_SITE_PASSWORD` changed to `SITE_PASSWORD`.
-  - `MASTER_KEY` added.
-- **Configuration File**, things are changed:
-  - `version` bumped to `2.0`.
-  - `masterKey` moved to `Environment Variable`.
-  - `apiConfig.revalidate` added.
-  - `siteConfig.siteNameTemplate` added.
-  - `siteConfig.siteAuthor` added.
-  - `siteConfig.robots` added.
-  - `siteConfig.footer` added.
-  - `siteConfig.defaultAccentColor` deprecated.
-  - `siteConfig.breadcrumbMax` added.
-  - `siteConfig.toaster` added.
-  - `siteConfig.navbarItems[number].icons` changed to `lucide icons`.
-  - `siteConfig.supports` added.
-
-### Fixed
-
-- Rendering issue on mobile devices.
-
-### Dependency Update
-
-- `@iconify/react` switched to `lucide-react`.
-- `@mdx-js/loader` removed.
-- `@mdx-js/react` removed.
-- `@next/mdx` removed.
-- `@popperjs/core` removed.
-- `next` updated to `^14.1.4`.
-- `next-seo` removed.
-- `tailwind-merge` updated to `^2.2.2`.
+- [What is this?](#what-is-this)
+- [Why I made this?](#why-i-made-this)
+- [Features](#features)
+- [Known Issues](#known-issues)
+  - [File size limit](#file-size-limit)
+  - [No support for Google Docs, Sheets, and Slides](#no-support-for-google-docs-sheets-and-slides)
+  - [Can't seek on audio and video preview](#cant-seek-on-audio-and-video-preview)
+  - [Shared Drive is not supported](#shared-drive-is-not-supported)
+- [Might be Implemented](#might-be-implemented)
+  - [Internationalization / i18n](#internationalization--i18n)
+  - [Multiple drive](#multiple-drive)
+  - [Authentication](#authentication)
+- [Running on Local](#running-on-local)
+- [How to Contribute](#how-to-contribute)
+- [Support and Donations](#support-and-donations)
+- [License](#license)
 
 ## What is this?
 
-`next-gdrive-index` is an indexer for Google Drive, it's a simple project that I made to index my files in Google Drive.  
-It's aim to simplify the process of sharing files using Google Drive, and also implements some features that I think is useful for sharing files.
+`next-gdrive-index` is a Google Drive directory index.
+The aim of this project is to simplify the process of sharing files using Google Drive, and also add some features that _I think_ is useful when sharing a files.
 
-This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by SpencerWooo.
+> This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by [SpencerWooo](https://github.com/spencerwooo).
 
-### Why I made this?
+## Why I made this?
 
-when I compare the price between these two services, Google Drive still cheaper than Onedrive.  
-For 100GB plan, Google Drive is IDR 269.000 / ~$18 USD annually, and Onedrive is IDR 319.000 / ~$21 USD annually.  
-For free plan, Google Drive offering 15GB of storage, and Onedrive offering 5GB of storage.
+> **TLDR;**
+> It is cheaper to use Google Drive than other similar service
 
-I know there are a lot of people selling cheap edu account for Google Drive and Onedrive, but most of the time those account doesn't last long, especially Google Drive account. So I want to do it legit without buying cheap edu account or anything similar this time.
+There are a lot cloud storage service like Onedrive, Dropbox, Mega, etc.
+But, between all those service, I think Google Drive is a lot cheaper than others (at least in my region).
+
+Here are the pricing comparison between free and cheapest plan
+_Price are converted to IDR, since it's easier for me to compare this using my own currency_
+
+| Service          | Free plan       | Paid plan | Price                  | Price to Storage                            | Transfer Quota |
+| :--------------- | :-------------- | :-------- | :--------------------- | :------------------------------------------ | :------------: |
+| **Google Drive** | 15GB            | 2TB       | 135k IDR<br>~112k IDR  | <u>14.8GB / 1k / mo<br>17.8GB / 1k / yr</u> |  **<u>X</u>**  |
+| **Onedrive**\*\* | 5GB             | 1TB       | 96k IDR<br>80k IDR     | 10.4GB / 1k / mo<br>12.5GB / 1k / yr        |  **<u>X</u>**  |
+| **Dropbox**\*    | 2GB             | 2TB       | ~191k IDR<br>~159k IDR | 10.5GB / 1k / mo<br>12.5GB / 1k / yr        |       O        |
+| **MEGA**         | **<u>20GB</u>** | 2TB       | ~174k IDR<br>~145k IDR | 11.5GB / 1k / mo<br>13.8GB / 1k / yr        |       O        |
+
+\* Price are in USD, and there are no regional price for IDR
+\*\* There are no 2TB plan
+
+By using this data, I picked Google Drive instead other service.
+I know there are a lot of people selling cheap education account especially for Google Drive and Onedrive, but most of the time <u>those account doesn't last long</u>.
 
 ## Features
 
-- **Private Index**, lock the whole index site with password.
-- **Folder and file protection**, you can protect your folder and files with password.
-- **Readme file**, you can add readme file for your folder, so you can add some description for your folder.
-- **File preview**, you can preview some file types directly from the browser, without downloading it first.
+- **Private Index**, protect the whole site with a password
+- **Folder and file protection**, protect certain path with a password
+- **Readme file**, add description (or whatever) inside a readme to be rendered when you open the folder
+- **File preview**, preview the file before download ( Preview file size limit can be adjusted )
   - Image preview
   - Video preview
   - Audio preview
-  - Markdown preview
-  - PDF preview
-  - Document preview (docx, pptx, xlsx)
-  - Code preview
-  - Text preview
+  - Document preview
+  - Code / Text / Markdown preview
   - Manga preview (cbz)
-- **File search**, you can search for files and folders easily.
-- **Direct download**, you can download files directly from index site without opening Google Drive.
-- **Raw file link**, you can use the raw file link for hosting your web project assets or comments on forum.
+- **File search**, search by the file or folder name
+- **Direct download**, download directly via API route instead of google drive link ( Size limit can be adjusted )
+- **Raw file link**, embed your media files
+- **Light/Dark mode**, choose your side!
+- **Customizable Theme**, we are using `shadcn/ui` now! you can customize your site [https;//drive-demo.mbaharip.com/deploy#theme]
+- **Links**, add social, or information link on the navbar
+- **Sponsors**, using this for thing for community? add a sponsor / donate button on your navbar!
 
-## File Security
-
-> This only apply if `maxFileSize` is enabled.
-
-You need to set the file sharing permission to `Anyone with the link can view` for the files that you want to share.
-
-**Why?** because the download link will be redirected to the Google Drive download link, and it can only be accessed if the file is shared with `Anyone with the link can view` permission.
-
-If not, the download link will be redirected to the Google Drive web content link, and it can be accessed without sharing the file.
-
-But this might expose the file ID, so people might be able to access the files directly from Google Drive. (But I'm sure they can't access the folder itself, only the file that are being downloaded)
-
-## Known Issue
+## Known Issues
 
 ### File size limit
 
-> This only apply if you're using platform that have file size limit, like Vercel.  
-> If you're using VPS or other platform that doesn't have file size limit, you can disable `maxFileSize` inside config file.
+> This only apply if `maxFileSize` is enabled / more than 0
 
-File size limit causing some files can't be previewed, and the download will be redirected to the raw file link.  
-**This won't be fixed**, because it's a limitation from the deployment platform itself.
+You need to set the file sharing permission to `Anyone with the link can view` on the root folder.
 
-### Long Response Time
+**Why?**
+The download link will be redirected if the file you're trying to download is bigger than the `maxFileSize`, and most of platform are limiting the response body size (ex: Vercel limit is 4MB).  
+If you don't set the permission, people can't access or download the file.
 
-From version 2.0, We are using Cache to improve the response time.  
-It might take a long time for deep nested folders, but once the data is fetched, it will be cached and the response time will be faster.
-
-I also add [revalidate](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#revalidating-data) config on page file to 5 minutes. You can change the value inside `src/app/page.tsx` & `src/app/[...rest]/page.tsx`.
-
-~~The flow of the project are:~~
-
-- ~~Validate the path is valid or not. (Only applied for `/...[path]`)~~
-- ~~Fetch the password, readme, and files from Google Drive.~~
-- ~~Show to the user.~~
-
-~~So, if you have a lot of files in your Google Drive, it might take a long time to fetch all the files.  
-To improve the response time, I added a cache to the response, so the next time you access the same path, it will be faster.~~
-
-~~ATM, it roughly take around 600 - 2 seconds to fetch all the data on my Google Drive.~~
-
-### Can't seek on audio and video preview
-
-It looks like the audio and video preview can't seek, so you need to listen/watch from the beginning.  
-I'm still looking for a solution for this.
-
-### ~~Shared Drive is now supported~~
-
-~~I don't have Google Shared Drive, so I can't test it and implement it.~~  
-Implemented by [@loadingthedev](https://github.com/loadingthedev) [(PR #4)](https://github.com/mbahArip/next-gdrive-index/pull/4)
+This will <u>expose the file ID</u>, and people can access the file directly from Google Drive.  
+But it <u>only apply to the file</u>, and they can't see or browse the folder directly from Google Drive.
 
 ### No support for Google Docs, Sheets, and Slides
 
-For now, I don't have any plan to implement this, because I think it's not necessary.  
-All Google Drive files like Docs, Sheets, and Slides are hidden from the list.
+For now, I don't have any plan to implement this, because I think it's not necessary.
 
-**PR are welcome if you want to implement this.**
+### ~~Can't seek on audio and video preview~~
 
-## Migration Guide
+~~It looks like you can't seek the audio and video preview, so you need to listen / watch from the beginning.~~
+Fixed on v2.0.2
 
-If you're upgrading from version 1.x to version 2, there are some changes that you need to do:
+### ~~Shared Drive is not supported~~
 
-### Configuration File
+~~I don't have Shared Drive, so I can't test it and implement it~~
+Implemented by [@loadingthedev](https://github.com/loadingthedev) [(PR #4)](https://github.com/mbahArip/next-gdrive-index/pull/4)
 
-> You can check the new Configuration Schema on `/src/schema.ts`
+## Might be Implemented
 
-There are some changes on the configuration file, here's the list of changes:
+Here are things that I want, and might be implemented on the future
 
-- `masterKey` **REMOVED**, we don't need this anymore
+### Internationalization / i18n
 
-- `apiConfig.rootFolder` **CHANGED**, you need to encrypt the folder ID on your localhost first  
-  `http://localhost:3000/api/internal/encrypt?q={{ folderId }}`
+It should be a good idea to have the site and deploying guide with multiple language support.
 
-- `apiConfig.proxyThumbnail` **ADDED**, default value is `true`
-- `siteConfig.siteNameTemplate` **ADDED**, default value is `%s - next-gdrive-index`
-- `siteConfig.siteAuthor` **ADDED**, default value is `mbahArip`
-- `siteConfig.robots` **ADDED**, default value is `noindex, nofollow`
-- `siteConfig.footer` **ADDED**, default value is `Powered by next-gdrive-index`
-- `siteConfig.defaultAccentColor` **REMOVED**, you can set the theme from `/src/app/globals.css` (more information about [shadcn/ui theme](https://ui.shadcn.com/docs/theming))
-- `siteConfig.breadcrumbMax` **ADDED**, default value is `3`
-- `siteConfig.toaster` **ADDED**, default value is `{ position: "bottom-right', duration: 3000 }`
-- `siteConfig.navbarItems[number].icons` **CHANGED**, you need to use [Lucide Icons](https://lucide.dev/icons) now
-- `siteConfig.supports` **ADDED**, you can leave it empty if you don't want to use it
+### Multiple drive
 
-### Environment Variable
+It's either from multiple Google Drive account with multiple Service Account, or a basic single Google Drive account with multiple root start point either in their own Drive or Shared Drive
 
-Now all the environment variable are on the server side, so you need to change the environment variable:
+### Authentication
 
-- `NEXT_PUBLIC_ENCRYPTION_KEY` **CHANGED** to `ENCRYPTION_KEY`
-- `NEXT_PUBLIC_SITE_PASSWORD` **CHANGED** to `SITE_PASSWORD`
-- `NEXT_PUBLIC_VERCEL_URL` **CHANGED** to `NEXT_PUBLIC_DOMAIN`
+Probably a good feature if you are a content creator that only want the one who subscribed to you get the files.  
+It might need a database, but idk if I can implement it without the need of database
 
-## Sponsors and Donations
+## Running on Local
+
+- **Clone the repository**
+  `git clone https://github.com/mbaharip/next-gdrive-index.git`
+  `cd next-gdrive-index`
+- **Install required dependencies**
+  `npm install`
+  `yarn install`
+- **Add environment file**
+  - **Using Configuration**
+    - Open [Deploy guide page](https://drive-demo.mbaharip.com/deploy#config)
+    - Scroll to the bottom to see the configuration form
+    - Fill out the form and download the file
+    - Extract the `.env` file to the root folder
+  - **Using example file**
+    - `cp .env.example .env`
+    - Fill out everything
+- Run the app
+  `npm run dev`
+  `yarn dev`
+- Check the app on `http://localhost:3000`
+
+## How to Contribute
+
+Want to add new feature or improve the existing one? or you find a bug and fixed it yourself?
+
+- Please check the issue tab first to see if someone already reporting a bug, or if you want to check any new feature / enhancement that not yet implemented
+- Use code base from `v2` branch instead of the `main`, since it was made for development on current version
+- Create a Pull Request, and wait for me checking your code
+
+## Support and Donations
 
 If you think I deserve it, you can support me by:
 
 - [Paypal (USD)](https://paypal.me/mbaharip)
 - [Ko-fi (USD)](https://ko-fi.com/mbaharip)
 - [Saweria (IDR)](https://saweria.co/mbaharip)
+
+## License
+
+This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
