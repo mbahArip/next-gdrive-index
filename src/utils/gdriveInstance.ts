@@ -18,16 +18,6 @@ const serviceB64: {
   client_x509_cert_url: string;
   universe_domain: string;
 } = JSON.parse(base64Decode(process.env.GD_SERVICE_B64 as string));
-// const serviceAccount = {
-//   email: process.env.GD_SERVICE_EMAIL,
-//   key: (process.env.GD_SERVICE_PVKEY as string).replace(
-//     /\\n/g,
-//     "\n",
-//   ),
-//   projectId: process.env.GD_SERVICE_PROJECT_ID,
-//   clientId: process.env.GD_SERVICE_CLIENT_ID,
-//   scopes: ["https://www.googleapis.com/auth/drive"],
-// };
 const serviceAccount = {
   email: serviceB64.client_email,
   key: serviceB64.private_key,

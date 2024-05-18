@@ -16,18 +16,9 @@
     "incremental": true,
     "baseUrl": "./src",
     "paths": {
-      // "@/*": ["./src/*"],
-      // "components/*": [
-      //   "app/(__components)/*"
-      // ],
       "~/*": ["*"],
-      "components/*": ["components/*"],
-      "config": ["config/gIndex.config.ts"],
-      "hooks/*": ["hooks/*"],
-      "styles/*": ["styles/*"],
-      "utils/*": ["utils/*"],
-      "types/*": ["types/*"],
-      "context/*": ["context/*"]
+      "actions": ["app/actions.ts"],
+      "config": ["config/gIndex.config.ts"]
     },
     "plugins": [
       {
@@ -35,18 +26,6 @@
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "**/*/_legacy/**/*",
-    "**/*/_app/**/*",
-    "**/*/_page/**/*"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next", "**/*/_legacy/**/*", "**/*/_app/**/*", "**/*/_page/**/*"]
 }

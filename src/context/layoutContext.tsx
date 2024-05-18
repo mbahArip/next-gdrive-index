@@ -37,10 +37,6 @@ const LayoutProvider = ({ children }: TLayoutProvider) => {
     localStorage.setItem("layout", layout);
   };
 
-  return (
-    <LayoutContext.Provider value={{ layout, setLayout: onChangeLayout }}>
-      {children}
-    </LayoutContext.Provider>
-  );
+  return <LayoutContext.Provider value={{ layout, setLayout: onChangeLayout }}>{children}</LayoutContext.Provider>;
 };
 export default LayoutProvider;

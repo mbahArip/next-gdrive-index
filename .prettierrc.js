@@ -1,10 +1,7 @@
 "use strict";
 module.exports = {
-  plugins: [
-    "@trivago/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss",
-  ],
-  printWidth: 80,
+  plugins: ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  printWidth: 120,
   tabWidth: 2,
   useTabs: false,
   semi: true,
@@ -31,6 +28,7 @@ module.exports = {
     "^~/(utils|hooks|context)/(.*)$",
     "^~/types/(.*)$",
     "^~/(config|styles)/(.*)$",
+    "^(config|actions)$",
     "^[./]",
   ],
   importOrderSeparation: true,

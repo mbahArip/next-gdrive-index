@@ -35,9 +35,5 @@ const ThemeProvider = ({ children }: TThemeProvider) => {
     setTheme(getThemeFromLocalStorage());
   }, []);
 
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 };

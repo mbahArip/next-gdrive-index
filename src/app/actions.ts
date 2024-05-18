@@ -4,14 +4,14 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { Schema_File } from "~/schema";
 
-import { decryptData, encryptData } from "~/utils/encryptionHelper/hash";
-import gdrive from "~/utils/gdriveInstance";
+import { decryptData, encryptData } from "~/utils/encryptionHelper";
+import gdrive, { gdriveNoCache } from "~/utils/gdriveInstance";
 
 import { Constant } from "~/types/constant";
+import { Schema_File } from "~/types/schema";
 
-import config from "~/config/gIndex.config";
+import config from "config";
 
 export async function CheckSitePassword(): Promise<{
   success: boolean;
@@ -36,9 +36,7 @@ export async function CheckSitePassword(): Promise<{
     const password = store.get(Constant.cookies_SitePassword)?.value || "";
     const decryptedPassword = await decryptData(password);
     if (decryptedPassword !== process.env.SITE_PASSWORD)
-      throw new Error(
-        "Saved password is incorrect, please re-enter the password",
-      );
+      throw new Error("Saved password is incorrect, please re-enter the password");
 
     return {
       success: true,
@@ -156,32 +154,58 @@ export async function CheckPaths(paths: string[]): Promise<
 
     const data = await Promise.all(promises);
     const notFoundIndex = data.findIndex((item) => !item);
-    if (notFoundIndex !== -1)
-      throw new Error(`Path not found: ${paths[notFoundIndex]}`);
+    if (notFoundIndex !== -1) throw new Error(`Path not found: ${paths[notFoundIndex]}`);
 
     // Check if each path is valid
     let valid = true;
     let invalidPath: string | undefined;
     const decryptedRootId = await decryptData(config.apiConfig.rootFolder);
-    for (const [index, path] of data.entries()) {
+    const dataWithIndex = data.map((item, index) => {
+      return {
+        ...item,
+        index: index,
+      };
+    });
+    const filteredPaths: { path: string; data: { id: string; parents: string; mimeType: string }[] }[] = [];
+
+    for (const item of dataWithIndex) {
       if (!valid) break;
 
-      if (index === 0) {
-        if (
-          path?.data[0].parents === decryptedRootId ||
-          path?.data[0].parents === decryptedSharedDrive
-        )
-          break;
-      } else {
-        if (path?.data[0].parents === data[index - 1]?.data[0].id) break;
+      // Loop through data
+      // If the current index is 0, check if the parents is the root folder or shared drive
+      // If the current index is not 0, check if the parents is the previous data id from the filteredPaths
+
+      // Use filteredPaths because it will only contain the valid path
+      // So if filteredPaths length is not equal to paths length, then it means there is an invalid path
+      for (const path of item.data || []) {
+        if (item.index === 0) {
+          if (path.parents === decryptedRootId || path.parents === decryptedSharedDrive) {
+            filteredPaths.push({
+              path: item.path!,
+              data: [{ id: path.id!, parents: path.parents!, mimeType: path.mimeType! }],
+            });
+            break;
+          }
+        } else {
+          if (path.parents === filteredPaths[item.index - 1]?.data?.[0].id) {
+            filteredPaths.push({
+              path: item.path!,
+              data: [{ id: path.id!, parents: path.parents!, mimeType: path.mimeType! }],
+            });
+            break;
+          }
+        }
       }
-      valid = false;
-      invalidPath = data[index]?.path;
     }
+    if (filteredPaths.length !== paths.length) {
+      valid = false;
+      invalidPath = dataWithIndex[filteredPaths.length]?.path;
+    }
+
     if (!valid) throw new Error(`Invalid path: ${invalidPath}`);
 
     const ids: { path: string; id: string }[] = [];
-    for (const item of data) {
+    for (const item of filteredPaths) {
       if (item) {
         const encryptedId = await encryptData(item.data[0].id as string);
         ids.push({
@@ -203,9 +227,7 @@ export async function CheckPaths(paths: string[]): Promise<
     };
   }
 }
-export async function CheckPassword(
-  paths: { path: string; id: string }[],
-): Promise<
+export async function CheckPassword(paths: { path: string; id: string }[]): Promise<
   | {
       success: false;
       message?: string;
@@ -230,7 +252,7 @@ export async function CheckPassword(
       `trashed = false`,
       `(${ids.map((id) => `'${id}' in parents`).join(" or ")})`, // Filter by paths id
     ];
-    const { data: password } = await gdrive.files
+    const { data: password } = await gdriveNoCache.files
       .list({
         q: query.join(" and "),
         fields: "files(id, name, mimeType, parents)",
@@ -250,21 +272,15 @@ export async function CheckPassword(
     // To save processing time, skip if password file not found
     if (!password.files?.length) return { success: true };
 
-    const protectedFolder = password.files
-      .filter((file) => ids.includes(file.parents?.[0] as string))
-      ?.shift(); // Shift to get only the nearest folder
+    const protectedFolder = password.files.filter((file) => ids.includes(file.parents?.[0] as string))?.shift(); // Shift to get only the nearest folder
 
     // To save processing time, skip if all of the paths are not protected
     if (!protectedFolder) return { success: true };
 
     const store = cookies();
-    const folderIndex = ids.findIndex(
-      (item) => item === protectedFolder.parents?.[0],
-    );
+    const folderIndex = ids.findIndex((item) => item === protectedFolder.parents?.[0]);
 
-    const cookiesValue = JSON.parse(
-      store.get(Constant.cookies_FolderPassword)?.value || "{}",
-    );
+    const cookiesValue = JSON.parse(store.get(Constant.cookies_FolderPassword)?.value || "{}");
     const currentFolder = paths[folderIndex];
     if (!cookiesValue[currentFolder.id])
       throw {
@@ -321,9 +337,7 @@ export async function SetPassword(
 }> {
   try {
     const store = cookies();
-    const cookiesValue = JSON.parse(
-      store.get(Constant.cookies_FolderPassword)?.value || "{}",
-    );
+    const cookiesValue = JSON.parse(store.get(Constant.cookies_FolderPassword)?.value || "{}");
     const updatedValue = {
       ...cookiesValue,
       [path]: await encryptData(password),
@@ -352,13 +366,7 @@ export async function SetPassword(
   }
 }
 
-export async function GetFiles({
-  id,
-  pageToken,
-}: {
-  id?: string;
-  pageToken?: string;
-}): Promise<{
+export async function GetFiles({ id, pageToken }: { id?: string; pageToken?: string }): Promise<{
   files: z.infer<typeof Schema_File>[];
   nextPageToken?: string;
 }> {
@@ -372,14 +380,10 @@ export async function GetFiles({
       decryptedSharedDrive = await decryptData(config.apiConfig.sharedDrive);
     }
 
-    const filterName = config.apiConfig.hiddenFiles
-      .map((item) => `not name = '${item}'`)
-      .join(" and ");
-    const query: string = [
-      ...config.apiConfig.defaultQuery,
-      `'${decryptedId}' in parents`,
-      `${filterName}`,
-    ].join(" and ");
+    const filterName = config.apiConfig.hiddenFiles.map((item) => `not name = '${item}'`).join(" and ");
+    const query: string = [...config.apiConfig.defaultQuery, `'${decryptedId}' in parents`, `${filterName}`].join(
+      " and ",
+    );
 
     const data = await gdrive.files.list({
       q: query,
@@ -396,21 +400,16 @@ export async function GetFiles({
     });
 
     const encryptedData: z.infer<typeof Schema_File>[] = [];
-    if (!data.data.files?.length)
-      return { files: [], nextPageToken: undefined };
+    if (!data.data.files?.length) return { files: [], nextPageToken: undefined };
     for (const file of data.data.files) {
       encryptedData.push({
         mimeType: file.mimeType as string,
         encryptedId: await encryptData(file.id as string),
         name: file.name as string,
         trashed: (file.trashed as boolean) ?? false,
-        modifiedTime: new Date(
-          file.modifiedTime as string,
-        ).toLocaleDateString(),
+        modifiedTime: new Date(file.modifiedTime as string).toLocaleDateString(),
         fileExtension: file.fileExtension || undefined,
-        encryptedWebContentLink: file.webContentLink
-          ? await encryptData(file.webContentLink)
-          : undefined,
+        encryptedWebContentLink: file.webContentLink ? await encryptData(file.webContentLink) : undefined,
         size: file.size ? Number(file.size) : undefined,
         thumbnailLink: file.thumbnailLink || undefined,
         imageMediaMetadata: file.imageMediaMetadata
@@ -441,9 +440,7 @@ export async function GetFiles({
     throw new Error(e.message);
   }
 }
-export async function GetFile(
-  encryptedId: string,
-): Promise<z.infer<typeof Schema_File>> {
+export async function GetFile(encryptedId: string): Promise<z.infer<typeof Schema_File>> {
   try {
     const decryptedId = await decryptData(encryptedId);
     const { data: file } = await gdrive.files.get({
@@ -459,9 +456,7 @@ export async function GetFile(
       trashed: (file.trashed as boolean) ?? false,
       modifiedTime: new Date(file.modifiedTime as string).toLocaleDateString(),
       fileExtension: file.fileExtension || undefined,
-      encryptedWebContentLink: file.webContentLink
-        ? await encryptData(file.webContentLink)
-        : undefined,
+      encryptedWebContentLink: file.webContentLink ? await encryptData(file.webContentLink) : undefined,
       size: file.size ? Number(file.size) : undefined,
       thumbnailLink: file.thumbnailLink || undefined,
       imageMediaMetadata: file.imageMediaMetadata
@@ -504,9 +499,7 @@ export async function SearchFile(
     const query: string[] = [
       ...config.apiConfig.defaultQuery,
       `name contains '${keyword}'`,
-      config.apiConfig.hiddenFiles
-        .map((item) => `not name = '${item}'`)
-        .join(" and "),
+      config.apiConfig.hiddenFiles.map((item) => `not name = '${item}'`).join(" and "),
     ];
     const data = await gdrive.files.list({
       q: query.join(" and "),
@@ -522,21 +515,16 @@ export async function SearchFile(
       }),
     });
     const encryptedData: z.infer<typeof Schema_File>[] = [];
-    if (!data.data.files?.length)
-      return { files: [], nextPageToken: undefined };
+    if (!data.data.files?.length) return { files: [], nextPageToken: undefined };
     for (const file of data.data.files) {
       encryptedData.push({
         mimeType: file.mimeType as string,
         encryptedId: await encryptData(file.id as string),
         name: file.name as string,
         trashed: (file.trashed as boolean) ?? false,
-        modifiedTime: new Date(
-          file.modifiedTime as string,
-        ).toLocaleDateString(),
+        modifiedTime: new Date(file.modifiedTime as string).toLocaleDateString(),
         fileExtension: file.fileExtension || undefined,
-        encryptedWebContentLink: file.webContentLink
-          ? await encryptData(file.webContentLink)
-          : undefined,
+        encryptedWebContentLink: file.webContentLink ? await encryptData(file.webContentLink) : undefined,
         size: file.size ? Number(file.size) : undefined,
         thumbnailLink: file.thumbnailLink || undefined,
         imageMediaMetadata: file.imageMediaMetadata
@@ -611,8 +599,7 @@ export async function GetContent(encryptedId: string): Promise<string> {
       },
     );
 
-    if (typeof file !== "string")
-      throw new Error("It seems the file is not a text file");
+    if (typeof file !== "string") throw new Error("It seems the file is not a text file");
 
     return file as string;
   } catch (error) {
@@ -621,9 +608,7 @@ export async function GetContent(encryptedId: string): Promise<string> {
     throw new Error(e.message);
   }
 }
-export async function GetReadme(
-  encryptedId: string | undefined,
-): Promise<string | null> {
+export async function GetReadme(encryptedId: string | undefined): Promise<string | null> {
   try {
     let decryptedId;
     if (encryptedId) decryptedId = await decryptData(encryptedId);
@@ -635,7 +620,8 @@ export async function GetReadme(
     }
 
     const query: string[] = [
-      ...config.apiConfig.defaultQuery,
+      "trashed = false",
+      "(not mimeType contains 'folder')",
       `name = '${config.apiConfig.specialFile.readme}'`,
       `'${decryptedId}' in parents`,
     ];
@@ -652,11 +638,57 @@ export async function GetReadme(
         corpora: "drive",
       }),
     });
+
     if (!data.files?.length) return null;
+
+    let file;
+
+    if (data.files.length === 1) {
+      file = data.files[0];
+    } else {
+      // Check by mimetype, use google-apps.shortcut last
+      file = data.files.find((item) => item.mimeType === "text/markdown");
+      if (!file) {
+        file = data.files.find((item) => item.mimeType === "application/vnd.google-apps.shortcut");
+      }
+    }
+
+    if (!file) return null;
+    if (
+      file.mimeType !== "text/markdown" &&
+      file.mimeType !== "application/vnd.google-apps.shortcut" &&
+      file.mimeType !== "text/plain"
+    )
+      return null;
+
+    if (file.mimeType === "application/vnd.google-apps.shortcut") {
+      const { data: shortcutData } = (await gdrive.files.get({
+        fileId: file.id as string,
+        fields: "shortcutDetails",
+        supportsAllDrives: config.apiConfig.isTeamDrive,
+      })) as {
+        data: { shortcutDetails: { targetId: string; targetMimeType: string } };
+      };
+      if (!shortcutData.shortcutDetails.targetId) return null;
+      if (shortcutData.shortcutDetails.targetMimeType !== "text/markdown") return null;
+
+      const { data: content } = await gdrive.files.get(
+        {
+          fileId: shortcutData.shortcutDetails.targetId,
+          alt: "media",
+          supportsAllDrives: config.apiConfig.isTeamDrive,
+        },
+        {
+          responseType: "text",
+        },
+      );
+
+      return content as string;
+    }
 
     const { data: content } = await gdrive.files.get(
       {
-        fileId: data.files[0].id as string,
+        fileId: file.id as string,
         alt: "media",
         supportsAllDrives: config.apiConfig.isTeamDrive,
       },
@@ -672,9 +704,7 @@ export async function GetReadme(
     throw new Error(e.message);
   }
 }
-export async function GetBanner(
-  encryptedId: string | undefined,
-): Promise<string | null> {
+export async function GetBanner(encryptedId: string | undefined): Promise<string | null> {
   try {
     let decryptedId;
     if (encryptedId) decryptedId = await decryptData(encryptedId);
@@ -722,14 +752,10 @@ export async function GetWebContent(encrypted: string): Promise<string> {
     throw new Error(e.message);
   }
 }
-export async function CreateDownloadToken(
-  duration: number = config.apiConfig.temporaryTokenDuration,
-): Promise<string> {
+export async function CreateDownloadToken(duration: number = config.apiConfig.temporaryTokenDuration): Promise<string> {
   try {
     const data = {
-      expiredAt:
-        Date.now() +
-        duration * 60 * 60 * 1000 * config.apiConfig.temporaryTokenDuration,
+      expiredAt: Date.now() + duration * 60 * 60 * 1000 * config.apiConfig.temporaryTokenDuration,
     };
     const token = await encryptData(JSON.stringify(data));
     return token;
@@ -748,8 +774,7 @@ export async function CheckDownloadToken(token: string): Promise<{
     if (decryptToken.expiredAt < Date.now()) {
       return {
         success: false,
-        message:
-          "Download token expired, please click the download button again to get a new token",
+        message: "Download token expired, please click the download button again to get a new token",
       };
     }
 
@@ -776,10 +801,7 @@ export async function GenerateAESKey(): Promise<string> {
     throw new Error(e.message);
   }
 }
-export async function VerifyAESKey(
-  data: string,
-  key: string,
-): Promise<boolean> {
+export async function VerifyAESKey(data: string, key: string): Promise<boolean> {
   try {
     let paddedKey;
     if (key.length < 16) {

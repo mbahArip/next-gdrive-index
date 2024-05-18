@@ -1,64 +1,30 @@
 "use client";
 
 import { icons } from "lucide-react";
-import { useMemo, useState } from "react";
-import { z } from "zod";
-import { cn } from "~/utils";
+import { useMemo } from "react";
+import { getting_started, migration, new_user, shared_drive } from "~/data/docs";
 
-import Markdown from "~/app/@markdown";
-import Icon from "~/components/Icon";
+import { Icon, Markdown } from "~/components/Global";
+import { ConfigurationForm } from "~/components/Guide/Configuration";
+import { ThemeForm } from "~/components/Guide/Theme";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import useMediaQuery from "~/hooks/useMediaQuery";
+import { cn } from "~/utils/cn";
 
-import {
-  Configuration,
-  CustomizeTheme,
-  getting_started,
-  migration_guide,
-  new_user_guide,
-  shared_drive_guide,
-} from "./docs";
-
-// type Section =
-//   | "start"
-//   | "new-user"
-//   | "shared-drive"
-//   | "migrating"
-//   | "config"
-//   | "theme";
-const SchemaSection = z.enum([
-  "start",
-  "new-user",
-  "shared-drive",
-  "migrating",
-  "config",
-  "theme",
-]);
-type Section = z.infer<typeof SchemaSection>;
+const Sections = ["start", "new-user", "shared-drive", "migrating", "config", "theme"] as const;
+type Section = (typeof Sections)[number];
 type SectionItem = {
   id: Section;
   title: string;
   icon: keyof typeof icons;
 };
+
 export default function DeployGuidePage() {
   const sectionMenu = useMemo<SectionItem[]>(
     () => [
-      // {
-      //   id: "start",
-      //   title: "Getting Started",
-      //   icon: "NotebookText",
-      // },
       {
         id: "new-user",
         title: "New User Guide",
@@ -74,95 +40,27 @@ export default function DeployGuidePage() {
         title: "Shared Drive Guide",
         icon: "Database",
       },
-      // {
-      //   id: "config",
-      //   title: "App Configuration",
-      //   icon: "Settings",
-      // },
-      // {
-      //   id: "theme",
-      //   title: "Theme Customization",
-      //   icon: "PaintRoller",
-      // },
     ],
     [],
   );
-  const [sectionOpen, setSectionOpen] = useState<boolean>(false);
-
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
-    <div
-      className={cn(
-        "relative mx-auto w-full max-w-screen-desktop",
-        "gap-3 p-3",
-        "flex-grow-0",
-        "flex flex-col",
-      )}
-    >
-      <div className='fixed bottom-6 right-6 z-10'>
-        <Button
-          size='icon'
-          variant='outline'
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
+    <div className={cn("relative mx-auto w-full max-w-screen-desktop", "gap-3 p-3", "flex-grow-0", "flex flex-col")}>
+      <Alert className='bg-blue-50 text-blue-600 dark:bg-blue-950/25 dark:text-blue-500'>
+        <div className='flex items-start gap-3'>
           <Icon
-            name='ChevronUp'
-            size='1.25rem'
+            name='Info'
+            className='size-5'
           />
-        </Button>
-      </div>
-      <div
-        id='fab'
-        className={cn("bottom-6 right-6 z-10 hidden")}
-      >
-        <DropdownMenu
-          open={sectionOpen}
-          onOpenChange={setSectionOpen}
-        >
-          <DropdownMenuTrigger asChild>
-            <Button
-              size={"icon"}
-              variant={"outline"}
-            >
-              <Icon
-                name='SquareMenu'
-                size={"1.25rem"}
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align='end'
-            side='left'
-          >
-            {sectionMenu.map((item) => (
-              <DropdownMenuItem
-                key={item.id}
-                asChild
-              >
-                <div
-                  // href={`#${item.id}`}
-                  className='flex w-full items-center justify-between gap-6'
-                  onClick={() => {
-                    const target = document.getElementById(item.id);
-                    if (target) {
-                      target.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                >
-                  {item.title}
-                  <Icon
-                    name={item.icon}
-                    size={"1rem"}
-                  />
-                </div>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          <div className='flex flex-col'>
+            <AlertTitle>About this guide</AlertTitle>
+            <AlertDescription>
+              <p className='w-full whitespace-pre-wrap text-pretty'>{`If you can see this guide on your deployment.
+Please set the \`showDeployGuide\` to false on the config files. Since it will take up the \`deploy\` route.`}</p>
+            </AlertDescription>
+          </div>
+        </div>
+      </Alert>
 
       <Card>
         <CardHeader className='pb-0'>
@@ -172,7 +70,6 @@ export default function DeployGuidePage() {
         <CardContent>
           <Markdown
             content={getting_started}
-            view='markdown'
             className='px-0'
           />
         </CardContent>
@@ -191,21 +88,7 @@ export default function DeployGuidePage() {
             </TabsTrigger>
           ))}
         </TabsList>
-        {/* <TabsContent value='start'>
-          <Card>
-            <CardHeader className='pb-0'>
-              <CardTitle className='text-3xl'>Deployment Guide</CardTitle>
-              <Separator />
-            </CardHeader>
-            <CardContent>
-              <Markdown
-                content={getting_started}
-                view='markdown'
-                className='px-0'
-              />
-            </CardContent>
-          </Card>
-        </TabsContent> */}
+
         <TabsContent value='new-user'>
           <Card>
             <CardHeader className='pb-0'>
@@ -214,8 +97,7 @@ export default function DeployGuidePage() {
             </CardHeader>
             <CardContent>
               <Markdown
-                content={new_user_guide}
-                view='markdown'
+                content={new_user}
                 className='px-0'
               />
             </CardContent>
@@ -229,7 +111,7 @@ export default function DeployGuidePage() {
             </CardHeader>
             <CardContent>
               <Markdown
-                content={shared_drive_guide}
+                content={shared_drive}
                 view='markdown'
                 className='px-0'
               />
@@ -244,8 +126,7 @@ export default function DeployGuidePage() {
             </CardHeader>
             <CardContent>
               <Markdown
-                content={migration_guide}
-                view='markdown'
+                content={migration}
                 className='px-0'
               />
             </CardContent>
@@ -263,9 +144,7 @@ export default function DeployGuidePage() {
           />
           <div className='flex flex-col'>
             <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              The value of the form will be reset when you switch tabs.
-            </AlertDescription>
+            <AlertDescription>The value of the form will be reset when you switch tabs.</AlertDescription>
           </div>
         </div>
       </Alert>
@@ -287,11 +166,12 @@ export default function DeployGuidePage() {
             Theme Customization
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value='config'>
-          <Configuration />
+          <ConfigurationForm />
         </TabsContent>
         <TabsContent value='theme'>
-          <CustomizeTheme />
+          <ThemeForm />
         </TabsContent>
       </Tabs>
     </div>

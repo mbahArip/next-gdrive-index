@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 type SetValue<T> = (value: T | ((val: T) => T)) => void;
@@ -21,8 +23,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T) {
   // Create dispatch function to set or remove localStorage
   const setValue: SetValue<T> = (value) => {
     try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
