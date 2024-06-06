@@ -8,6 +8,7 @@ import { generateConfig } from "~/data/template";
 
 import { ButtonLoading, Loader, Markdown } from "~/components/Global";
 import { ConfigAPI, ConfigEnvironment, ConfigSite } from "~/components/Guide/Configuration";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
@@ -267,6 +268,25 @@ If you're migrating from previous version, you can load your old environment and
           }}
           onReset={onReset}
         />
+
+        <Alert
+          variant={"destructive"}
+          className='bg-destructive text-destructive-foreground'
+        >
+          <AlertTitle>
+            <h4>Configuration Issue</h4>
+          </AlertTitle>
+          <AlertDescription className='flex flex-col gap-1.5'>
+            <p className='w-full whitespace-pre-wrap text-pretty py-1.5'>{`After some report, it seems that the config will generate incorrect encrypted ID, and somehow it only happen on deployment.
+I'm sorry for the inconvenience, but you need to re-encrypt the id using the encryption endpoint.
+I'll try to fix this issue as soon as possible`}</p>
+            <code className='rounded-[var(--radius)] bg-muted px-2 py-1 text-sm text-muted-foreground'>{`https://drive-demo.mbaharip.com/api/internal/encrypt?q=<ID>&key=<ENCRYPTION_KEY>`}</code>
+            <code className='rounded-[var(--radius)] bg-muted px-2 py-1 text-sm text-muted-foreground'>{`https://<your-deployment-or-localhost>/api/internal/encrypt?q=<ID>&key=<ENCRYPTION_KEY>`}</code>
+            <p className='w-full whitespace-pre-wrap text-pretty'>
+              {`Replace <ID> with Root Folder ID and Shared Drive ID (if you use Team Drive) and <ENCRYPTION_KEY> with your Encryption Key from the Environment Configuration section.`}
+            </p>
+          </AlertDescription>
+        </Alert>
 
         <div className='flex w-full flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-end'>
           <Button
