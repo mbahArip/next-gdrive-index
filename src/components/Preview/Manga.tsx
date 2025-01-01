@@ -4,7 +4,7 @@ import { AsyncUnzipInflate, Unzip } from "fflate";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
-import { Icon, Loader, Status } from "~/components/Global";
+import { Icon, Loader, Status } from "~/components/global";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import {
 import { Progress } from "~/components/ui/progress";
 
 import useMediaQuery from "~/hooks/useMediaQuery";
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 import { Schema_File } from "~/types/schema";
 
@@ -100,7 +100,8 @@ export default function PreviewManga({ file }: Props) {
             file.ondata = (err, data, final) => {
               if (err) throw err;
               // Check if the file is an image
-              if (![".jpg", ".jpeg", ".png", ".gif", ".webp"].some(ext => file.name.toLowerCase().endsWith(ext))) return;
+              if (![".jpg", ".jpeg", ".png", ".gif", ".webp"].some((ext) => file.name.toLowerCase().endsWith(ext)))
+                return;
               if (!final) return; // Skip if not fully loaded
 
               const blob = new Blob([data]);
@@ -175,9 +176,9 @@ export default function PreviewManga({ file }: Props) {
           destructive
         />
       ) : (
-        <div className='flex w-full flex-col items-center justify-center gap-3'>
+        <div className='flex w-full flex-col items-center justify-center gap-4'>
           <Alert className='bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-500'>
-            <div className='flex items-start gap-3'>
+            <div className='flex items-start gap-4'>
               <Icon
                 name='TriangleAlert'
                 className='size-5'
@@ -230,7 +231,7 @@ export default function PreviewManga({ file }: Props) {
           </div>
           <div
             slot='manga-info'
-            className='flex w-full items-center justify-end gap-3'
+            className='flex w-full items-center justify-end gap-4'
           >
             <span className='text-muted-foreground'>
               {currentImage}/{images.length}

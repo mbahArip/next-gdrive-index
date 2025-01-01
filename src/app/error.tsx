@@ -1,38 +1,45 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { cn } from "~/lib/utils";
 
-import { Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
 
-import { cn } from "~/utils/cn";
+import useRouter from "~/hooks/usePRouter";
 
-export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset?: () => void }) {
   const router = useRouter();
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div className={cn("mx-auto h-full w-full max-w-md", "flex flex-grow flex-col items-center justify-center gap-3")}>
+    <div
+      className={cn(
+        "mx-auto h-full w-full max-w-screen-md",
+        "flex flex-grow flex-col items-center justify-center gap-2",
+      )}
+    >
       <Icon
         name='CircleX'
-        size={"2rem"}
-        className='text-destructive'
+        className='size-10 stroke-destructive'
       />
       <div className='flex flex-col'>
         <span className='text-center text-destructive'>Something went wrong</span>
         <span className='text-center text-sm text-destructive'>More details can be found in the console</span>
       </div>
-      <code className='w-full whitespace-pre-wrap rounded-[var(--radius)] bg-muted px-3 py-1.5 text-sm text-muted-foreground'>
+      <code className='my-4 w-full whitespace-pre-wrap rounded-[var(--radius)] bg-muted px-3 py-1.5 text-sm text-muted-foreground'>
         {error.message}
       </code>
 
-      <div className='flex w-full flex-col items-center gap-3 pt-8'>
+      <div className='flex w-full items-center gap-2'>
         <Button
           className='w-full'
-          onClick={() => reset()}
+          onClick={() => {
+            if (reset) reset();
+            else router.refresh();
+          }}
         >
           Try again
         </Button>

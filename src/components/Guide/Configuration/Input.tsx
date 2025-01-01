@@ -2,16 +2,17 @@
 
 import { icons } from "lucide-react";
 
-import { ButtonLoading, Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
+import { LoadingButton } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
-import { ButtonState, ConfigurationCategory, ConfigurationKeys, ConfigurationValue } from "~/types/schema";
+import { ConfigurationCategory, ConfigurationKeys, ConfigurationValue } from "~/types/schema";
 
 export type ConfigInputs<
   T extends ConfigurationCategory = ConfigurationCategory,
@@ -30,7 +31,7 @@ type ConfigInputProps<
   action?: {
     label: string;
     onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-    state: ButtonState;
+    loading: boolean;
     icon?: keyof typeof icons;
   };
   value: ConfigurationValue<T, K>;
@@ -82,7 +83,7 @@ export default function ConfigurationInput<
       {props.type === "group" && (
         <div
           slot='group'
-          className='grid w-full gap-1.5'
+          className='grid w-full gap-2'
           style={{
             gridTemplateColumns: `repeat(${props.columns}, 1fr)`,
           }}
@@ -113,14 +114,14 @@ function Inputs<
     <div
       id={key}
       slot={`input-${key}`}
-      className='flex w-full flex-col gap-1.5'
+      className='flex w-full flex-col gap-2'
       style={{
         gridColumn: `span ${props.columnSpan || 1} / span ${props.columnSpan || 1}`,
       }}
     >
       <div
         slot='label'
-        className='flex items-center gap-1.5'
+        className='flex items-center gap-2'
       >
         <Label
           htmlFor={key}
@@ -152,7 +153,7 @@ function Inputs<
 
       <div
         slot='input'
-        className='grid w-full grid-cols-6 gap-1.5'
+        className='grid w-full grid-cols-6 gap-2'
       >
         <div className={cn("w-full", props.action ? "col-span-5" : "col-span-full")}>
           {props.type === "text" || props.type === "password" || props.type === "number" ? (
@@ -211,14 +212,14 @@ function Inputs<
           )}
         </div>
         {props.action && (
-          <ButtonLoading
+          <LoadingButton
             variant={"secondary"}
             onClick={props.action.onClick}
-            state={props.action.state}
-            icon={props.action.icon}
+            loading={props.action.loading}
           >
+            {props.action.icon && <Icon name={props.action.icon} />}
             {props.action.label}
-          </ButtonLoading>
+          </LoadingButton>
         )}
       </div>
 

@@ -5,7 +5,7 @@ import { useState } from "react";
 import "react-h5-audio-player/lib/styles.css";
 import { z } from "zod";
 
-import { Loader, Status } from "~/components/Global";
+import { Loader, Status } from "~/components/global";
 
 import useLoading from "~/hooks/useLoading";
 

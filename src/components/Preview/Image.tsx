@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { z } from "zod";
 
-import { Icon, Loader, Status } from "~/components/Global";
+import { Icon, Loader, Status } from "~/components/global";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 import useLoading from "~/hooks/useLoading";
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 import { Schema_File } from "~/types/schema";
 
@@ -71,7 +71,7 @@ export default function PreviewImage({ file }: Props) {
       ) : (
         <div className='h-fit w-full space-y-3 overflow-hidden'>
           <Alert className='bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-500'>
-            <div className='flex items-start gap-3'>
+            <div className='flex items-start gap-4'>
               <Icon
                 name='TriangleAlert'
                 className='size-5'

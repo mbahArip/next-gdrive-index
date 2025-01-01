@@ -2,7 +2,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 const Breadcrumb = React.forwardRef<
   HTMLElement,
@@ -23,7 +23,7 @@ const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWi
     <ol
       ref={ref}
       className={cn(
-        "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+        "flex flex-wrap items-center gap-2 break-words text-sm text-muted-foreground sm:gap-2.5",
         className,
       )}
       {...props}
@@ -36,7 +36,7 @@ const BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWitho
   ({ className, ...props }, ref) => (
     <li
       ref={ref}
-      className={cn("inline-flex items-center gap-1.5", className)}
+      className={cn("inline-flex items-center gap-2", className)}
       {...props}
     />
   ),
@@ -79,7 +79,7 @@ const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentP
   <li
     role='presentation'
     aria-hidden='true'
-    className={cn("[&>svg]:size-3.5", className)}
+    className={cn("[&>svg]:h-3.5 [&>svg]:w-3.5", className)}
     {...props}
   >
     {children ?? <ChevronRight />}

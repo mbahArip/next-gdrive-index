@@ -1,21 +1,23 @@
-import { Actions, Explorer, FilePath, Readme } from "~/components/Explorer";
+import { GetReadme, ListFiles } from "~/actions/files";
+import { cn } from "~/lib/utils";
+
+import { FileActions, FileBreadcrumb, FileExplorerLayout, FileReadme } from "~/components/explorer";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
 
-import { cn } from "~/utils/cn";
-
-import { GetFiles, GetReadme } from "actions";
 import config from "config";
 
+import ErrorComponent from "./error";
+
 export const revalidate = 60;
-// export const dynamic = "force-dynamic";
 
 export default async function RootPage() {
-  const [data, readme] = await Promise.all([GetFiles({}), GetReadme(undefined)]);
+  const [data, readme] = await Promise.all([ListFiles(), GetReadme()]);
+  if (!data.success) return <ErrorComponent error={new Error(data.error)} />;
+  if (!readme.success) return <ErrorComponent error={new Error(readme.error)} />;
 
   return (
-    <div className={cn("h-fit w-full", "flex flex-col gap-3")}>
-      <FilePath data={[]} />
+    <div className={cn("h-fit w-full", "flex flex-col gap-4")}>
+      <FileBreadcrumb />
 
       <section
         slot='content'
@@ -23,27 +25,26 @@ export default async function RootPage() {
       >
         <Card>
           <CardHeader className='pb-0'>
-            <div className='flex w-full items-center justify-between gap-3'>
+            <div className='flex w-full items-center justify-between gap-4'>
               <CardTitle className='flex-grow'>Browse files</CardTitle>
-              <Actions />
+              <FileActions />
             </div>
-            <Separator />
           </CardHeader>
-          <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
-            <Explorer
+
+          <CardContent className='p-2 pt-0 tablet:p-4 tablet:pt-0'>
+            <FileExplorerLayout
               encryptedId={config.apiConfig.rootFolder}
-              files={data.files}
-              nextPageToken={data.nextPageToken}
-              root
+              files={data.data.files}
+              nextPageToken={data.data.nextPageToken ?? undefined}
             />
           </CardContent>
         </Card>
       </section>
 
-      {readme && (
-        <Readme
-          content={readme}
-          title={"README.md"}
+      {readme.data && (
+        <FileReadme
+          content={readme.data.content}
+          title={`README.${readme.data.type === "markdown" ? "md" : "txt"}`}
         />
       )}
     </div>

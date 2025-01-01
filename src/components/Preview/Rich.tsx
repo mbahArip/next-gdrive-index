@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { z } from "zod";
 
-import { Icon, Loader, Markdown, Status } from "~/components/Global";
+import { Icon, Loader, Markdown, Status } from "~/components/global";
 import { Button } from "~/components/ui/button";
 
 import useLoading from "~/hooks/useLoading";
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 import { Schema_File } from "~/types/schema";
 
@@ -72,7 +72,7 @@ export default function PreviewRich({ file, code, view }: Props) {
             <Button
               size={"sm"}
               variant={"secondary"}
-              className='gap-1.5'
+              className='gap-2'
               onClick={() => {
                 setExpand((prev) => !prev);
               }}

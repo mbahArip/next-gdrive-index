@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { type ConfigInputs, ConfigurationHeader, ConfigurationInput } from "~/components/Guide/Configuration";
@@ -52,7 +52,7 @@ export default function ConfigEnvironment({ state: { get, set }, error, onReset 
       required: true,
       action: {
         label: "Generate",
-        state: encryptionState,
+        loading: encryptionState,
         icon: "RefreshCw",
         async onClick(e) {
           e.preventDefault();
@@ -99,7 +99,7 @@ To avoid error when input, please use the "Load JSON" button to load the file.`,
       readOnly: true,
       action: {
         label: "Load JSON",
-        state: serviceAuthState,
+        loading: serviceAuthState,
         icon: "Upload",
         async onClick(e) {
           e.preventDefault();
@@ -160,7 +160,7 @@ Only required if the site is set to private`,
           e.preventDefault();
           setIsRevealPassword((prev) => !prev);
         },
-        state: "idle",
+        loading: "idle",
       },
       value: get.environment.SITE_PASSWORD,
       onValueChange: (key, value) => set("environment", key, value),
@@ -207,7 +207,7 @@ Only required if the site is set to private`,
 
   return (
     <form
-      className='flex w-full flex-col gap-3 py-3'
+      className='flex w-full flex-col gap-4 py-3'
       onReset={onFormReset}
     >
       <ConfigurationHeader
@@ -218,7 +218,7 @@ Only required if the site is set to private`,
 
       <div
         slot='inputs'
-        className='flex flex-col gap-3'
+        className='flex flex-col gap-4'
       >
         {inputs.map((props, index) => (
           <ConfigurationInput<"environment", ConfigurationKeys<"environment">>

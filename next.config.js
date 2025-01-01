@@ -1,3 +1,6 @@
+/* eslint-disable */
+
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
@@ -5,19 +8,6 @@ const nextConfig = {
 
     return config;
   },
-  // async headers() {
-  //   return [
-  //     {
-  //       source: "/:path*",
-  //       headers: [
-  //         {
-  //           key: "Cache-Control",
-  //           value: "max-age=300, s-maxage=300, stale-while-revalidate, public",
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // },
 };
 
 module.exports = nextConfig;

@@ -1,9 +1,9 @@
 import { FormEvent } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 
-import { Icon } from "~/components/Global";
 import { type ConfigInputs, ConfigurationHeader, ConfigurationInput } from "~/components/Guide/Configuration";
+import { Icon } from "~/components/global";
 import { Separator } from "~/components/ui/separator";
 
 import { ConfigurationCategory, ConfigurationKeys, ConfigurationValue, Schema_App_Configuration } from "~/types/schema";
@@ -44,7 +44,7 @@ export default function ConfigSite({ state: { get, set }, error, onReset }: Prop
       inputKey: "siteNameTemplate",
       title: "Site Name Template",
       description: `The template used to generate the site name
-      
+
 Available variables:
 %s - Page title
 %t - Site name`,
@@ -141,7 +141,7 @@ e.g. "file.mp4" instead of "file"`,
 
   return (
     <form
-      className='flex w-full flex-col gap-3 py-3'
+      className='flex w-full flex-col gap-4 py-3'
       onReset={onFormReset}
     >
       <ConfigurationHeader title='Site Configuration' />
@@ -149,10 +149,10 @@ e.g. "file.mp4" instead of "file"`,
 
       <div
         slot='inputs'
-        className='flex flex-col gap-3'
+        className='flex flex-col gap-4'
       >
-        <div className='grid grid-cols-3 gap-3'>
-          <div className='col-span-2 flex flex-col gap-3'>
+        <div className='grid grid-cols-3 gap-4'>
+          <div className='col-span-2 flex flex-col gap-4'>
             {metadataInputs.map((props, index) => (
               <ConfigurationInput<"site", ConfigurationKeys<"site">>
                 key={String(props.inputKey)}
@@ -160,10 +160,10 @@ e.g. "file.mp4" instead of "file"`,
               />
             ))}
           </div>
-          <div className='flex flex-col gap-3'>
+          <div className='flex flex-col gap-4'>
             <div className='flex flex-col'>
-              <div className='flex flex-col items-start gap-1.5 pt-3'>
-                <div className='flex select-none items-center gap-1.5 rounded-t-lg border border-border px-3 py-1.5'>
+              <div className='flex flex-col items-start gap-2 pt-3'>
+                <div className='flex select-none items-center gap-2 rounded-t-lg border border-border px-3 py-1.5'>
                   <img
                     src={get.site.favIcon}
                     className='size-4'
@@ -177,7 +177,7 @@ e.g. "file.mp4" instead of "file"`,
                   />
                 </div>
 
-                <div className='flex select-none items-center gap-1.5 rounded-t-lg border border-border px-3 py-1.5'>
+                <div className='flex select-none items-center gap-2 rounded-t-lg border border-border px-3 py-1.5'>
                   <img
                     src={get.site.favIcon}
                     className='size-4'

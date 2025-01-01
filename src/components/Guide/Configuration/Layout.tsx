@@ -2,26 +2,21 @@
 
 import { AsyncZippable, strToU8, zip } from "fflate";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 import { generateConfig } from "~/data/template";
 
-import { ButtonLoading, Loader, Markdown } from "~/components/Global";
 import { ConfigAPI, ConfigEnvironment, ConfigSite } from "~/components/Guide/Configuration";
+import { Icon, Markdown } from "~/components/global";
+import { PageLoader as Loader } from "~/components/layout";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
+import { Button, LoadingButton } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 import useLoading from "~/hooks/useLoading";
 import { downloadBlob } from "~/utils/downloadBlob";
 
-import {
-  ButtonState,
-  ConfigurationCategory,
-  ConfigurationKeys,
-  ConfigurationValue,
-  Schema_App_Configuration,
-} from "~/types/schema";
+import { ConfigurationCategory, ConfigurationKeys, ConfigurationValue, Schema_App_Configuration } from "~/types/schema";
 
 import config from "config";
 
@@ -81,7 +76,7 @@ export default function ConfigurationForm() {
     site: {},
   });
 
-  const [downloadState, setDownloadState] = useState<ButtonState>("idle");
+  const [isDownloading, setDownloading] = useState<boolean>(false);
 
   function onConfigurationChange<
     T extends ConfigurationCategory = ConfigurationCategory,
@@ -129,7 +124,7 @@ export default function ConfigurationForm() {
   }
   async function onDownload(e: React.MouseEvent) {
     e.preventDefault();
-    setDownloadState("loading");
+    setDownloading(true);
     toast.loading("Generating configuration file...", {
       id: "generate-config",
     });
@@ -201,7 +196,7 @@ export default function ConfigurationForm() {
         id: "generate-config",
       });
     } finally {
-      setDownloadState("idle");
+      setDownloading(false);
     }
   }
 
@@ -217,7 +212,7 @@ export default function ConfigurationForm() {
   return (
     <Card>
       <CardHeader className='pb-0'>
-        <div className='flex items-end justify-between gap-3'>
+        <div className='flex items-end justify-between gap-4'>
           <CardTitle id='config'>App Configuration</CardTitle>
           <small className='text-muted-foreground'>v{config.version}</small>
         </div>
@@ -276,7 +271,7 @@ If you're migrating from previous version, you can load your old environment and
           <AlertTitle>
             <h4>Configuration Issue</h4>
           </AlertTitle>
-          <AlertDescription className='flex flex-col gap-1.5'>
+          <AlertDescription className='flex flex-col gap-2'>
             <p className='w-full whitespace-pre-wrap text-pretty py-1.5'>{`After some report, it seems that the config will generate incorrect encrypted ID, and somehow it only happen on deployment.
 I'm sorry for the inconvenience, but you need to re-encrypt the id using the encryption endpoint.
 I'll try to fix this issue as soon as possible`}</p>
@@ -288,7 +283,7 @@ I'll try to fix this issue as soon as possible`}</p>
           </AlertDescription>
         </Alert>
 
-        <div className='flex w-full flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-end'>
+        <div className='flex w-full flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-end'>
           <Button
             variant={"destructive"}
             size={"sm"}
@@ -299,14 +294,14 @@ I'll try to fix this issue as soon as possible`}</p>
           >
             Reset All
           </Button>
-          <ButtonLoading
-            state={downloadState}
+          <LoadingButton
+            loading={isDownloading}
             size={"sm"}
-            icon={"Save"}
             onClick={onDownload}
           >
+            <Icon name='Save' />
             Download Config
-          </ButtonLoading>
+          </LoadingButton>
         </div>
       </CardContent>
     </Card>

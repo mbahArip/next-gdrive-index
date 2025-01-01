@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import * as React from "react";
 
 export default function useMediaQuery(query: string) {
-  const [value, setValue] = useState<boolean>(false);
+  const [value, setValue] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     function onChange(event: MediaQueryListEvent) {
       setValue(event.matches);
     }
@@ -14,9 +14,7 @@ export default function useMediaQuery(query: string) {
     result.addEventListener("change", onChange);
     setValue(result.matches);
 
-    return () => {
-      result.removeEventListener("change", onChange);
-    };
+    return () => result.removeEventListener("change", onChange);
   }, [query]);
 
   return value;

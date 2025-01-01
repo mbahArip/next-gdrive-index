@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypePrism from "rehype-prism-plus";
@@ -11,11 +10,13 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSlug from "remark-slug";
 import remarkToc from "remark-toc";
+import { toast } from "sonner";
 
-import "~/app/highlight.css";
-import { Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
+
+import "~/styles/code-highlight.css";
 
 type Props = {
   content: string;
@@ -23,7 +24,7 @@ type Props = {
   className?: string;
 };
 export default function Markdown({ content, view, className }: Props) {
-  const [viewState, setViewState] = useState<"markdown" | "raw">(view || "markdown");
+  const [viewState, setViewState] = useState<"markdown" | "raw">(view ?? "markdown");
 
   useEffect(() => {
     if (view) setViewState(view);
@@ -35,13 +36,11 @@ export default function Markdown({ content, view, className }: Props) {
       className={cn("flex flex-col p-3", className)}
     >
       {viewState === "raw" ? (
-        <div className={cn("markdown w-full rounded-[var(--radius)]")}>
-          <pre className='w-full whitespace-pre-wrap break-words bg-transparent !p-0 font-sans shadow shadow-background'>
-            {content}
-          </pre>
+        <div className={cn("markdown w-full rounded-lg bg-background")}>
+          <pre className='w-full whitespace-pre-wrap break-words bg-transparent p-3 text-sm'>{content}</pre>
         </div>
       ) : (
-        <div className={cn("markdown w-full rounded-[var(--radius)]")}>
+        <div className={cn("markdown w-full rounded-lg")}>
           <ReactMarkdown
             className='w-full'
             disallowedElements={["script"]}

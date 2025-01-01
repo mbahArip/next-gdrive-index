@@ -1,5 +1,5 @@
 export { default as PreviewInformation } from "./Information";
-export { default as PreviewLayout } from "./Layout";
+export { default as PreviewLayout } from "./PreviewLayout";
 
 export { default as PreviewAudio } from "./Audio";
 export { default as PreviewDocument } from "./Document";

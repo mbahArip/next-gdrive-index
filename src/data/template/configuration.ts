@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { type z } from "zod";
 import pkg from "~/../package.json";
 
 import { encryptData } from "~/utils/encryptionHelper";
 
-import { Schema_App_Configuration } from "~/types/schema";
+import { type Schema_App_Configuration } from "~/types/schema";
 
 const config_template = `import { z } from "zod";
-import { isDev } from "~/utils/isDev";
+import { BASE_URL, IS_DEV } from "~/constant";
 import { Schema_Config } from "~/types/schema";
 
 const config: z.input<typeof Schema_Config> = {
@@ -24,9 +24,9 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath: isDev
+  basePath: IS_DEV
     ? "http://localhost:3000"
-    : \`https://\${process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL}\`,
+    : new URL(BASE_URL).toString(),
 
   /**
    * Allow access to the deploy guide
@@ -87,7 +87,7 @@ const config: z.input<typeof Schema_Config> = {
      * Set how many items to display per page in the file list
      * It's recommended to set this to a reasonable number
      * Since it will affect the load time
-     * 
+     *
      * @default: 50 items per page | 5 search result
     */
     itemsPerPage: {{apiConfig.itemsPerPage}},
@@ -112,7 +112,7 @@ const config: z.input<typeof Schema_Config> = {
      * Special file name that will be used for certain purposes
      * These files will be ignored when searching for files
      * and will be hidden from the files list by default
-     * 
+     *
      * Banner will be used for opengraph image for folder
      * By default, all folder will use default og image
      */
@@ -256,6 +256,11 @@ const config: z.input<typeof Schema_Config> = {
       "{{ siteName }} *v{{ version }}* @ {{ repository }}",
       "{{ year }} - Made with ❤️ by **{{ author }}**",
     ],
+    /**
+     * Add page load time on the footer
+     * If you don't want to use it, you can set it to false
+     */
+    pageLoadTime: "ms",
 
     /**
      * Site wide password protection

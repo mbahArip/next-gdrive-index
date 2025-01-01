@@ -1,5 +1,5 @@
 import { FormEvent } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { type ConfigInputs, ConfigurationHeader, ConfigurationInput } from "~/components/Guide/Configuration";
@@ -138,7 +138,7 @@ Default: 5`,
       inputKey: "proxyThumbnail",
       title: "Allow Proxy Thumbnail",
       description: `Use API route instead of Google Drive thumbnail link
-      
+
 If your files thumbnail are not accessible, you can enable this option
 This will fetch the thumbnail image via API route`,
       required: true,
@@ -157,7 +157,7 @@ This will fetch the thumbnail image via API route`,
           inputKey: "allowDownloadProtectedFile",
           title: "Allow Download Protected File",
           description: `Allow users to download files inside the protected folder
-    
+
     If set to true, users will be able to download the file without entering the password as long as they have the direct link
     If set to false, users will need to enter the password before downloading the file, even if they have the direct link`,
           required: true,
@@ -317,7 +317,7 @@ Default: 100`,
 
   return (
     <form
-      className='flex w-full flex-col gap-3 py-3'
+      className='flex w-full flex-col gap-4 py-3'
       onReset={onFormReset}
     >
       <ConfigurationHeader
@@ -328,7 +328,7 @@ Default: 100`,
 
       <div
         slot='inputs'
-        className='flex flex-col gap-3'
+        className='flex flex-col gap-4'
       >
         {inputs.map((props, index) => (
           <ConfigurationInput<"api", ConfigurationKeys<"api">>

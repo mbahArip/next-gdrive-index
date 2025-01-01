@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { IS_DEV } from "~/constant";
 
 import { decryptData } from "~/utils/encryptionHelper";
 import { gdriveNoCache as gdrive } from "~/utils/gdriveInstance";
-import { isDev } from "~/utils/isDev";
 
 import { CheckDownloadToken, CheckPassword, CheckPaths, RedirectSearchFile } from "actions";
 import config from "config";
@@ -25,7 +25,7 @@ export async function GET(
     if (!token) throw new Error("Token not found");
 
     // Only allow if the request is from the same domain or the referer is the same domain
-    if (!isDev && !request.headers.get("Referer")?.includes(config.basePath)) {
+    if (!IS_DEV && !request.headers.get("Referer")?.includes(config.basePath)) {
       throw new Error("Invalid request");
     }
 
@@ -92,7 +92,7 @@ If you've already entered the password, please make sure your browser is not blo
     let rangeStart = 0;
     let rangeEnd = Math.min(chunkSize, fileSize - 1);
     const rangeRegex = /bytes=(\d+)-(\d+)?/;
-    const rangeSize = ranges.match(rangeRegex);
+    const rangeSize = rangeRegex.exec(ranges);
     if (rangeSize) {
       rangeStart = parseInt(rangeSize[1], 10);
 

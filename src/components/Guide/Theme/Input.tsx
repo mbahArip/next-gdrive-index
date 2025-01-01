@@ -2,10 +2,11 @@
 
 import { PopoverTrigger } from "@radix-ui/react-popover";
 import { HslColor, HslColorPicker } from "react-colorful";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 
-import { ButtonLoading, Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Popover, PopoverContent } from "~/components/ui/popover";
@@ -30,7 +31,7 @@ export default function ThemeInput(props: ThemeInputProps) {
     >
       <div
         slot='label'
-        className='flex items-center gap-3'
+        className='flex items-center gap-4'
       >
         <span className='text-base'>{props.title}</span>
         {props.description && (
@@ -57,7 +58,7 @@ export default function ThemeInput(props: ThemeInputProps) {
 
       <div
         slot='input'
-        className='col-span-2 flex flex-grow items-center justify-end gap-3'
+        className='col-span-2 flex flex-grow items-center justify-end gap-4'
       >
         {props.children ? (
           props.children
@@ -77,14 +78,14 @@ export default function ThemeInput(props: ThemeInputProps) {
                   />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className='flex flex-col gap-3'>
+              <PopoverContent className='flex flex-col gap-4'>
                 <div className='flex gap-6'>
                   <HslColorPicker
                     color={props.value}
                     onChange={props.onChange}
                   />
                   <div className='flex flex-grow flex-col items-center justify-between'>
-                    <div className='flex flex-col gap-1.5'>
+                    <div className='flex flex-col gap-2'>
                       <Label htmlFor={`${props.inputKey}-h`}>Hue</Label>
                       <Input
                         id={`${props.inputKey}-h`}
@@ -103,7 +104,7 @@ export default function ThemeInput(props: ThemeInputProps) {
                         }}
                       />
                     </div>
-                    <div className='flex flex-col gap-1.5'>
+                    <div className='flex flex-col gap-2'>
                       <Label htmlFor={`${props.inputKey}-s`}>Saturation</Label>
                       <Input
                         id={`${props.inputKey}-s`}
@@ -122,7 +123,7 @@ export default function ThemeInput(props: ThemeInputProps) {
                         }}
                       />
                     </div>
-                    <div className='flex flex-col gap-1.5'>
+                    <div className='flex flex-col gap-2'>
                       <Label htmlFor={`${props.inputKey}-l`}>Lightness</Label>
                       <Input
                         id={`${props.inputKey}-l`}
@@ -143,12 +144,11 @@ export default function ThemeInput(props: ThemeInputProps) {
                     </div>
                   </div>
                 </div>
-                <div className='flex w-full items-center gap-3'>
-                  <ButtonLoading
+                <div className='flex w-full items-center gap-4'>
+                  <Button
                     className='w-full'
                     size={"sm"}
                     variant={"outline"}
-                    state='idle'
                     onClick={async (e) => {
                       e.preventDefault();
                       try {
@@ -163,12 +163,11 @@ export default function ThemeInput(props: ThemeInputProps) {
                     }}
                   >
                     Copy
-                  </ButtonLoading>
-                  <ButtonLoading
+                  </Button>
+                  <Button
                     className='w-full'
                     size={"sm"}
                     variant={"outline"}
-                    state='idle'
                     onClick={async (e) => {
                       e.preventDefault();
                       try {
@@ -195,7 +194,7 @@ export default function ThemeInput(props: ThemeInputProps) {
                     }}
                   >
                     Paste
-                  </ButtonLoading>
+                  </Button>
                 </div>
               </PopoverContent>
             </Popover>

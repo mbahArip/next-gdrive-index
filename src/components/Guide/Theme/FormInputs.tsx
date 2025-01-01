@@ -149,7 +149,7 @@ export default function ThemeFormInputs({ currentTheme, state: { get, set } }: P
         value: { h: 0, s: 0, l: 0 },
         onChange: (val) => {},
         children: (
-          <div className='flex w-full items-center gap-3'>
+          <div className='flex w-full items-center gap-4'>
             <Slider
               className='w-full'
               defaultValue={[parseFloat(get[currentTheme].radius) * 16 || 0]}
@@ -179,10 +179,10 @@ export default function ThemeFormInputs({ currentTheme, state: { get, set } }: P
   ];
 
   return (
-    <div className='flex h-auto flex-grow flex-col justify-between gap-3'>
+    <div className='flex h-auto flex-grow flex-col justify-between gap-4'>
       <div
         slot='theme-form'
-        className='flex flex-col gap-1.5'
+        className='flex flex-col gap-2'
       >
         {inputs.map((item, i) => (
           <Fragment key={`input-group-${i}`}>

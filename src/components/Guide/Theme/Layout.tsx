@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 import { generateTheme } from "~/data/template";
 
-import { ButtonLoading, Icon, Loader, Markdown } from "~/components/Global";
 import { FormInputs, ThemePreview } from "~/components/Guide/Theme";
+import { ButtonLoading, Icon, Loader, Markdown } from "~/components/global";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -218,11 +218,11 @@ export default function ThemeForm() {
     <>
       <Card>
         <CardHeader className='pb-0'>
-          <div className='flex items-center justify-between gap-3'>
+          <div className='flex items-center justify-between gap-4'>
             <CardTitle id='theme'>Theme Customization</CardTitle>
             <div
               slot='actions'
-              className='flex w-full items-center gap-3 tablet:w-fit'
+              className='flex w-full items-center gap-4 tablet:w-fit'
             >
               <Dialog
                 open={pasteDialog}
@@ -360,7 +360,7 @@ export default function ThemeForm() {
 You can either use default colors from [shadcn/ui](https://ui.shadcn.com/themes) or create your own theme by changing the color code of each element.`}
           />
 
-          <div className='flex w-full items-center justify-between gap-3'>
+          <div className='flex w-full items-center justify-between gap-4'>
             <div className='flex items-center'>
               <Button
                 size={"sm"}
@@ -390,7 +390,7 @@ You can either use default colors from [shadcn/ui](https://ui.shadcn.com/themes)
               </Button>
             </div>
 
-            <div className='flex items-center gap-3'>
+            <div className='flex items-center gap-4'>
               <ButtonLoading
                 size={"sm"}
                 state={downloadState}
@@ -410,7 +410,7 @@ You can either use default colors from [shadcn/ui](https://ui.shadcn.com/themes)
               </ButtonLoading>
             </div>
           </div>
-          <div className='grid grid-cols-1 gap-3 rounded-[var(--radius)] border border-border p-4 tablet:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-4 rounded-[var(--radius)] border border-border p-4 tablet:grid-cols-2'>
             <FormInputs
               currentTheme={currentTheme}
               state={{

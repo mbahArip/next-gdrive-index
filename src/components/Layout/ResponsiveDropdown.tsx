@@ -1,9 +1,7 @@
-"use client";
-
 import { icons } from "lucide-react";
 import { HTMLProps } from "react";
 
-import { Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -195,7 +193,7 @@ export default function ResponsiveDropdown({ open, onOpenChange, trigger, mobile
               </DrawerHeader>
             )}
 
-            <div className='grid gap-1.5 px-4'>{mobile.content}</div>
+            <div className='grid gap-2 px-4'>{mobile.content}</div>
 
             {(mobile.footer || mobile.closeOnFooter) && (
               <DrawerFooter>

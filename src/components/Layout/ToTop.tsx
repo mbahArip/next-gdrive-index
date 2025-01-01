@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 export default function ToTop() {
   const [show, setShow] = useState<boolean>(false);
@@ -26,21 +26,19 @@ export default function ToTop() {
     <div
       slot='to-top-fab'
       className={cn(
-        "fixed bottom-6 right-6 z-10 transition",
+        "fixed bottom-6 right-6 z-50 transition",
         show ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
       )}
     >
       <Button
         size={"icon"}
-        variant={"outline"}
+        variant={"default"}
+        className='h-12 w-12 rounded-full shadow'
         onClick={() => {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       >
-        <Icon
-          name='ChevronUp'
-          size='1rem'
-        />
+        <Icon name='ChevronUp' />
       </Button>
     </div>
   );

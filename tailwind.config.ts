@@ -1,4 +1,6 @@
+import twTypography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
+import twAnimate from "tailwindcss-animate";
 import tw from "tailwindcss/defaultTheme";
 
 const config: Config = {
@@ -8,9 +10,16 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "0.5rem",
+        mobile: "1rem",
+        tablet: "1.5rem",
+        desktop: "2rem",
+      },
       screens: {
-        "2xl": "1400px",
+        mobile: "480px",
+        tablet: "768px",
+        desktop: "1280px",
       },
     },
     extend: {
@@ -52,9 +61,16 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        chart: {
+          "1": "hsl(var(--chart-1))",
+          "2": "hsl(var(--chart-2))",
+          "3": "hsl(var(--chart-3))",
+          "4": "hsl(var(--chart-4))",
+          "5": "hsl(var(--chart-5))",
+        },
       },
       screens: {
-        mobile: "425px",
+        mobile: "480px",
         tablet: "768px",
         desktop: "1280px",
       },
@@ -65,12 +81,20 @@ const config: Config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
       },
       animation: {
@@ -79,7 +103,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [twAnimate, twTypography],
 };
 
 export default config;

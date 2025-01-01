@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { encryptData } from "~/utils/encryptionHelper";
+import { encryptionService } from "~/lib/utils.server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +11,13 @@ export async function GET(request: NextRequest) {
     const key = sp.get("key");
     if (!query) return new NextResponse("Add query parameter 'q' with the value to encrypt", { status: 400 });
 
-    const encrypted = await encryptData(query, key || process.env.ENCRYPTION_KEY);
+    const encrypted = await encryptionService.encrypt(query, key ?? undefined);
 
     return NextResponse.json(
       {
         message: key ? "Encrypted with provided key" : "Encrypted with environment key",
         value: encrypted,
-        key,
+        key: key ?? process.env.ENCRYPTION_KEY,
       },
       { status: 200 },
     );

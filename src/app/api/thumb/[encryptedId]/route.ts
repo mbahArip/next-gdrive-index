@@ -1,24 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { IS_DEV } from "~/constant";
 
-import { decryptData } from "~/utils/encryptionHelper";
-import { isDev } from "~/utils/isDev";
+import { encryptionService } from "~/lib/utils.server";
 
 import config from "config";
 
 type Props = {
-  params: {
+  params: Promise<{
     encryptedId: string;
-  };
+  }>;
 };
 
-export async function GET(request: NextRequest, { params: { encryptedId } }: Props) {
+export async function GET(request: NextRequest, { params }: Props) {
+  const { encryptedId } = await params;
   try {
     const searchParams = new URL(request.nextUrl).searchParams;
     const size = searchParams.get("size") || "512";
 
     // Only allow if the request is from the same domain or the referer is the same domain
-    if (!isDev && !request.headers.get("Referer")?.includes(config.basePath)) {
+    if (!IS_DEV && !request.headers.get("Referer")?.includes(config.basePath)) {
       throw new Error("Invalid request");
     }
 
@@ -27,10 +28,7 @@ export async function GET(request: NextRequest, { params: { encryptedId } }: Pro
       throw new Error("Invalid size");
     }
 
-    const defaultImage = NextResponse.redirect(new URL("/og.png", config.basePath), {
-      status: 302,
-    });
-    const decryptedId = await decryptData(encryptedId);
+    const decryptedId = await encryptionService.decrypt(encryptedId);
 
     const url = `https://drive.google.com/thumbnail?id=${decryptedId}&sz=w${size}`;
 

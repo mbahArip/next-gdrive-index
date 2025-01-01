@@ -1,6 +1,5 @@
-export { default as Actions } from "./Actions";
-export { default as FilePath } from "./FilePath";
-export { default as Grid } from "./Grid";
-export { default as Explorer } from "./Layout";
-export { default as List } from "./List";
-export { default as Readme } from "./Readme";
+export { default as FileActions } from "./FileActions";
+export { default as FileBreadcrumb } from "./FileBreadcrumbs";
+export { default as FileItem } from "./FileItem";
+export { default as FileExplorerLayout } from "./FileLayout";
+export { default as FileReadme } from "./FileReadme";

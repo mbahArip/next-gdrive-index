@@ -2,10 +2,10 @@
 
 import { icons } from "lucide-react";
 
-import { Icon } from "~/components/Global";
+import { Icon } from "~/components/global";
 import { Button, ButtonProps } from "~/components/ui/button";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 import { ButtonState } from "~/types/schema";
 

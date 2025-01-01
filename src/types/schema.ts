@@ -6,6 +6,12 @@ export const Schema_Breadcrumb = z.object({
   href: z.string().optional(),
 });
 
+export const Schema_File_Shortcut = z.object({
+  shortcutDetails: z.object({
+    targetId: z.string(),
+    targetMimeType: z.string(),
+  }),
+});
 export const Schema_File = z.object({
   mimeType: z.string(),
   encryptedId: z.string(),
@@ -127,6 +133,10 @@ export const Schema_Config_Site = z.object({
   showFileExtension: z.boolean().optional().default(false),
 
   footer: z.string().array().optional(),
+  experimental_pageLoadTime: z
+    .literal(false)
+    .or(z.enum(["s", "ms"]))
+    .default("ms"),
 
   privateIndex: z.boolean().optional().default(false),
   breadcrumbMax: z.number(),

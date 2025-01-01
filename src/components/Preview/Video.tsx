@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { z } from "zod";
 
-import { Loader, Status } from "~/components/Global";
+import { Loader, Status } from "~/components/global";
 
 import useLoading from "~/hooks/useLoading";
 

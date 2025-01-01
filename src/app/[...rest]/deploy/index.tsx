@@ -4,15 +4,15 @@ import { icons } from "lucide-react";
 import { useMemo } from "react";
 import { getting_started, migration, new_user, shared_drive } from "~/data/docs";
 
-import { Icon, Markdown } from "~/components/Global";
 import { ConfigurationForm } from "~/components/Guide/Configuration";
 import { ThemeForm } from "~/components/Guide/Theme";
+import { Icon, Markdown } from "~/components/global";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import { cn } from "~/utils/cn";
+import { cn } from "~/lib/utils";
 
 const Sections = ["start", "new-user", "shared-drive", "migrating", "config", "theme"] as const;
 type Section = (typeof Sections)[number];
@@ -45,9 +45,9 @@ export default function DeployGuidePage() {
   );
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-screen-desktop", "gap-3 p-3", "flex-grow-0", "flex flex-col")}>
+    <div className={cn("relative mx-auto w-full max-w-screen-desktop", "gap-4 p-3", "flex-grow-0", "flex flex-col")}>
       <Alert className='bg-blue-50 text-blue-600 dark:bg-blue-950/25 dark:text-blue-500'>
-        <div className='flex items-start gap-3'>
+        <div className='flex items-start gap-4'>
           <Icon
             name='Info'
             className='size-5'
@@ -137,7 +137,7 @@ Please set the \`showDeployGuide\` to false on the config files. Since it will t
       <Separator />
 
       <Alert className='bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-500'>
-        <div className='flex items-start gap-3'>
+        <div className='flex items-start gap-4'>
           <Icon
             name='TriangleAlert'
             className='size-5'

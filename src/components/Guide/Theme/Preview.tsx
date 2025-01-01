@@ -4,11 +4,11 @@ import { PopoverTrigger } from "@radix-ui/react-popover";
 import NextTopLoader from "nextjs-toploader";
 import nProgress from "nprogress";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
+import { cn } from "~/lib/utils";
 
-import { Grid as FileGrid, List as FileList } from "~/components/Explorer";
-import { ButtonLoading } from "~/components/Global";
+import { ButtonLoading } from "~/components/global";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import {
@@ -30,8 +30,6 @@ import { Popover, PopoverContent } from "~/components/ui/popover";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import { Textarea } from "~/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-
-import { cn } from "~/utils/cn";
 
 import { ButtonState, Schema_File, Schema_Theme } from "~/types/schema";
 
@@ -62,7 +60,7 @@ export default function ThemePreview({ theme }: Props) {
       <div
         slot='preview'
         ref={setPortalContainer}
-        className='preview flex flex-col gap-3 bg-background p-3 text-foreground'
+        className='preview flex flex-col gap-4 bg-background p-3 text-foreground'
         style={
           {
             "--background": theme.background,
@@ -91,7 +89,7 @@ export default function ThemePreview({ theme }: Props) {
         <Wrapper
           title='Button'
           extra={`Primary, Secondary, Accent, Destructive, Input Border`}
-          className='grid grid-cols-3 gap-1.5'
+          className='grid grid-cols-3 gap-2'
         >
           {["default", "secondary", "destructive", "outline", "ghost", "link"].map((btn) => (
             <Button
@@ -118,7 +116,7 @@ export default function ThemePreview({ theme }: Props) {
         <Wrapper
           title='Popover'
           extra={`Popover, Element Border`}
-          className='grid grid-cols-3 gap-1.5'
+          className='grid grid-cols-3 gap-2'
         >
           <Tooltip>
             <TooltipTrigger asChild>
@@ -171,7 +169,7 @@ export default function ThemePreview({ theme }: Props) {
         <Wrapper
           title='Overlay'
           extra={`Background, Primary, Muted, Element Border`}
-          className='grid grid-cols-3 gap-1.5'
+          className='grid grid-cols-3 gap-2'
         >
           <Dialog>
             <DialogTrigger asChild>
@@ -270,16 +268,16 @@ export default function ThemePreview({ theme }: Props) {
 
         <Wrapper
           title='File'
-          className='grid grid-cols-1 gap-1.5'
+          className='grid grid-cols-1 gap-2'
         >
-          <FileList
+          {/* <FileList
             data={fileMockData}
             disabled
           />
           <FileGrid
             data={fileMockData}
             disabled
-          />
+          /> */}
         </Wrapper>
       </div>
     </div>
@@ -293,7 +291,7 @@ type WrapperProps = {
 };
 function Wrapper({ title, extra, className, children }: React.PropsWithChildren<WrapperProps>) {
   return (
-    <div className='flex w-full flex-col gap-3'>
+    <div className='flex w-full flex-col gap-4'>
       <div className='flex flex-col'>
         <h3>{title}</h3>
         {extra && <p className='text-xs opacity-50'>{extra}</p>}

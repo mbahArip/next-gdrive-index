@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader, Status } from "~/components/Global";
+import { Loader, Status } from "~/components/global";
 
 import useLoading from "~/hooks/useLoading";
 

@@ -1,18 +1,18 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
 import "plyr-react/plyr.css";
+import { BASE_URL } from "~/constant";
+import { type ActionResponseSchema } from "~/types";
 
-import { Footer, Navbar, Password, ThemeProvider } from "~/components/Layout";
-import ToTop from "~/components/Layout/ToTop";
+import { Footer, Navbar, Password, Provider, ToTop } from "~/components/layout";
 
-import { cn } from "~/utils/cn";
-import { formatFooter } from "~/utils/footerFormatter";
+import { cn, formatFooterContent } from "~/lib/utils";
 
-import { CheckSitePassword } from "actions";
+import { CheckIndexPassword } from "~/actions/password";
+import "~/styles/globals.css";
+import "~/styles/markdown.css";
+
 import config from "config";
-
-import "./globals.css";
-import "./markdown.css";
 
 const sourceSans3 = Source_Sans_3({
   weight: ["300", "400", "600", "700"],
@@ -37,10 +37,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(config.basePath),
+  metadataBase: new URL(BASE_URL),
   title: {
     default: config.siteConfig.siteName,
-    template: config.siteConfig.siteNameTemplate?.replace("%t", config.siteConfig.siteName) || "%s",
+    template: config.siteConfig.siteNameTemplate?.replace("%t", config.siteConfig.siteName) ?? "%s",
   },
   description: config.siteConfig.siteDescription,
   authors: config.siteConfig.siteAuthor
@@ -54,13 +54,13 @@ export const metadata: Metadata = {
       url: config.siteConfig.favIcon,
     },
   ],
-  keywords: ["gdrive", "index", "nextjs", "reactjs"],
+  keywords: ["gdrive", "index", "nextjs", "reactjs", "google drive"],
   openGraph: {
     type: "website",
     siteName: config.siteConfig.siteName,
     images: [
       {
-        url: "/og.png",
+        url: "/og.webp",
         width: 1200,
         height: 630,
       },
@@ -74,29 +74,42 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  let unlocked: Awaited<ReturnType<typeof CheckSitePassword>> = {
+  let unlocked: ActionResponseSchema = {
     success: true,
-    message: "",
+    message: "Index is public",
+    data: undefined,
   };
   if (config.siteConfig.privateIndex) {
-    unlocked = await CheckSitePassword();
+    unlocked = await CheckIndexPassword();
   }
 
   return (
-    <html lang='en'>
+    <html
+      lang='en'
+      suppressHydrationWarning
+    >
       <body
         className={cn(
-          "h-full bg-background font-sans text-foreground",
+          "h-full min-h-screen bg-background stroke-foreground font-sans text-foreground",
           jetbrainsMono.variable,
           sourceSans3.variable,
           outfit.variable,
         )}
       >
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
+        <Provider
+          theme={{
+            attribute: "class",
+            defaultTheme: "system",
+            enableSystem: true,
+            disableTransitionOnChange: true,
+          }}
+          tooltip={{
+            delayDuration: 250,
+          }}
+          toaster={{
+            position: config.siteConfig.toaster?.position,
+            duration: config.siteConfig.toaster?.duration,
+          }}
         >
           <Navbar />
           <main
@@ -104,22 +117,24 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             className={cn(
               "mx-auto h-full w-full max-w-screen-desktop",
               "relative left-0 top-0",
-              "flex flex-grow flex-col gap-3 p-6",
+              "flex flex-grow flex-col gap-4 px-2 py-6 mobile:px-3 tablet:px-4",
               "tablet:gap-6",
             )}
           >
             {config.siteConfig.privateIndex && !unlocked.success ? (
-              <Password
-                path='global'
-                errorMessage={unlocked.message}
-              />
+              <>
+                <Password
+                  type='global'
+                  errorMessage={unlocked.error}
+                />
+              </>
             ) : (
               <>{children}</>
             )}
           </main>
-          {config.siteConfig.footer && <Footer content={formatFooter(config.siteConfig.footer)} />}
+          <Footer content={formatFooterContent(config.siteConfig.footer ?? [])} />
           <ToTop />
-        </ThemeProvider>
+        </Provider>
       </body>
     </html>
   );

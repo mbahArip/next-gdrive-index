@@ -1,39 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
-import { ButtonLoading } from "~/components/Global";
-import { Button } from "~/components/ui/button";
-
-import { ButtonState } from "~/types/schema";
+import { Button, LoadingButton } from "~/components/ui/button";
 
 type Props = {
   title: string;
   onLoad?: () => void;
 };
 export default function ConfigurationHeader({ title, onLoad }: Props) {
-  const [loadState, setLoadState] = useState<ButtonState>("idle");
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   return (
     <div
       slot='header'
-      className='flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between'
+      className='flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between'
     >
       <h4>{title}</h4>
 
       <div
         slot='actions'
-        className='flex w-full items-center gap-3 tablet:w-fit'
+        className='flex w-full items-center gap-4 tablet:w-fit'
       >
         {onLoad && (
-          <ButtonLoading
+          <LoadingButton
             variant={"outline"}
             size={"sm"}
-            state={loadState}
+            loading={isLoading}
             onClick={(e) => {
               e.preventDefault();
-              setLoadState("loading");
+              setLoading(true);
 
               try {
                 onLoad();
@@ -42,12 +39,12 @@ export default function ConfigurationHeader({ title, onLoad }: Props) {
                 console.error(e.message);
                 toast.error(e.message);
               } finally {
-                setLoadState("idle");
+                setLoading(false);
               }
             }}
           >
             Load File
-          </ButtonLoading>
+          </LoadingButton>
         )}
         <Button
           variant={"destructive"}

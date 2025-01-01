@@ -1,31 +1,32 @@
 {
   "compilerOptions": {
-    "target": "es2021",
-    "lib": ["dom", "dom.iterable", "esnext", "es2019"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "moduleDetection": "force",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "checkJs": true,
+
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "jsx": "preserve",
+    "plugins": [{ "name": "next" }],
     "incremental": true,
-    "baseUrl": "./src",
+    "isolatedModules": true,
+
+    "baseUrl": ".",
     "paths": {
-      "~/*": ["*"],
-      "actions": ["app/actions.ts"],
-      "config": ["config/gIndex.config.ts"]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+      "~/*": ["./src/*"],
+      "actions": ["./src/app/actions.ts"],
+      "config": ["./src/config/gIndex.config.ts"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "**/*/_legacy/**/*", "**/*/_app/**/*", "**/*/_page/**/*"]
+  "exclude": ["node_modules", ".next", "**/*/_*"]
 }

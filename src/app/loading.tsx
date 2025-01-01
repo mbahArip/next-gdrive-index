@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader } from "~/components/Global";
+import { PageLoader } from "~/components/layout";
 
 export default function RootLoading() {
-  return <Loader message='Loading data...' />;
+  return <PageLoader message='Loading data...' />;
 }

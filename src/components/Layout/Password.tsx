@@ -1,24 +1,30 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
+import { CheckIndexPassword, CheckPagePassword, SetIndexPassword, SetPagePassword } from "~/actions/password";
+import { cn, toUrlPath } from "~/lib/utils";
 
-import { Icon, Loader } from "~/components/Global";
-import { Button } from "~/components/ui/button";
+import { PageLoader } from "~/components/layout";
+import { LoadingButton } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
 import useLoading from "~/hooks/useLoading";
-import { cn } from "~/utils/cn";
+import useRouter from "~/hooks/usePRouter";
 
-import { CheckPassword, CheckSitePassword, SetPassword, SetSitePassword } from "actions";
-
-type Props = {
-  path: string;
-  checkPaths?: { path: string; id: string }[];
-  errorMessage?: string;
-};
-export default function Password({ path, checkPaths, errorMessage }: Props) {
+type Props =
+  | {
+      type: "global";
+      errorMessage?: string;
+    }
+  | {
+      type: "path";
+      paths: { path: string; id: string }[];
+      errorMessage?: string;
+    };
+export default function Password(props: Props) {
+  const pathname = usePathname();
   const router = useRouter();
   const loading = useLoading();
 
@@ -27,48 +33,33 @@ export default function Password({ path, checkPaths, errorMessage }: Props) {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!input) return toast.error("Password is required", { id: "password" });
     setSubmitLoading(true);
-    toast.loading("Checking password...", {
-      id: "password",
-    });
+    toast.loading("Validating password...", { id: "password" });
 
     try {
-      if (!input) throw new Error("Password is required");
-      if (path === "global") {
-        const set = await SetSitePassword(input);
-        if (!set.success) throw new Error(set.message);
-
-        const check = await CheckSitePassword();
-        if (!check.success) throw new Error(check.message);
+      if (props.type === "global") {
+        await SetIndexPassword(input);
+        const res = await CheckIndexPassword();
+        if (!res.success) return toast.error(res.error, { id: "password" });
       } else {
-        if (!checkPaths) throw new Error("No path found, try to refresh the page.");
-        const set = await SetPassword(path, input);
-        if (!set.success) throw new Error(set.message);
-
-        const check = await CheckPassword(checkPaths);
-        if (!check.success) throw new Error(check.message);
+        await SetPagePassword(toUrlPath(props.paths), input);
+        const res = await CheckPagePassword(props.paths);
+        if (!res.success) return toast.error(res.error, { id: "password" });
       }
 
-      toast.success("Password accepted! Refreshing...", {
-        id: "password",
-      });
+      toast.success("Password accepted! Refreshing...", { id: "password" });
       router.refresh();
-    } catch (error) {
-      const e = error as Error;
-      console.error(e.message);
-      toast.error(e.message, {
-        id: "password",
-      });
-      setSubmitLoading(false);
     } finally {
+      setSubmitLoading(false);
       setInput("");
     }
   };
 
-  if (loading) return <Loader message='Checking password...' />;
+  if (loading) return <PageLoader message='Checking password...' />;
 
   return (
-    <div className={cn("mx-auto h-full w-full max-w-md", "flex flex-grow flex-col items-center justify-center gap-3")}>
+    <div className={cn("mx-auto h-full w-full max-w-md", "flex flex-grow flex-col items-center justify-center gap-4")}>
       <img
         src='/images/undraw_vault.svg'
         alt='Password illustration'
@@ -77,14 +68,14 @@ export default function Password({ path, checkPaths, errorMessage }: Props) {
       />
       <div className='flex flex-col items-center justify-center'>
         <h3 className='text-balance text-center'>
-          {path === "global"
-            ? "This site are password protected"
+          {props.type === "global"
+            ? "The site is password protected"
             : "The folder or file you are trying to access is password protected"}
         </h3>
       </div>
 
       <form
-        className={cn("w-full", "grid grid-cols-1 gap-3", "tablet:grid-cols-4")}
+        className={cn("w-full", "grid grid-cols-1 gap-2", "tablet:grid-cols-4")}
         onSubmit={onSubmit}
       >
         <Input
@@ -95,27 +86,16 @@ export default function Password({ path, checkPaths, errorMessage }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
-        <Button
-          className='gap-3'
+        <LoadingButton
+          loading={submitLoading}
           type='submit'
-          disabled={submitLoading}
+          disabled={!input}
         >
-          {submitLoading ? (
-            <>
-              <Icon
-                name='LoaderCircle'
-                size={"1rem"}
-                className='animate-spin'
-              />
-              Loading...
-            </>
-          ) : (
-            <>Submit</>
-          )}
-        </Button>
+          Submit
+        </LoadingButton>
       </form>
-      <span className={cn("text-pretty text-center text-destructive", errorMessage ? "visible" : "invisible")}>
-        {errorMessage || "Nothing wrong here, just a password wall"}
+      <span className={cn("text-pretty text-center text-destructive", props.errorMessage ? "visible" : "invisible")}>
+        {props.errorMessage || "Nothing here, just a password wall"}
       </span>
     </div>
   );
