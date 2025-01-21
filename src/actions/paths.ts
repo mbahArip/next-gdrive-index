@@ -36,6 +36,7 @@ export async function GetFilePaths(fileName: string, parentId?: string): Promise
     const { data } = await gdrive.files.get({
       fileId: parentIdTemp,
       fields: "id,name,parents",
+      supportsAllDrives: config.apiConfig.isTeamDrive,
     });
     if (!data.name) break;
 

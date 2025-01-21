@@ -342,10 +342,33 @@ export async function GetBanner(id: string | null = null): Promise<ActionRespons
   };
 }
 
-export async function CreateFileToken(id: string): Promise<ActionResponseSchema<string>> {
+/**
+ * Get content of text file
+ * @param id - File ID to fetch
+ */
+export async function GetContent(id: string): Promise<ActionResponseSchema<string>> {
+  const decryptedId = await encryptionService.decrypt(id);
+
+  const { data, status, statusText } = await gdrive.files.get(
+    {
+      fileId: decryptedId,
+      alt: "media",
+      supportsAllDrives: config.apiConfig.isTeamDrive,
+    },
+    {
+      responseType: "text",
+    },
+  );
+  if (status !== 200)
+    return {
+      success: false,
+      message: "Failed to fetch content",
+      error: statusText,
+    };
+
   return {
     success: true,
-    message: "Token created",
-    data: "",
+    message: "Content found",
+    data: data as string,
   };
 }
