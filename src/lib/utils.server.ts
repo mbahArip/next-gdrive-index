@@ -1,7 +1,7 @@
-import { decodeBase64url, encodeBase64url } from "@oslojs/encoding";
-import { GoogleAuth } from "google-auth-library";
-import { JSONClient } from "google-auth-library/build/src/auth/googleauth";
-import { drive_v3, google } from "googleapis";
+import { decodeBase64, decodeBase64url, encodeBase64, encodeBase64url } from "@oslojs/encoding";
+import { type GoogleAuth } from "google-auth-library";
+import { type JSONClient } from "google-auth-library/build/src/auth/googleauth";
+import { type drive_v3, google } from "googleapis";
 import "server-only";
 
 class EncryptionService {
@@ -58,12 +58,16 @@ class EncryptionService {
   }
 }
 
-const base64Encode = (text: string) => {
+type B64Type = "url" | "standard";
+export const base64Encode = (text: string, type: B64Type = "url") => {
   const data = new TextEncoder().encode(text);
+  if (type === "standard") return encodeBase64(data);
   return encodeBase64url(data);
 };
-const base64Decode = <T = unknown>(encoded: string): T => {
-  const decoded = decodeBase64url(encoded);
+export const base64Decode = <T = unknown>(encoded: string, type: B64Type = "url"): T => {
+  let decoded: Uint8Array<ArrayBufferLike>;
+  if (type === "standard") decoded = decodeBase64(encoded);
+  else decoded = decodeBase64url(encoded);
   return new TextDecoder().decode(decoded) as T;
 };
 
@@ -106,7 +110,7 @@ class GoogleDriveService {
       version: "v3",
       auth: this.auth,
       fetchImplementation: (url, init) =>
-        fetch(url, {
+        fetch(url as string | URL, {
           ...init,
           cache: "no-store",
         }),

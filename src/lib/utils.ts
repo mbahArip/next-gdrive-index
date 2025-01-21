@@ -1,8 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { z } from "zod";
+import { type z } from "zod";
 
-import { Schema_Breadcrumb } from "~/types/schema";
+import { Schema_Breadcrumb, Schema_Config_Site } from "~/types/schema";
 
 import config from "config";
 
@@ -10,19 +10,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatFooterContent(text: string[]): string {
+export function formatFooterContent(
+  text: { value: string }[],
+  siteConfig?: z.infer<typeof Schema_Config_Site>,
+): string {
+  const data = siteConfig ?? config.siteConfig;
   const formatMap = {
     year: new Date().getFullYear().toString(),
     repository: "[Source Code](https://github.com/mbaharip/next-gdrive-index)",
     poweredBy: `Powered by [next-gdrive-index v${config.version}](https://github.com/mbaharip/next-gdrive-index)`,
-    author: config.siteConfig.siteAuthor ?? "mbaharip",
+    author: data.siteAuthor ?? "mbaharip",
     version: config.version ?? "0.0.0",
-    siteName: config.siteConfig.siteName ?? "next-gdrive-index",
-    handle: config.siteConfig.twitterHandle ?? "@__mbaharip__",
+    siteName: data.siteName ?? "next-gdrive-index",
+    handle: data.twitterHandle ?? "@__mbaharip__",
     creator: "mbaharip",
   };
 
-  return text.join("\n").replace(/{{\s*(\w+)\s*}}/g, (_, key) => formatMap[key as keyof typeof formatMap] ?? "");
+  return text
+    .map((item) => item.value.trim())
+    .join("\n")
+    .replace(/{{\s*(\w+)\s*}}/g, (_, key) => formatMap[key as keyof typeof formatMap] ?? "");
 }
 
 export function formatDate(date: string | number | Date, options?: Intl.DateTimeFormatOptions): string {
