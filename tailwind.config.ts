@@ -1,4 +1,5 @@
 import twTypography from "@tailwindcss/typography";
+import twVidstack from "@vidstack/react/tailwind.cjs";
 import type { Config } from "tailwindcss";
 import twAnimate from "tailwindcss-animate";
 import tw from "tailwindcss/defaultTheme";
@@ -103,7 +104,14 @@ const config: Config = {
       },
     },
   },
-  plugins: [twAnimate, twTypography],
+  plugins: [
+    twAnimate,
+    twTypography,
+    twVidstack({
+      selector: ".media-player",
+      prefix: "media",
+    }),
+  ],
 };
 
 export default config;
