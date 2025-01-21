@@ -37,3 +37,8 @@ export const COOKIES_OPTIONS = {
   httpOnly: true,
   maxAge: COOKIES_AGE * 1000,
 } as const;
+
+/**
+ * On this paths, navbar and footer will not be rendered
+ */
+export const NO_LAYOUT_PATHS = [/\/_\/embed\//g];
