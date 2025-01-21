@@ -1,6 +1,6 @@
 import { type Metadata } from "next";
 import { JetBrains_Mono, Outfit, Source_Sans_3 } from "next/font/google";
-import "plyr-react/plyr.css";
+import { headers } from "next/headers";
 import { BASE_URL } from "~/constant";
 import { type ActionResponseSchema } from "~/types";
 
@@ -74,6 +74,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const head = await headers();
+  const pathname = head.get("X-Pathname") ?? "/";
   let unlocked: ActionResponseSchema = {
     success: true,
     message: "Index is public",
@@ -90,7 +92,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     >
       <body
         className={cn(
-          "h-full min-h-screen bg-background stroke-foreground font-sans text-foreground",
+          "overflow-x-hidden stroke-foreground font-sans text-foreground",
+          pathname.startsWith("/_/embed/") ? "h-fit bg-transparent" : "h-full min-h-screen bg-background",
           jetbrainsMono.variable,
           sourceSans3.variable,
           outfit.variable,
@@ -99,7 +102,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Provider
           theme={{
             attribute: "class",
-            defaultTheme: "system",
+            defaultTheme: "light",
             enableSystem: true,
             disableTransitionOnChange: true,
           }}
@@ -115,7 +118,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <main
             slot='content'
             className={cn(
-              "mx-auto h-full w-full max-w-screen-desktop",
+              "mx-auto h-auto w-full max-w-screen-desktop",
               "relative left-0 top-0",
               "flex flex-grow flex-col gap-4 px-2 py-6 mobile:px-3 tablet:px-4",
               "tablet:gap-6",
