@@ -34,6 +34,7 @@ import {
 interface ResponsiveDialogRootProps extends React.PropsWithChildren {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
 }
 interface ResponsiveDialogProps extends React.PropsWithChildren {
   asChild?: true;
@@ -47,7 +48,6 @@ const ResponsiveDialog = (props: ResponsiveDialogRootProps) => {
   const { ...rest } = props;
   const { isDesktop } = useResponsive();
   const Component = React.useMemo(() => (isDesktop ? Dialog : Drawer), [isDesktop]);
-
   return <Component {...rest} />;
 };
 

@@ -18,7 +18,7 @@ const buttonVariants = cva(
         "outline-destructive":
           "border border-input bg-background text-destructive stroke-destructive shadow-sm hover:bg-destructive hover:text-destructive-foreground hover:stroke-destructive-foreground",
         "ghost-destructive":
-          "stroke-destructive hover:bg-destructive hover:text-destructive-foreground hover:stroke-destructive-foreground",
+          "stroke-destructive text-destructive hover:bg-destructive dark:hover:bg-destructive/20 hover:text-destructive-foreground hover:stroke-destructive-foreground",
         "outline":
           "border border-input bg-background stroke-foreground shadow-sm hover:bg-accent hover:text-accent-foreground hover:stroke-accent-foreground",
         "secondary":
@@ -108,7 +108,7 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
             duration: 0.3,
             ease: "easeInOut",
           }}
-          className={cn("relative inline-flex items-center justify-center", className)}
+          className={cn("relative inline-flex items-center justify-center gap-2", className)}
         >
           {children}
         </motion.div>

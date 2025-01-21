@@ -9,6 +9,8 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-background text-foreground",
+        primary: "bg-primary/25 border-primary/50",
+        warning: "bg-amber-600/25 dark:bg-amber-400/25 border-amber-600/50 dark:border-amber-400/50",
         destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
       },
     },
@@ -35,7 +37,7 @@ const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<H
   ({ className, ...props }, ref) => (
     <h5
       ref={ref}
-      className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+      className={cn("mb-1 text-base font-semibold leading-none tracking-tight", className)}
       {...props}
     />
   ),
@@ -53,4 +55,4 @@ const AlertDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttrib
 );
 AlertDescription.displayName = "AlertDescription";
 
-export { Alert, AlertTitle, AlertDescription };
+export { Alert, AlertDescription, AlertTitle };

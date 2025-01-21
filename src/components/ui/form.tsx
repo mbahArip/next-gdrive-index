@@ -9,6 +9,9 @@ import { Label } from "~/components/ui/label";
 
 import { cn } from "~/lib/utils";
 
+import { Button } from "./button";
+import Icon from "./icon";
+
 const Form = FormProvider;
 
 type FormFieldContextValue<
@@ -62,36 +65,67 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    const id = React.useId();
+const FormItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    disableBorder?: true;
+  }
+>(({ className, disableBorder, ...props }, ref) => {
+  const id = React.useId();
 
-    return (
-      <FormItemContext.Provider value={{ id }}>
-        <div
-          ref={ref}
-          className={cn("space-y-2", className)}
-          {...props}
-        />
-      </FormItemContext.Provider>
-    );
-  },
-);
+  return (
+    <FormItemContext.Provider value={{ id }}>
+      <div
+        ref={ref}
+        data-use-border={!disableBorder}
+        className={cn(
+          "space-y-2 rounded-lg data-[use-border=true]:border data-[use-border=true]:px-4 data-[use-border=true]:py-2 data-[use-border=true]:shadow",
+          className,
+        )}
+        {...props}
+      />
+    </FormItemContext.Provider>
+  );
+});
 FormItem.displayName = "FormItem";
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    onFieldReset?: () => void;
+    resetDisabled?: boolean;
+    wrapperClassname?: string;
+  }
+>(({ className, onFieldReset, resetDisabled, wrapperClassname, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label
-      ref={ref}
-      className={cn(error && "text-destructive", className)}
-      htmlFor={formItemId}
-      {...props}
-    />
+    <div
+      className={cn(
+        "flex w-full items-center justify-between gap-2 tablet:w-fit tablet:justify-start",
+        wrapperClassname,
+      )}
+    >
+      <Label
+        ref={ref}
+        className={cn(error && "text-destructive", className)}
+        htmlFor={formItemId}
+        {...props}
+      />
+      {onFieldReset && (
+        <Button
+          variant={"ghost"}
+          onClick={onFieldReset}
+          disabled={resetDisabled}
+          size={"icon"}
+        >
+          <Icon
+            name='RefreshCcw'
+            className='stroke-inherit'
+          />
+        </Button>
+      )}
+    </div>
   );
 });
 FormLabel.displayName = "FormLabel";
@@ -121,7 +155,7 @@ const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
       <p
         ref={ref}
         id={formDescriptionId}
-        className={cn("text-[0.8rem] text-muted-foreground", className)}
+        className={cn("text-[0.8rem] leading-snug text-muted-foreground", className)}
         {...props}
       />
     );
@@ -152,4 +186,4 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 );
 FormMessage.displayName = "FormMessage";
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField };

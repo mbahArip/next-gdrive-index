@@ -32,6 +32,7 @@ import { Separator } from "./separator";
 interface ResponsiveDropdownMenuRootProps extends React.PropsWithChildren {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
 }
 interface ResponsiveDropdownTriggerProps extends React.PropsWithChildren {
   asChild?: true;
@@ -54,6 +55,7 @@ interface ResponsiveDropdownMenuItemProps extends React.PropsWithChildren {
   selected?: boolean;
   onSelect?: () => void;
   closeOnSelect?: boolean;
+  disabled?: boolean;
 }
 interface ResponsiveDropdownSeparatorProps extends React.PropsWithChildren {
   asChild?: true;
@@ -113,7 +115,7 @@ const ResponsiveDropdownMenuContent = (props: ResponsiveDropdownContentProps) =>
   return Component;
 };
 const ResponsiveDropdownMenuItem = (props: ResponsiveDropdownMenuItemProps) => {
-  const { selected, onSelect, closeOnSelect, ...rest } = props;
+  const { selected, onSelect, closeOnSelect, disabled, ...rest } = props;
   const { isDesktop } = useResponsive();
   const loading = useLoading();
   const Wrapper = React.useCallback<React.FC<{ children: React.ReactNode }>>(
@@ -127,6 +129,7 @@ const ResponsiveDropdownMenuItem = (props: ResponsiveDropdownMenuItemProps) => {
       isDesktop ? (
         <DropdownMenuItem
           onSelect={onSelect}
+          disabled={disabled}
           {...rest}
         />
       ) : (
@@ -134,13 +137,13 @@ const ResponsiveDropdownMenuItem = (props: ResponsiveDropdownMenuItemProps) => {
           <Button
             variant={selected ? "secondary" : "outline"}
             className='w-full'
-            disabled={selected}
+            disabled={selected ?? disabled}
             onClick={onSelect}
             {...rest}
           />
         </Wrapper>
       ),
-    [isDesktop, onSelect, rest, Wrapper, selected],
+    [isDesktop, onSelect, rest, Wrapper, selected, disabled],
   );
 
   if (loading) return null;

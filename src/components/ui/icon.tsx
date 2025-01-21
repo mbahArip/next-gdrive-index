@@ -24,7 +24,7 @@ export default function Icon({ name, className, hideWrapper, wrapperProps, ...pr
       hideWrapper ? (
         <Fragment>
           <LucideIcon
-            className={cn("size-4 stroke-inherit", className)}
+            className={cn("size-4 stroke-current", className)}
             {...props}
           />
         </Fragment>
@@ -34,7 +34,7 @@ export default function Icon({ name, className, hideWrapper, wrapperProps, ...pr
           {...restWrapperProps}
         >
           <LucideIcon
-            className={cn("size-4 stroke-inherit", className)}
+            className={cn("size-4 stroke-current", className)}
             {...props}
           />
         </span>
