@@ -12,6 +12,9 @@
 	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index/v2?label=dev' alt='Dev' />
 </p>
 
+> ![NOTE]
+> All thing left is configurator, and the site is ready to be deployed! (Will remove this note when code ready to be merged)
+
 ---
 
 <!-- Generate TOC -->
@@ -95,10 +98,10 @@ I know there are a lot of people selling cheap education account especially for 
 You need to set the file sharing permission to `Anyone with the link can view` on the root folder.
 
 **Why?**
-The download link will be redirected if the file you're trying to download is bigger than the `maxFileSize`, and most of platform are limiting the response body size (ex: Vercel limit is 4MB).  
+The download link will be redirected if the file you're trying to download is bigger than the `maxFileSize`, and most of platform are limiting the response body size (ex: Vercel limit is 4MB).
 If you don't set the permission, people can't access or download the file.
 
-This will <u>expose the file ID</u>, and people can access the file directly from Google Drive.  
+This will <u>expose the file ID</u>, and people can access the file directly from Google Drive.
 But it <u>only apply to the file</u>, and they can't see or browse the folder directly from Google Drive.
 
 ### No support for Google Docs, Sheets, and Slides
@@ -129,7 +132,7 @@ It's either from multiple Google Drive account with multiple Service Account, or
 
 ### Authentication
 
-Probably a good feature if you are a content creator that only want the one who subscribed to you get the files.  
+Probably a good feature if you are a content creator that only want the one who subscribed to you get the files.
 It might need a database, but idk if I can implement it without the need of database
 
 ## Running on Local
