@@ -93,15 +93,15 @@ export const Schema_Old_Config = z.object({
 export const Schema_Config_API = z
   .object({
     rootFolder: z.string(),
-    isTeamDrive: z.boolean(),
+    isTeamDrive: z.coerce.boolean(),
     sharedDrive: z.string().optional(),
     defaultQuery: z.array(z.string()),
     defaultField: z.string(),
     defaultOrder: z.string(),
-    itemsPerPage: z.number().positive(),
-    searchResult: z.number().positive(),
-    proxyThumbnail: z.boolean(),
-    streamMaxSize: z.number(),
+    itemsPerPage: z.coerce.number().positive(),
+    searchResult: z.coerce.number().positive(),
+    proxyThumbnail: z.coerce.boolean(),
+    streamMaxSize: z.coerce.number(),
 
     specialFile: z.object({
       password: z.string(),
@@ -110,9 +110,9 @@ export const Schema_Config_API = z
     }),
     hiddenFiles: z.array(z.string()),
 
-    allowDownloadProtectedFile: z.boolean(),
-    temporaryTokenDuration: z.number().positive(),
-    maxFileSize: z.number().positive(),
+    allowDownloadProtectedFile: z.coerce.boolean(),
+    temporaryTokenDuration: z.coerce.number().positive(),
+    maxFileSize: z.coerce.number().positive(),
   })
   .refine(
     (data) => {
@@ -130,21 +130,27 @@ export const Schema_Config_Site = z.object({
   robots: z.string().optional().default("noindex, nofollow"),
   twitterHandle: z.string().optional().default("@__mbaharip__"),
 
-  showFileExtension: z.boolean().optional().default(false),
+  showFileExtension: z.coerce.boolean().optional().default(false),
 
-  footer: z.string().array().optional(),
+  footer: z
+    .array(
+      z.object({
+        value: z.string(),
+      }),
+    )
+    .default([]),
   experimental_pageLoadTime: z
     .literal(false)
     .or(z.enum(["s", "ms"]))
     .default("ms"),
 
-  privateIndex: z.boolean().optional().default(false),
-  breadcrumbMax: z.number(),
+  privateIndex: z.coerce.boolean().optional().default(false),
+  breadcrumbMax: z.coerce.number(),
 
   toaster: z
     .object({
       position: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]),
-      duration: z.number().positive(),
+      duration: z.coerce.number().positive(),
     })
     .optional()
     .default({
@@ -157,7 +163,7 @@ export const Schema_Config_Site = z.object({
       icon: z.enum(Object.keys(icons) as [keyof typeof icons]),
       name: z.string(),
       href: z.string(),
-      external: z.boolean().optional().default(false),
+      external: z.coerce.boolean().optional().default(false),
     }),
   ),
   supports: z.array(
@@ -167,6 +173,13 @@ export const Schema_Config_Site = z.object({
       href: z.string(),
     }),
   ),
+
+  previewSettings: z.object({
+    manga: z.object({
+      maxSize: z.coerce.number().positive(),
+      maxItem: z.coerce.number().positive(),
+    }),
+  }),
 });
 export const Schema_App_Configuration_Env = z.object({
   GD_SERVICE_B64: z.string(),
@@ -179,7 +192,7 @@ export const Schema_Config = z.object({
   version: z.string(),
   basePath: z.string(),
   cacheControl: z.string(),
-  showDeployGuide: z.boolean(),
+  showGuideButton: z.boolean(),
 
   apiConfig: Schema_Config_API,
 
@@ -202,8 +215,21 @@ export const Schema_ServiceAccount = z.object({
 
 export const Schema_App_Configuration = z.object({
   environment: Schema_App_Configuration_Env,
-  api: Schema_Config_API,
-  site: Schema_Config_Site,
+  api: Schema_Config_API.and(
+    z.object({
+      cache: z.object({
+        public: z.coerce.boolean(),
+        maxAge: z.coerce.number().positive(),
+        sMaxAge: z.coerce.number().positive(),
+        staleWhileRevalidate: z.coerce.boolean(),
+      }),
+    }),
+  ),
+  site: Schema_Config_Site.and(
+    z.object({
+      guideButton: z.boolean(),
+    }),
+  ),
 });
 
 export type ConfigurationCategory = keyof z.infer<typeof Schema_App_Configuration>;
@@ -240,3 +266,9 @@ export const Schema_Theme = z.object({
   "radius": z.string(),
 });
 export type ThemeKeys = keyof z.infer<typeof Schema_Theme>;
+
+export const Schema_FileToken = z.object({
+  id: z.string(),
+  exp: z.number(),
+  iat: z.number(),
+});

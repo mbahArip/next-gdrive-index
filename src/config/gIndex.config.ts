@@ -20,24 +20,22 @@ const config: z.input<typeof Schema_Config> = {
   basePath: IS_DEV ? "http://localhost:3000" : new URL(BASE_URL).toString(),
 
   /**
-   * Allow access to the deploy guide
-   * Will use the `/deploy` route, might be overlap with file / folder name
+   * Show deploy guide dropdown on navbar
+   * that contains the deploy guide and configurator
    *
-   * Set this to false on final deployment
-   *
-   * I'm using this to show the deploy guide on my own demo deployment
+   * Set this to false on final deployment, except you want to show it
    *
    * @default false
    */
-  showDeployGuide: false,
+  showGuideButton: true,
 
   /**
    * How long the cache will be stored in the browser
    * Used for all pages and api routes
    *
-   * @default "max-age=0, s-maxage=60, stale-while-revalidate"
+   * @default "public, max-age=60, s-maxage=60, stale-while-revalidate"
    */
-  cacheControl: "max-age=0, s-maxage=60, stale-while-revalidate",
+  cacheControl: "public, max-age=60, s-maxage=60, stale-while-revalidate",
 
   apiConfig: {
     /**
@@ -146,16 +144,16 @@ const config: z.input<typeof Schema_Config> = {
      * After 30 minutes, and the user still downloading the file, the download will NOT be interrupted
      * But if the user refresh the page / trying to download again, the download link will be expired
      *
-     * Default: 6 hours
+     * Default: 1 hour
      */
-    temporaryTokenDuration: 6,
+    temporaryTokenDuration: 1,
 
     /**
      * Maximum file size that can be downloaded via api routes
      * If it's larger than this, it will be redirected to the file url
      *
      * If you're using Vercel, they have a limit of ~4 - ~4.5MB response size
-     * ref: https://vercel.com/docs/platform/limits#serverless-function-payload-size-limit
+     * ref: https://vercel.com/docs/functions/runtimes#request-body-size
      * If you're using another platform, you can match the limit with your platform
      * Or you can set this to 0 to disable the limit
      *
@@ -215,7 +213,10 @@ const config: z.input<typeof Schema_Config> = {
      * - {{ handle }} will be replaced with the twitter handle from twitterHandle config above
      * - {{ creator }} will be replaced with mbaharip if you want to credit me
      */
-    footer: ["{{ poweredBy }}", "Made with ❤️ by [**{{ author }}**](https://github.com/mbaharip)"],
+    footer: [
+      { value: "{{ poweredBy }}" },
+      { value: "Made with ❤️ by [**{{ author }}**](https://github.com/mbaharip)" },
+    ],
     /**
      * Add page load time on the footer
      * If you don't want to use it, you can set it to false
@@ -303,6 +304,24 @@ const config: z.input<typeof Schema_Config> = {
         href: "https://saweria.co/mbaharip",
       },
     ],
+
+    /**
+     * Configuration for file preview
+     */
+    previewSettings: {
+      manga: {
+        /**
+         * Load first X MB of the file for preview
+         * or load first X items for preview
+         *
+         * @default
+         * maxSize: 15MB
+         * maxItem: 10 items
+         */
+        maxSize: 15 * 1024 * 1024,
+        maxItem: 10,
+      },
+    },
   },
 };
 
