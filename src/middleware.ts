@@ -1,8 +1,40 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
-  const response = NextResponse.next();
   const pathname = req.nextUrl.pathname;
+  const headers = new Headers(req.headers);
+  const cspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' blob: data:;
+  font-src 'self';
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'self' *;
+  block-all-mixed-content;
+  upgrade-insecure-requests;
+  `
+    .replace(/\s+/g, " ")
+    .trim();
+  if (pathname.startsWith("/_/embed/")) {
+    headers.set("Content-Security-Policy", cspHeader);
+    headers.set("X-Frame-Options", "ALLOWALL");
+    headers.set("X-Content-Type-Options", "nosniff");
+    headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers,
+    },
+  });
+  response.headers.set("X-Pathname", req.nextUrl.pathname);
+  if (pathname.startsWith("/_/embed/")) {
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
 
   // Skip the middleware if the pathname is the root
   if (pathname === "/") return response;

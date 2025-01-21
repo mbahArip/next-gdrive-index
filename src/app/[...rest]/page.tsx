@@ -2,6 +2,7 @@ import { type Metadata, type ResolvedMetadata } from "next";
 import { notFound } from "next/navigation";
 
 import { FileActions, FileBreadcrumb, FileExplorerLayout, FileReadme } from "~/components/explorer";
+import { Status } from "~/components/global";
 import { Password } from "~/components/layout";
 import { PreviewLayout } from "~/components/preview";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -12,25 +13,46 @@ import { formatPathToBreadcrumb } from "~/lib/utils";
 import { GetBanner, GetFile, GetReadme, ListFiles } from "~/actions/files";
 import { CheckPagePassword } from "~/actions/password";
 import { ValidatePaths } from "~/actions/paths";
-
-import config from "config";
+import { CreateFileToken } from "~/actions/token";
 
 import ErrorComponent from "../error";
-import DeployGuidePage from "./deploy";
+import ConfiguratorPage from "./ConfiguratorPage";
+import DeployPage from "./DeployPage";
+import EmbedPage from "./EmbedPage";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
+export const dynamicParams = false;
 
 type Props = {
   params: Promise<{
     rest: string[];
   }>;
 };
-const isDeployGuide = (paths: string[]) => paths.length === 1 && paths[0] === "deploy" && config.showDeployGuide;
+const internal = (paths: string[]) => {
+  const joinedPaths = (paths.join("/").startsWith("/") ? paths.join("/") : `/${paths.join("/")}`).replace(/\/+/g, "/");
+
+  return {
+    isInternalRoot: joinedPaths === "/_",
+    isGuidePage: joinedPaths === "/_/deploy",
+    isConfiguratorPage: joinedPaths === "/_/configurator",
+    isEmbedRootPage: joinedPaths === "/_/embed",
+    isEmbedPage: joinedPaths.startsWith("/_/embed/"),
+  };
+};
 
 export async function generateMetadata({ params }: Props, parent: ResolvedMetadata): Promise<Metadata> {
-  const { rest } = await params;
-  if (isDeployGuide(rest)) return { title: "Deploy Guide", description: "Read on how to deploy this project" };
+  const p = await params;
+  let rest = p.rest;
+  const { isInternalRoot, isGuidePage, isConfiguratorPage, isEmbedPage, isEmbedRootPage } = internal(p.rest);
+  if (isInternalRoot)
+    return { title: "Reserved Internal Path", description: "This path is reserved for internal pages" };
+  if (isGuidePage) return { title: "Guide", description: "Read on how to deploy your own index" };
+  if (isConfiguratorPage) return { title: "Configurator", description: "Configure your index" };
+  if (isEmbedRootPage) return { title: "Not Found" };
+  if (isEmbedPage) {
+    rest = rest.slice(2);
+  }
 
   const paths = await ValidatePaths(rest);
   if (!paths.success) return { title: "Not Found" };
@@ -39,10 +61,14 @@ export async function generateMetadata({ params }: Props, parent: ResolvedMetada
   if (!currentPath?.id) return { title: "Not Found" };
 
   const banner = await GetBanner(currentPath.id);
+  if (isEmbedPage && !currentPath.mimeType.includes("video") && !currentPath.mimeType.includes("audio"))
+    return { title: "Not Found" };
 
   return {
-    title: decodeURIComponent(currentPath.path),
-    description: currentPath.mimeType.includes("folder")
+    title: isEmbedPage ? `${decodeURIComponent(currentPath.path)} (embed)` : decodeURIComponent(currentPath.path),
+    description: isEmbedPage
+      ? `Embed ${currentPath.path}`
+      : currentPath.mimeType.includes("folder")
       ? `Browse ${currentPath.path} files`
       : `View ${currentPath.path}`,
     openGraph: {
@@ -58,15 +84,30 @@ export async function generateMetadata({ params }: Props, parent: ResolvedMetada
     },
   };
 }
-
 export default async function RestPage({ params }: Props) {
-  const { rest } = await params;
-  if (isDeployGuide(rest)) return <DeployGuidePage />;
+  const p = await params;
+  let rest = p.rest;
+  const { isInternalRoot, isConfiguratorPage, isEmbedPage, isEmbedRootPage, isGuidePage } = internal(p.rest);
+  if (isInternalRoot)
+    return (
+      <div className='grid grow place-items-center'>
+        <Status
+          icon='Lock'
+          message="This path is preserved for all internal pages, make sure you don't use this path on your google drive"
+        />
+      </div>
+    );
+  if (isGuidePage) return <DeployPage />;
+  if (isConfiguratorPage) return <ConfiguratorPage />;
+  if (isEmbedRootPage) return notFound();
+  if (isEmbedPage) rest = rest.slice(2);
 
   const paths = await ValidatePaths(rest);
   if (!paths.success) notFound();
 
   const unlocked = await CheckPagePassword(paths.data);
+  if (!unlocked.success && isEmbedPage)
+    return <ErrorComponent error={new Error("Protected file cannot be embedded")} />;
   if (!unlocked.success) {
     return (
       <Password
@@ -96,6 +137,7 @@ export default async function RestPage({ params }: Props) {
   );
 
   if (currentPath.mimeType.includes("folder")) {
+    if (isEmbedPage) return <ErrorComponent error={new Error("Folder cannot be embedded")} />;
     const [data, readme] = await Promise.all([ListFiles({ id: currentPath.id }), GetReadme(currentPath.id)]);
     if (!data.success) return <ErrorComponent error={new Error(data.error)} />;
     if (!readme.success) return <ErrorComponent error={new Error(readme.error)} />;
@@ -135,109 +177,38 @@ export default async function RestPage({ params }: Props) {
     if (file.error === "NotFound") notFound();
     return <ErrorComponent error={new Error(file.error)} />;
   }
+  if (!file.data) return <ErrorComponent error={new Error("Failed to get file data")} />;
+  const token = await CreateFileToken(file.data);
+  if (!token.success) return <ErrorComponent error={new Error(token.error)} />;
+
+  if (isEmbedPage) {
+    if (!currentPath.mimeType.includes("video") && !currentPath.mimeType.includes("audio"))
+      return (
+        <div className='max-w-screen fixed left-0 top-0 grid h-full max-h-screen w-full place-items-center bg-transparent p-2'>
+          <ErrorComponent error={new Error("Only video and audio file can be embedded")} />
+        </div>
+      );
+    return (
+      <div className='max-w-screen fixed left-0 top-0 grid h-full max-h-screen w-full place-items-center bg-transparent p-2'>
+        <EmbedPage
+          file={file.data}
+          type={currentPath.mimeType.includes("video") ? "video" : "audio"}
+        />
+      </div>
+    );
+  }
 
   return (
     <Layout>
       <PreviewLayout
-        data={file.data!}
+        data={file.data}
         fileType={
           file.data?.fileExtension && file.data?.mimeType
             ? getFileType(file.data.fileExtension, file.data.mimeType)
             : "unknown"
         }
+        token={token.data}
       />
     </Layout>
   );
-
-  // const paths = await CheckPaths(rest);
-  // if (!paths.success) notFound();
-  // const unlocked = await CheckPassword(paths.data);
-
-  // if (!unlocked.success) {
-  //   if (!unlocked.path)
-  //     throw new Error(`No path returned from password checking${unlocked.message && `, ${unlocked.message}`}`);
-  //   return (
-  //     <Password
-  //       path={unlocked.path}
-  //       checkPaths={paths.data}
-  //       errorMessage={unlocked.message}
-  //     />
-  //   );
-  // }
-
-  // const encryptedId = paths.data.pop()?.id;
-  // if (!encryptedId) throw new Error("Failed to get encrypted ID, try to refresh the page.");
-
-  // const promise = [];
-
-  // const { data: file } = await gdrive.files.get({
-  //   fileId: await decryptData(encryptedId),
-  //   fields: "mimeType, fileExtension",
-  //   supportsAllDrives: config.apiConfig.isTeamDrive,
-  // });
-  // if (!file.mimeType?.includes("folder")) {
-  //   promise.push(GetFile(encryptedId));
-  // } else {
-  //   promise.push(GetFiles({ id: encryptedId }));
-  // }
-  // promise.push(GetReadme(encryptedId));
-
-  // const [data, readme] = await Promise.all(promise).then((values) => {
-  //   const file = Schema_File.safeParse(values[0]);
-
-  //   if (file.success) {
-  //     return values as [z.infer<typeof Schema_File>, string];
-  //   } else {
-  //     return values as [{ files: z.infer<typeof Schema_File>[]; nextPageToken?: string }, string];
-  //   }
-  // });
-
-  // return (
-  //   <div className={cn("h-fit w-full", "flex flex-col gap-4")}>
-  //     <FileBreadcrumb
-  //       data={rest.map((item, index, array) => ({
-  //         label: decodeURIComponent(item),
-  //         href: index === array.length - 1 ? undefined : `${item}`,
-  //       }))}
-  //     />
-
-  //     <section
-  //       slot='content'
-  //       className='w-full'
-  //     >
-  //       {!("files" in data) ? (
-  //         <PreviewLayout
-  //           data={data}
-  //           fileType={file.fileExtension && file.mimeType ? getFileType(file.fileExtension, file.mimeType) : "unknown"}
-  //         />
-  //       ) : (
-  //         <>
-  //           <Card>
-  //             <CardHeader className='pb-0'>
-  //               <div className='flex w-full items-center justify-between gap-4'>
-  //                 <CardTitle className='flex-grow'>Browse files</CardTitle>
-  //                 <FileActions />
-  //               </div>
-  //               <Separator />
-  //             </CardHeader>
-  //             <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
-  //               <FileExplorerLayout
-  //                 encryptedId={encryptedId}
-  //                 files={data.files}
-  //                 nextPageToken={data.nextPageToken}
-  //               />
-  //             </CardContent>
-  //           </Card>
-  //         </>
-  //       )}
-  //     </section>
-
-  //     {readme && (
-  //       <FileReadme
-  //         content={readme}
-  //         title={"README.md"}
-  //       />
-  //     )}
-  //   </div>
-  // );
 }
