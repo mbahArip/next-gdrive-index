@@ -37,7 +37,7 @@ const config = {
     ],
     "@next/next/no-img-element": "off",
   },
-  ignorePatterns: ["**/*/_*"],
+  ignorePatterns: [],
 };
 
 module.exports = config;

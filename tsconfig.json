@@ -10,6 +10,7 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
+    "forceConsistentCasingInFileNames": true,
 
     "lib": ["dom", "dom.iterable", "es2022"],
     "noEmit": true,
@@ -23,10 +24,19 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"],
-      "actions": ["./src/app/actions.ts"],
+      "actions": ["src/app/actions.ts"],
       "config": ["./src/config/gIndex.config.ts"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "**/*/_*"]
+  "include": [
+    ".eslintrc.cjs",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    ".next/types/**/*.ts",
+    "**/*.cjs",
+    "**/*.mjs"
+  ],
+  "exclude": ["node_modules", ".next"]
 }

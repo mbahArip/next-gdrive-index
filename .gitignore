@@ -35,7 +35,7 @@ next-env.d.ts
 /docs
 /src/pages/api/legacy/
 /**/*/_legacy/
-/**/*/_*/
+# /**/*/_*/
 /data
 /.*/
 /src/_app
