@@ -1,4 +1,4 @@
-import { IGDriveFiles } from "./files";
+import { type IGDriveFiles } from "./files";
 
 interface APIResponse {
   timestamp: number;
