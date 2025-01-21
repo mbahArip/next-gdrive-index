@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
+import { NO_LAYOUT_PATHS } from "~/constant";
 
 import useLoading from "~/hooks/useLoading";
 
@@ -17,7 +18,10 @@ type Props = {
 export default function Footer({ content }: Props) {
   const pathname = usePathname();
   const loading = useLoading();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadTime, setLoadTime] = useState<number>(0);
+
+  if (NO_LAYOUT_PATHS.some((path) => new RegExp(path).test(pathname))) return null;
 
   return (
     <footer className='flex w-full flex-col items-center justify-center pb-3'>

@@ -8,15 +8,15 @@ import { type z } from "zod";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
+import { useResponsive } from "~/context/responsiveContext";
 import { getFileType } from "~/lib/previewHelper";
 import { bytesToReadable, durationToReadable, formatDate } from "~/lib/utils";
 
 import { type Schema_File } from "~/types/schema";
 
-import { CreateDownloadToken } from "actions";
 import config from "config";
 
-import { Button, LoadingButton } from "../ui/button";
+import { Button } from "../ui/button";
 import {
   ResponsiveDialog,
   ResponsiveDialogBody,
@@ -26,6 +26,7 @@ import {
   ResponsiveDialogFooter,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
 } from "../ui/dialog.responsive";
 import {
   ResponsiveDropdownMenu,
@@ -39,22 +40,25 @@ import { Separator } from "../ui/separator";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
+  token: string;
 };
-export default function PreviewInformation({ file }: Props) {
+export default function PreviewInformation({ file, token }: Props) {
   const pathname = usePathname();
+  const { isDesktop } = useResponsive();
   const fileType = useMemo<ReturnType<typeof getFileType>>(() => {
     return getFileType(file.fileExtension ?? "", file.mimeType) ?? "unknown";
   }, [file]);
 
-  const showVirusTotal = useMemo<boolean>(
-    () => fileType === "executable" || fileType === "manga" || fileType === "unknown",
-    [fileType],
-  );
-  const showRawUrl = useMemo<boolean>(
+  const showVirusTotal = useMemo<boolean>(() => {
+    // Disable for now
+    return false;
+  }, []);
+  const isMedia = useMemo<boolean>(
     () => fileType === "video" || fileType === "audio" || fileType === "image",
     [fileType],
   );
-  const showViewDoc = useMemo<boolean>(() => fileType === "document", [fileType]);
+  const showViewDoc = useMemo<boolean>(() => fileType === "document" || fileType === "pdf", [fileType]);
+  const showEmbed = useMemo<boolean>(() => fileType === "video" || fileType === "audio", [fileType]);
 
   const fileInfo = useMemo<{ label: string; value: string }[]>(() => {
     const value = [
@@ -72,7 +76,7 @@ export default function PreviewInformation({ file }: Props) {
       },
       {
         label: "Last Modified",
-        value: formatDate(file.modifiedTime),
+        value: `${formatDate(file.modifiedTime)}`,
       },
     ];
     if (file.imageMediaMetadata) {
@@ -99,119 +103,88 @@ export default function PreviewInformation({ file }: Props) {
     return value;
   }, [file]);
 
-  const [viewerBtnLoading, setViewerBtnLoading] = useState<boolean>(false);
-  const [copyBtnLoading, setCopyBtnLoading] = useState<boolean>(false);
-  const [copyDownloadBtnLoading, setCopyDownloadBtnLoading] = useState<boolean>(false);
-  const [downloadBtnLoading, setDownloadBtnLoading] = useState<boolean>(false);
   const [isRawExplanationOpen, setIsRawExplanationOpen] = useState<boolean>(false);
 
-  const onCopyRawLink = useCallback(async () => {
+  const onCopyEmbed = useCallback(async () => {
+    toast.loading("Copying embed code...", {
+      id: `embed-${file.encryptedId}`,
+    });
     try {
-      const rawUrl = new URL(`/api/raw?url=${encodeURIComponent(pathname)}`, config.basePath);
-    } catch (error) {}
-  }, []);
-
-  const onCopyRaw = async () => {
-    setCopyBtnLoading(true);
-    try {
-      const rawURL = new URL(`/api/raw/${pathname}`.replace(/\/+/g, "/"), config.basePath);
-      rawURL.searchParams.append("token", file.encryptedId);
-      toast.promise(navigator.clipboard.writeText(rawURL.toString()), {
-        loading: "Copying link...",
-        success: "Raw link copied!",
-        error: "Failed to copy link",
+      const embedContent = `<iframe title="${file.name}" src="${new URL(
+        `/_/embed/${pathname}`.replace(/\/+/g, "/"),
+        config.basePath,
+      ).toString()}" frameborder="0" allowfullscreen allowtransparency width="100%" height="100%" style="max-width:${
+        fileType === "audio" ? "480px" : "1280px"
+      };aspect-ratio:${fileType === "audio" ? "16/9" : "1.5/1"};border-radius:8px;"></iframe>`;
+      await navigator.clipboard.writeText(embedContent);
+      toast.success("Embed code copied!", {
+        id: `embed-${file.encryptedId}`,
       });
     } catch (error) {
       const e = error as Error;
-      console.error(e.message);
-    } finally {
-      setCopyBtnLoading(false);
+      console.error(`[CopyEmbedCode] ${e.message}`);
+      toast.error(e.message, {
+        id: `embed-${file.encryptedId}`,
+      });
     }
-  };
-  const onCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCopyDownloadBtnLoading(true);
-    toast.loading("Creating download token...", {
+  }, [file.encryptedId, file.name, fileType, pathname]);
+  const onCopyRawLink = useCallback(async () => {
+    toast.loading("Copying raw link...", {
+      id: `raw-${file.encryptedId}`,
+    });
+    try {
+      const rawUrl = new URL(`/api/raw/${pathname}`.replace(/\/+/g, "/"), config.basePath);
+      // if (!config.apiConfig.allowDownloadProtectedFile) rawUrl.searchParams.append("token", token);
+      await navigator.clipboard.writeText(rawUrl.toString());
+      toast.success("Raw link copied!", {
+        id: `raw-${file.encryptedId}`,
+      });
+    } catch (error) {
+      const e = error as Error;
+      console.error(`[CopyRawLink] ${e.message}`);
+      toast.error(e.message, {
+        id: `raw-${file.encryptedId}`,
+      });
+    }
+  }, [file.encryptedId, pathname]);
+  const onCopyDownloadLink = useCallback(async () => {
+    toast.loading("Copying download link...", {
       id: `download-${file.encryptedId}`,
     });
     try {
-      const token = await CreateDownloadToken();
-      if (!token) throw new Error("Failed to create download token");
-      await navigator.clipboard.writeText(
-        new URL(`/api/download/${file.encryptedId}?token=${token}`, config.basePath).toString(),
-      );
+      // const downloadUrl = new URL(`/api/download/${file.encryptedId}`, config.basePath);
+      const downloadUrl = new URL(`/api/download/${pathname}`.replace(/\/+/g, "/"), config.basePath);
+      if (!config.apiConfig.allowDownloadProtectedFile) downloadUrl.searchParams.append("token", token);
+      await navigator.clipboard.writeText(downloadUrl.toString());
       toast.success("Download link copied!", {
         id: `download-${file.encryptedId}`,
       });
     } catch (error) {
       const e = error as Error;
-      console.error(e.message);
+      console.error(`[CopyDownloadLink] ${e.message}`);
       toast.error(e.message, {
         id: `download-${file.encryptedId}`,
       });
-    } finally {
-      setCopyDownloadBtnLoading(false);
     }
-  };
-  const onDownload = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDownloadBtnLoading(true);
-    toast.loading("Creating download token...", {
-      id: `download-${file.encryptedId}`,
-    });
+  }, [file.encryptedId, token, pathname]);
+  const onViewDocument = useCallback(async () => {
     try {
-      const token = await CreateDownloadToken();
-      if (!token) throw new Error("Failed to create download token");
-      toast.success("Opening download link...", {
-        id: `download-${file.encryptedId}`,
-      });
-
-      const timeout = setTimeout(() => {
-        clearTimeout(timeout);
-        window.open(`/api/download/${file.encryptedId}?token=${token}`);
-      }, 250);
+      const viewerUrl =
+        fileType === "document"
+          ? `https://docs.google.com/gview?url=${encodeURIComponent(
+              new URL(
+                `/api/download/${pathname}?token=${token}&redirect=1`.replace(/\/+/g, "/"),
+                config.basePath,
+              ).toString(),
+            )}&embedded=true`
+          : new URL(`/api/preview/${file.encryptedId}?inline=1`, config.basePath);
+      window.open(viewerUrl.toString(), "_blank");
     } catch (error) {
       const e = error as Error;
-      console.error(e.message);
-      toast.error(e.message, {
-        id: `download-${file.encryptedId}`,
-      });
-    } finally {
-      setDownloadBtnLoading(false);
+      console.error(`[ViewDocument] ${e.message}`);
+      toast.error(e.message);
     }
-  };
-  const onOpenViewer = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast.loading("Creating view token...", {
-      id: `view-${file.encryptedId}`,
-    });
-    setViewerBtnLoading(true);
-    try {
-      const token = await CreateDownloadToken();
-      if (!token) throw new Error("Failed to create view token");
-      const streamURL = new URL(`/api/stream/${file.encryptedId}`, config.basePath);
-      streamURL.searchParams.set("token", token);
-      toast.success("Opening viewer link...", {
-        id: `view-${file.encryptedId}`,
-      });
-
-      const timeout = setTimeout(() => {
-        clearTimeout(timeout);
-        const viewerUrl = new URL(`/gview`, "https://docs.google.com");
-        viewerUrl.searchParams.set("url", streamURL.toString());
-        viewerUrl.searchParams.set("embedded", "true");
-        window.open(viewerUrl.toString(), "_blank");
-      }, 250);
-    } catch (error) {
-      const e = error as Error;
-      console.error(e.message);
-      toast.error(e.message, {
-        id: `view-${file.encryptedId}`,
-      });
-    } finally {
-      setViewerBtnLoading(false);
-    }
-  };
+  }, [file.encryptedId, fileType, pathname, token]);
 
   return (
     <>
@@ -222,7 +195,7 @@ export default function PreviewInformation({ file }: Props) {
         <ResponsiveDialogContent>
           <ResponsiveDialogHeader>
             <ResponsiveDialogTitle>Difference between download link and raw link?</ResponsiveDialogTitle>
-            <ResponsiveDialogDescription>Learn the reason why it's 2 different links.</ResponsiveDialogDescription>
+            <ResponsiveDialogDescription>Learn the reason why it&apos;s 2 different links.</ResponsiveDialogDescription>
           </ResponsiveDialogHeader>
           <ResponsiveDialogBody>
             <p>
@@ -262,7 +235,7 @@ export default function PreviewInformation({ file }: Props) {
       <Card>
         <CardContent className='p-6'>
           <div className='flex flex-col-reverse items-center gap-4 md:gap-2 tablet:flex-row tablet:justify-end'>
-            <ResponsiveDropdownMenu>
+            <ResponsiveDropdownMenu modal={isDesktop ? false : true}>
               <ResponsiveDropdownMenuTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -278,30 +251,82 @@ export default function PreviewInformation({ file }: Props) {
                   title: "Copy Link",
                 }}
               >
-                <ResponsiveDropdownMenuItem closeOnSelect>Raw Link</ResponsiveDropdownMenuItem>
-                <ResponsiveDropdownMenuItem closeOnSelect>Direct Download Link</ResponsiveDropdownMenuItem>
+                <ResponsiveDropdownMenuItem
+                  closeOnSelect
+                  onSelect={onCopyRawLink}
+                  disabled={!isMedia}
+                >
+                  Raw Link
+                </ResponsiveDropdownMenuItem>
+                <ResponsiveDropdownMenuItem
+                  closeOnSelect
+                  onSelect={onCopyDownloadLink}
+                >
+                  Direct Download Link
+                </ResponsiveDropdownMenuItem>
 
                 <ResponsiveDropdownMenuSeparator />
 
+                {/* <ResponsiveDialogTrigger asChild> */}
                 <ResponsiveDropdownMenuItem
                   closeOnSelect
-                  onSelect={() => {
-                    setIsRawExplanationOpen(true);
-                  }}
+                  onSelect={() => setIsRawExplanationOpen(true)}
                 >
                   Learn the difference
                 </ResponsiveDropdownMenuItem>
+                {/* </ResponsiveDialogTrigger> */}
               </ResponsiveDropdownMenuContent>
             </ResponsiveDropdownMenu>
 
             {showViewDoc && (
-              <LoadingButton
+              <Button
                 className='w-full tablet:w-fit'
-                loading={viewerBtnLoading}
+                onClick={onViewDocument}
               >
                 <Icon name='ExternalLink' />
                 Open in Viewer
-              </LoadingButton>
+              </Button>
+            )}
+            {showEmbed && (
+              <ResponsiveDialog>
+                <ResponsiveDialogTrigger asChild>
+                  <Button className='w-full tablet:w-fit'>
+                    <Icon name='CodeXml' />
+                    Embed Media
+                  </Button>
+                </ResponsiveDialogTrigger>
+                <ResponsiveDialogContent>
+                  <ResponsiveDialogHeader>
+                    <ResponsiveDialogTitle>Embed Media</ResponsiveDialogTitle>
+                    <ResponsiveDialogDescription>
+                      Embed the media file to your website or blog
+                    </ResponsiveDialogDescription>
+                  </ResponsiveDialogHeader>
+                  <ResponsiveDialogBody>
+                    <pre className='text-pretty break-all bg-muted p-4 text-sm'>
+                      <code
+                        className='select-all'
+                        onClick={onCopyEmbed}
+                      >
+                        {`<iframe title="${file.name}" src="${new URL(
+                          `/_/embed/${pathname}`.replace(/\/+/g, "/"),
+                          config.basePath,
+                        ).toString()}" frameborder="0" allowfullscreen allowtransparency width="100%" height="100%" style="max-width:${
+                          fileType === "audio" ? "480px" : "1280px"
+                        };aspect-ratio:${fileType === "audio" ? "16/9" : "1.5/1"};border-radius:8px;"></iframe>`}
+                      </code>
+                    </pre>
+                    <span className='w-full text-end text-xs text-muted-foreground'>
+                      Click on the code to copy it to your clipboard.
+                    </span>
+                  </ResponsiveDialogBody>
+                  <ResponsiveDialogFooter>
+                    <ResponsiveDialogClose asChild>
+                      <Button variant={"secondary"}>Close</Button>
+                    </ResponsiveDialogClose>
+                  </ResponsiveDialogFooter>
+                </ResponsiveDialogContent>
+              </ResponsiveDialog>
             )}
             {showVirusTotal && (
               <Button
@@ -312,9 +337,14 @@ export default function PreviewInformation({ file }: Props) {
                 Virus Total
               </Button>
             )}
-            <Button className='w-full tablet:w-fit'>
-              <Icon name='Download' />
-              Download File
+            <Button
+              asChild
+              className='w-full tablet:w-fit'
+            >
+              <Link href={`/api/download/${file.encryptedId}?token=${token}`}>
+                <Icon name='Download' />
+                Download File
+              </Link>
             </Button>
           </div>
         </CardContent>
@@ -331,7 +361,7 @@ export default function PreviewInformation({ file }: Props) {
               className='grid items-center gap-2 border border-b-0 last-of-type:border-b tablet:grid-cols-2'
             >
               <span className='grow px-4 py-2 font-semibold tablet:border-r'>{info.label}</span>
-              <span className='break-word grow whitespace-pre-wrap text-pretty px-4 py-2 text-sm'>{info.value}</span>
+              <span className='grow whitespace-pre-wrap text-pretty break-all px-4 py-2 text-sm'>{info.value}</span>
             </div>
           ))}
         </CardContent>

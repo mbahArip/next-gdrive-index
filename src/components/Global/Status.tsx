@@ -1,6 +1,6 @@
 "use client";
 
-import { icons } from "lucide-react";
+import { type icons } from "lucide-react";
 
 import { Icon } from "~/components/global";
 
@@ -17,7 +17,7 @@ export default function Status({ icon, iconClassName, message, destructive }: Pr
   return (
     <div
       className={cn(
-        "h-fit w-full",
+        "h-fit min-h-[33dvh] w-full",
         "flex flex-col items-center justify-center gap-2",
         destructive ? "stroke-destructive text-destructive" : "stroke-muted-foreground text-muted-foreground",
       )}
@@ -26,7 +26,7 @@ export default function Status({ icon, iconClassName, message, destructive }: Pr
         name={icon}
         className={cn("size-10", iconClassName)}
       />
-      <p>{message || "Something went wrong"}</p>
+      <p>{message ?? "Something went wrong"}</p>
     </div>
   );
 }

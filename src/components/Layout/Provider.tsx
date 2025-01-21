@@ -2,13 +2,14 @@
 
 import { type TooltipProviderProps } from "@radix-ui/react-tooltip";
 import { ThemeProvider, type ThemeProviderProps } from "next-themes";
+import { usePathname } from "next/navigation";
 import NextTopLoader, { type NextTopLoaderProps } from "nextjs-toploader";
-import { useEffect } from "react";
 import { type ToasterProps } from "sonner";
 
 import UseConfirmDialogProvider from "~/context/confirmProvider";
 import { LayoutProvider } from "~/context/layoutContext";
 import { ResponsiveProvider } from "~/context/responsiveContext";
+import { cn } from "~/lib/utils";
 
 import { Toaster } from "../ui/sonner";
 import { TooltipProvider } from "../ui/tooltip";
@@ -20,11 +21,7 @@ type Props = {
   toaster?: ToasterProps;
 };
 export default function Provider(props: React.PropsWithChildren<Props>) {
-  useEffect(() => {
-    const anchors = document.querySelectorAll("a");
-    console.log(anchors);
-  }, []);
-
+  const pathname = usePathname();
   return (
     <LayoutProvider>
       <ResponsiveProvider>
@@ -36,8 +33,10 @@ export default function Provider(props: React.PropsWithChildren<Props>) {
           <UseConfirmDialogProvider>
             <TooltipProvider {...props.tooltip}>
               <div
-                vaul-drawer-wrapper=''
-                className='flex h-full min-h-screen w-full flex-col items-start bg-background font-sans text-foreground'
+                className={cn(
+                  "flex w-full flex-col items-start font-sans text-foreground",
+                  pathname.startsWith("/_/embed/") ? "h-fit" : "h-full min-h-screen",
+                )}
               >
                 {props.children}
               </div>

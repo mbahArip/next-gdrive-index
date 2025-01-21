@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import pkg from "~/../package.json";
+import { NO_LAYOUT_PATHS } from "~/constant";
 
 import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
@@ -62,6 +64,8 @@ export default function Navbar() {
     toast.success(clear.message, { id: "clear-password" });
   }
 
+  if (NO_LAYOUT_PATHS.some((path) => new RegExp(path).test(pathname))) return null;
+
   return (
     <div className={cn("sticky left-0 top-0 z-50", "h-12 w-full")}>
       <nav
@@ -76,6 +80,7 @@ export default function Navbar() {
       >
         <div className={cn("flex flex-row items-center justify-between", "mx-auto w-full max-w-screen-desktop")}>
           <Link
+            prefetch={false}
             href={"/"}
             onClick={() => setOpen(false)}
             className='flex items-center gap-2'
@@ -86,7 +91,10 @@ export default function Navbar() {
               className={cn("h-10 w-10")}
               loading='eager'
             />
-            <span className={cn("large", "hidden", "tablet:block")}>{config.siteConfig.siteName}</span>
+            <div className='inline-flex items-center gap-1'>
+              <span className={cn("large", "hidden", "tablet:block")}>{config.siteConfig.siteName}</span>
+              <span className='text-xs text-muted-foreground'>({pkg.version})</span>
+            </div>
           </Link>
 
           {isLoading ? (
@@ -104,6 +112,7 @@ export default function Navbar() {
                           size={"icon"}
                         >
                           <Link
+                            prefetch={false}
                             href={item.href}
                             target={item.external ? "_blank" : undefined}
                             rel={item.external ? "noopener noreferrer" : undefined}
@@ -229,6 +238,7 @@ export default function Navbar() {
                         {config.siteConfig.supports.map((item) => (
                           <DropdownMenuItem key={item.name}>
                             <Link
+                              prefetch={false}
                               href={item.href}
                               target={"_blank"}
                               rel={"noopener noreferrer"}
@@ -248,37 +258,41 @@ export default function Navbar() {
                     className='mx-2 my-auto h-6'
                   />
 
-                  {config.showDeployGuide && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+                  {config.showGuideButton && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
-                          asChild
-                          variant={"secondary"}
-                          size={"icon"}
-                          className='w-fit'
+                          variant={"ghost"}
+                          size={"sm"}
+                          className={`text-sm`}
                         >
-                          <Link
-                            href={"/deploy"}
-                            className={cn(
-                              "flex items-center justify-center gap-2",
-                              "opacity-80",
-                              "hover:opacity-100",
-                              "cursor-pointer",
-                              "p-1.5",
-                            )}
-                          >
-                            <Icon
-                              name={"Book"}
-                              size={"1.25rem"}
-                            />
-                            <span className='text-sm'>Deploy Guide</span>
-                          </Link>
+                          Internal Links
+                          <Icon name={"ChevronDown"} />
                         </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Deploy Guide</p>
-                      </TooltipContent>
-                    </Tooltip>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            prefetch={false}
+                            href={"/_/deploy"}
+                            className='flex w-full items-center justify-start gap-2'
+                          >
+                            <Icon name={"Book"} />
+                            Deploy Guide
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            prefetch={false}
+                            href={"/_/configurator"}
+                            className='flex w-full items-center justify-start gap-2'
+                          >
+                            <Icon name={"Wrench"} />
+                            Configurator
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
 
                   <Button
@@ -400,6 +414,7 @@ export default function Navbar() {
                             asChild
                           >
                             <Link
+                              prefetch={false}
                               href={item.href}
                               target={item.external ? "_blank" : undefined}
                               rel={item.external ? "noopener noreferrer" : undefined}
@@ -424,25 +439,47 @@ export default function Navbar() {
                           </Button>
                         ))}
 
-                        {config.showDeployGuide && (
-                          <Button
-                            variant={"outline"}
-                            asChild
-                          >
-                            <Link
-                              href={"/deploy"}
-                              className='flex w-full items-center justify-between gap-4'
-                              onClick={() => setOpen(false)}
+                        {config.showGuideButton && (
+                          <>
+                            <Button
+                              variant={"outline"}
+                              asChild
                             >
-                              <div className='flex items-center gap-4'>
-                                <Icon
-                                  name={"Book"}
-                                  className='text-foreground'
-                                />
-                                Deploy Guide
-                              </div>
-                            </Link>
-                          </Button>
+                              <Link
+                                prefetch={false}
+                                href={"/_/deploy"}
+                                className='flex w-full items-center justify-between gap-4'
+                                onClick={() => setOpen(false)}
+                              >
+                                <div className='flex items-center gap-4'>
+                                  <Icon
+                                    name={"Book"}
+                                    className='text-foreground'
+                                  />
+                                  Deploy Guide
+                                </div>
+                              </Link>
+                            </Button>
+                            <Button
+                              variant={"outline"}
+                              asChild
+                            >
+                              <Link
+                                prefetch={false}
+                                href={"/_/configurator"}
+                                className='flex w-full items-center justify-between gap-4'
+                                onClick={() => setOpen(false)}
+                              >
+                                <div className='flex items-center gap-4'>
+                                  <Icon
+                                    name={"Wrench"}
+                                    className='text-foreground'
+                                  />
+                                  Configurator
+                                </div>
+                              </Link>
+                            </Button>
+                          </>
                         )}
                       </div>
 
@@ -461,6 +498,7 @@ export default function Navbar() {
                                 asChild
                               >
                                 <Link
+                                  prefetch={false}
                                   key={item.name}
                                   href={item.href}
                                   target={"_blank"}

@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Icon } from "~/components/global";
 
 import { cn } from "~/lib/utils";
@@ -23,8 +22,8 @@ export default function PageLoader({ message, extra }: Props) {
         name='LoaderCircle'
         className='size-10 animate-spin stroke-primary'
       />
-      <div className='flex animate-pulse flex-col'>
-        <p>{message || "Loading..."}</p>
+      <div className='flex flex-col items-center justify-center'>
+        <p>{message ?? "Loading..."}</p>
         {extra}
       </div>
     </div>

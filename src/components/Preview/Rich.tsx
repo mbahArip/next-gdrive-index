@@ -1,47 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
+import { type z } from "zod";
 
-import { Icon, Loader, Markdown, Status } from "~/components/global";
+import { Markdown, Status } from "~/components/global";
+import { PageLoader } from "~/components/layout";
 import { Button } from "~/components/ui/button";
+import Icon from "~/components/ui/icon";
 
 import useLoading from "~/hooks/useLoading";
 import { cn } from "~/lib/utils";
 
-import { Schema_File } from "~/types/schema";
+import { type Schema_File } from "~/types/schema";
 
-import { GetContent } from "actions";
+import { GetContent } from "~/actions/files";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
   view: "markdown" | "raw";
-  code?: boolean;
+  isCode?: boolean;
 };
-export default function PreviewRich({ file, code, view }: Props) {
+export default function PreviewRich({ file, isCode, view }: Props) {
   const [content, setContent] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [expand, setExpand] = useState<boolean>(false);
 
   const loading = useLoading(async () => {
-    try {
-      const text = await GetContent(file.encryptedId);
-      if (!text) {
-        setError("Looks like there is no content to preview");
-        return;
-      }
-      setContent(text.trim());
-    } catch (error) {
-      const e = error as Error;
-      console.error(e);
-      setError(e.message);
+    const text = await GetContent(file.encryptedId);
+    if (!text.success) {
+      setError(`Failed to load content: ${text.error}`);
+      return;
     }
+    setContent(text.data.trim());
   }, [file]);
 
   return (
-    <div className='flex h-fit min-h-[33dvh] w-full items-center justify-center py-3'>
+    <div className='flex h-fit min-h-[33dvh] w-full items-center justify-center'>
       {loading ? (
-        <Loader message='Loading content...' />
+        <PageLoader message='Loading content...' />
       ) : error ? (
         <Status
           icon='TriangleAlert'
@@ -59,7 +55,7 @@ export default function PreviewRich({ file, code, view }: Props) {
             )}
           >
             <Markdown
-              content={code && view === "markdown" ? `\`\`\`${file.fileExtension}\n${content}` : content}
+              content={isCode && view === "markdown" ? `\`\`\`${file.fileExtension}\n${content}` : content}
               view={view}
             />
           </div>

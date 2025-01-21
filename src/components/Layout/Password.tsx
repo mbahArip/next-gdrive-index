@@ -1,10 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CheckIndexPassword, CheckPagePassword, SetIndexPassword, SetPagePassword } from "~/actions/password";
-import { cn, toUrlPath } from "~/lib/utils";
 
 import { PageLoader } from "~/components/layout";
 import { LoadingButton } from "~/components/ui/button";
@@ -12,6 +9,9 @@ import { Input } from "~/components/ui/input";
 
 import useLoading from "~/hooks/useLoading";
 import useRouter from "~/hooks/usePRouter";
+import { cn, toUrlPath } from "~/lib/utils";
+
+import { CheckIndexPassword, CheckPagePassword, SetIndexPassword, SetPagePassword } from "~/actions/password";
 
 type Props =
   | {
@@ -24,7 +24,6 @@ type Props =
       errorMessage?: string;
     };
 export default function Password(props: Props) {
-  const pathname = usePathname();
   const router = useRouter();
   const loading = useLoading();
 
@@ -95,7 +94,7 @@ export default function Password(props: Props) {
         </LoadingButton>
       </form>
       <span className={cn("text-pretty text-center text-destructive", props.errorMessage ? "visible" : "invisible")}>
-        {props.errorMessage || "Nothing here, just a password wall"}
+        {props.errorMessage ?? "Nothing here, just a password wall"}
       </span>
     </div>
   );

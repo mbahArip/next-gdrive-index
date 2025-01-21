@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { type z } from "zod";
 
@@ -9,32 +8,22 @@ import { cn } from "~/lib/utils";
 
 import { type Schema_File } from "~/types/schema";
 
-import config from "config";
-
 import { Status } from "../global";
 import { PageLoader } from "../layout";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
-  token: string;
 };
 
-export default function PreviewDocument({ file, token }: Props) {
-  const pathname = usePathname();
+export default function PreviewPdf({ file }: Props) {
   const loading = useLoading();
-  const [dlUrl] = useState<string>(() => {
-    const url = new URL(`/api/download/${pathname}`.replace(/\/+/g, "/"), config.basePath);
-    url.searchParams.set("token", token);
-    url.searchParams.set("redirect", "1");
-    return url.toString();
-  });
   const [loaded, setLoaded] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   return (
     <div className='flex h-fit min-h-[50dvh] w-full items-center justify-center py-3'>
       {loading ? (
-        <PageLoader message='Loading document...' />
+        <PageLoader message='Loading PDF...' />
       ) : error ? (
         <Status
           icon='Frown'
@@ -44,17 +33,15 @@ export default function PreviewDocument({ file, token }: Props) {
       ) : (
         <div className='relative grid min-h-[50dvh] w-full place-items-center'>
           <div className={cn("pointer-events-none absolute w-full", loaded && "hidden")}>
-            <PageLoader message='Loading document...' />
+            <PageLoader message='Loading PDF...' />
           </div>
           <iframe
-            src={`https://docs.google.com/gview?url=${encodeURIComponent(dlUrl)}&embedded=true`}
+            src={`/api/preview/${file.encryptedId}?inline=1`}
             title={file.name}
             className={cn("h-full w-full rounded-lg transition", loaded ? "opacity-100" : "opacity-0")}
             allow='autoplay'
             onLoad={() => setLoaded(true)}
             onError={() => setError("Failed to load PDF")}
-            allowFullScreen
-            allowTransparency
           />
         </div>
       )}

@@ -49,7 +49,7 @@ export default function FileReadme({ content, title }: Props) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className='p-1.5 pt-0 tablet:p-3 tablet:pt-0'>
+        <CardContent className='p-1.5 px-3 pt-0 tablet:p-3 tablet:px-6 tablet:pt-0'>
           <Markdown
             content={content}
             view={view}

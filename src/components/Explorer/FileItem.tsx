@@ -51,7 +51,9 @@ export default function FileItem({ data, layout }: Props) {
 
   // Unused for now
   // Might be added on next version (?)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isShareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [copyStatus, setCopyStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const onOpenNewTab = useCallback(async () => {
@@ -85,6 +87,8 @@ export default function FileItem({ data, layout }: Props) {
       }, 3000);
     }
   }, [data.encryptedId, data.mimeType, data.name, filePath]);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onShare = useCallback(async () => {
     setShareDialogOpen(true);
   }, []);

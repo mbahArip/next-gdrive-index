@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { type z } from "zod";
 
 import { Status } from "~/components/global";
-import { PreviewInformation } from "~/components/preview";
+import {
+  PreviewDocument,
+  PreviewImage,
+  PreviewInformation,
+  PreviewManga,
+  PreviewMedia,
+  PreviewRich,
+  PreviewUnknown,
+} from "~/components/preview";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
@@ -18,9 +26,65 @@ import config from "config";
 type Props = {
   data: z.infer<typeof Schema_File>;
   fileType: "unknown" | ReturnType<typeof getFileType>;
+  token: string;
 };
-export default function PreviewLayout({ data, fileType }: Props) {
+export default function PreviewLayout({ data, fileType, token }: Props) {
   const [view, setView] = useState<"markdown" | "raw">("markdown");
+  const PreviewComponent = useMemo(() => {
+    switch (fileType) {
+      case "image":
+        return <PreviewImage file={data} />;
+      case "video":
+        return (
+          <PreviewMedia
+            file={data}
+            type='video'
+          />
+        );
+      case "audio":
+        return (
+          <PreviewMedia
+            file={data}
+            type='audio'
+          />
+        );
+      case "code":
+        return (
+          <PreviewRich
+            file={data}
+            isCode
+            view={"markdown"}
+          />
+        );
+      case "markdown":
+      case "text":
+        return (
+          <PreviewRich
+            file={data}
+            view={view}
+          />
+        );
+      case "document":
+        return (
+          <PreviewDocument
+            file={data}
+            token={token}
+          />
+        );
+      case "pdf":
+        return (
+          <PreviewDocument
+            file={data}
+            token={token}
+          />
+        );
+      case "manga":
+        return <PreviewManga file={data} />;
+      case "unknown":
+      default:
+        return <PreviewUnknown />;
+    }
+  }, [fileType, data, view, token]);
 
   return (
     <div
@@ -35,7 +99,9 @@ export default function PreviewLayout({ data, fileType }: Props) {
               "mobile:flex-row mobile:items-center mobile:justify-between",
             )}
           >
-            <CardTitle className='line-clamp-1 flex-grow whitespace-pre-wrap break-all'>{data.name}</CardTitle>
+            <CardTitle className='line-clamp-1 flex-grow whitespace-pre-wrap break-all'>
+              Preview of {data.name}
+            </CardTitle>
             {["text", "markdown"].includes(fileType) && (
               <div className='flex w-full items-center mobile:w-fit'>
                 <Button
@@ -57,7 +123,6 @@ export default function PreviewLayout({ data, fileType }: Props) {
               </div>
             )}
           </div>
-          {/* <Separator /> */}
         </CardHeader>
 
         <CardContent>
@@ -67,45 +132,15 @@ export default function PreviewLayout({ data, fileType }: Props) {
               message='File is too large to preview'
             />
           ) : (
-            <div>
-              Preview goes here
-              {/* {fileType === "image" ? (
-                <PreviewImage file={data} />
-              ) : fileType === "audio" ? (
-                <PreviewAudio file={data} />
-              ) : fileType === "video" ? (
-                <PreviewVideo file={data} />
-              ) : fileType === "code" ? (
-                <PreviewRich
-                  file={data}
-                  code
-                  view={"raw"}
-                />
-              ) : fileType === "text" ? (
-                <PreviewRich
-                  file={data}
-                  view={view}
-                />
-              ) : fileType === "markdown" ? (
-                <PreviewRich
-                  file={data}
-                  view={view}
-                />
-              ) : fileType === "document" ? (
-                <PreviewDocument file={data} />
-              ) : fileType === "pdf" ? (
-                <PreviewDocument file={data} />
-              ) : fileType === "manga" ? (
-                <PreviewManga file={data} />
-              ) : (
-                <PreviewUnknown />
-              )} */}
-            </div>
+            <>{PreviewComponent}</>
           )}
         </CardContent>
       </Card>
 
-      <PreviewInformation file={data} />
+      <PreviewInformation
+        file={data}
+        token={token}
+      />
     </div>
   );
 }

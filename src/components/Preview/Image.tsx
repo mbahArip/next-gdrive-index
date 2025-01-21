@@ -1,103 +1,80 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
+import { type z } from "zod";
 
-import { Icon, Loader, Status } from "~/components/global";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { PageLoader } from "~/components/layout";
+import Icon from "~/components/ui/icon";
 
 import useLoading from "~/hooks/useLoading";
 import { cn } from "~/lib/utils";
 
-import { Schema_File } from "~/types/schema";
+import { type Schema_File } from "~/types/schema";
 
-import { CreateDownloadToken } from "actions";
-import config from "config";
+import { Status } from "../global";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
 };
 export default function PreviewImage({ file }: Props) {
-  const [imgSrc, setImgSrc] = useState<string>(`/api/thumb/${file.encryptedId}?size=4`);
-  const [imgLoaded, setImgLoaded] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-
-  const loading = useLoading(async () => {
-    try {
-      if (!file.encryptedWebContentLink) {
-        setError("No image to preview");
-        return;
-      }
-      const token = await CreateDownloadToken();
-
-      const streamURL = new URL(`/api/thumb/${file.encryptedId}?size=1000`, config.basePath);
-      streamURL.searchParams.set("token", token);
-      fetch(streamURL, {
-        headers: {
-          Range: `bytes=0-${(file.size || 1) - 1}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Could not load image");
-          }
-          return res.blob();
-        })
-        .then((blob) => {
-          const urlobject = URL.createObjectURL(blob);
-          setImgSrc(urlobject);
-          const timeout = setTimeout(() => {
-            setImgLoaded(true);
-            clearTimeout(timeout);
-          }, 150); // Add a delay to show the image
-        });
-    } catch (error) {
-      const e = error as Error;
-      console.error(e);
-      setError(e.message);
-    }
-  }, [file]);
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const loading = useLoading();
 
   return (
     <div className='flex min-h-[33dvh] w-full items-center justify-center py-3'>
       {loading ? (
-        <Loader message='Loading image...' />
+        <PageLoader message='Loading image...' />
       ) : error ? (
         <Status
-          icon='TriangleAlert'
-          message={error}
-          destructive
+          icon='Frown'
+          message='Failed to load image'
         />
       ) : (
-        <div className='h-fit w-full space-y-3 overflow-hidden'>
-          <Alert className='bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-500'>
-            <div className='flex items-start gap-4'>
-              <Icon
-                name='TriangleAlert'
-                className='size-5'
-              />
-              <div className='flex flex-col'>
-                <AlertTitle>Preview Only</AlertTitle>
-                <AlertDescription>
-                  This image is a preview and may not be the full resolution. Please download the file for the full
-                  resolution.
-                </AlertDescription>
-              </div>
-            </div>
-          </Alert>
-
+        <div className='relative grid h-auto max-h-[66dvh] min-h-[50dvh] w-full place-items-center'>
           <img
-            src={imgSrc}
+            src={`/api/thumb/${file.encryptedId}`}
             alt={file.name}
             className={cn(
-              "h-full max-h-[70dvh] w-full rounded-[var(--radius)] bg-muted object-contain object-center transition",
-              imgLoaded ? "blur-none" : "animate-pulse blur",
+              "absolute top-0 h-full max-h-[66dvh] min-h-[50dvh] w-auto rounded-lg bg-muted object-contain object-center opacity-50 transition ease-in-out",
+              loaded ? "opacity-0" : "",
             )}
-            onError={(e) => {
-              console.error(e);
-              setError("Could not preview this image, try downloading the file");
+          />
+          <div
+            className={cn(
+              "pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2",
+              loaded ? "hidden" : "block",
+            )}
+          >
+            <Icon
+              name='LoaderCircle'
+              className='size-16 animate-spin stroke-primary'
+            />
+          </div>
+          <img
+            src={`/api/preview/${file.encryptedId}`}
+            alt={file.name}
+            className={cn(
+              "absolute top-0 h-full max-h-[66dvh] min-h-[50dvh] w-auto rounded-lg bg-muted object-contain object-center transition",
+              loaded ? "opacity-100" : "opacity-0",
+            )}
+            onLoad={() => setLoaded(true)}
+            onError={(_e) => {
+              setError(true);
             }}
           />
+
+          {/* <img
+          src={`/api/preview/${file.encryptedId}`}
+          alt={file.name}
+          className={cn(
+            "h-full max-h-[70dvh] w-full rounded-[var(--radius)] bg-muted object-contain object-center transition",
+          )}
+          onError={(e) => {
+            console.error(e);
+            toast.error("Failed to load image");
+          }}
+        /> */}
         </div>
       )}
     </div>
