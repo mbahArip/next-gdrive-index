@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: Props) {
   const { encryptedId } = await params;
   try {
     const searchParams = new URL(request.nextUrl).searchParams;
-    const size = searchParams.get("size") || "512";
+    const size = searchParams.get("size") ?? "512";
 
     // Only allow if the request is from the same domain or the referer is the same domain
     if (!IS_DEV && !request.headers.get("Referer")?.includes(config.basePath)) {

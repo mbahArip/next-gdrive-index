@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { encryptionService } from "~/lib/utils.server";
 
@@ -12,11 +12,13 @@ export async function GET(request: NextRequest) {
     if (!query) return new NextResponse("Add query parameter 'q' with the value to encrypt", { status: 400 });
 
     const encrypted = await encryptionService.encrypt(query, key ?? undefined);
+    const decrypted = await encryptionService.decrypt(encrypted, key ?? undefined);
 
     return NextResponse.json(
       {
         message: key ? "Encrypted with provided key" : "Encrypted with environment key",
-        value: encrypted,
+        encryptedValue: encrypted,
+        decryptedValue: decrypted,
         key: key ?? process.env.ENCRYPTION_KEY,
       },
       { status: 200 },

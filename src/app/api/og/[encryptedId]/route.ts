@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { decryptData } from "~/utils/encryptionHelper";
-import gdrive from "~/utils/gdriveInstance";
+import { encryptionService, gdrive } from "~/lib/utils.server";
 
 import config from "config";
 
@@ -13,7 +12,7 @@ type Props = {
 
 export async function GET(request: NextRequest, { params: { encryptedId } }: Props) {
   try {
-    const decryptedId = await decryptData(encryptedId);
+    const decryptedId = await encryptionService.decrypt(encryptedId);
     const { data } = await gdrive.files.get({
       fileId: decryptedId,
       fields: "id, name, mimeType, webContentLink",
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest, { params: { encryptedId } }: Pro
     return new NextResponse(bufferData, {
       headers: {
         "Cache-Control": "public, max-age=31536000, immutable",
-        "Content-Type": data.mimeType || "application/octet-stream",
+        "Content-Type": data.mimeType ?? "application/octet-stream",
         "Content-Length": bufferData.length.toString(),
         "Content-Disposition": `inline; filename="${data.name}"`,
       },

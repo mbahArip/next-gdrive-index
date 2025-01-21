@@ -1,49 +1,73 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { decryptData } from "~/utils/encryptionHelper";
+import { encryptionService } from "~/lib/utils.server";
 
-import { CheckPassword, CheckPaths, GetFile } from "actions";
-import config from "config";
+import { GetFile } from "~/actions/files";
+import { ValidatePaths } from "~/actions/paths";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest, { params: { rest } }: { params: { rest: string[] } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ rest: string[] }> }) {
+  const { rest } = await params;
+  const ALLOWED_TYPES = ["image/*", "video/*", "audio/*"]; // Based from mime types
+  const paths = rest.map((path) => {
+    if (path.startsWith("/")) return decodeURIComponent(path.slice(1));
+    return decodeURIComponent(path);
+  });
+
   try {
-    const sp = new URL(request.nextUrl).searchParams;
-    const token = sp.get("token");
-    if (!token) throw new Error("Token not found");
-
-    const paths = await CheckPaths(rest);
-    if (!paths.success) throw new Error(paths.message);
-
-    if (!config.apiConfig.allowDownloadProtectedFile) {
-      const unlocked = await CheckPassword(paths.data);
-      if (!unlocked.success)
-        throw new Error(unlocked.path ? unlocked.message : "No path returned from password checking");
+    const validatedPaths = await ValidatePaths(paths);
+    if (!validatedPaths.success) {
+      throw new Error(`[404] ${validatedPaths.message}`, {
+        cause: validatedPaths.error,
+      });
     }
 
-    const encryptedId = paths.data.pop()?.id;
-    if (!encryptedId) throw new Error("Failed to get encrypted ID, try to refresh the page.");
-    if (token !== encryptedId) throw new Error("Invalid token");
+    const currentFile = validatedPaths.data.pop();
+    if (!currentFile) {
+      throw new Error("[404] File not found", {
+        cause: "Failed to get current file",
+      });
+    }
+    if (ALLOWED_TYPES.every((type) => !new RegExp(type.replace("*", ".*")).test(currentFile.mimeType))) {
+      throw new Error("[400] Invalid file type", {
+        cause: "Raw link only available for video, image, and audio files",
+      });
+    }
 
-    const data = await GetFile(encryptedId);
-    if (data.mimeType?.includes("folder")) throw new Error("Can't download folder");
-    if (!data.mimeType.includes("video") && !data.mimeType.includes("image") && !data.mimeType.includes("audio"))
-      throw new Error("Raw link only available for video, image, and audio files");
-    if (!data.encryptedWebContentLink) throw new Error("No download link found");
+    const fileMeta = await GetFile(currentFile.id);
+    if (!fileMeta.success) {
+      throw new Error(`[500] ${fileMeta.message}`, {
+        cause: fileMeta.error,
+      });
+    }
+    if (!fileMeta.data?.encryptedWebContentLink) {
+      throw new Error("[500] No download link found", {
+        cause: "No download link found",
+      });
+    }
 
-    const decryptedWebContent = await decryptData(data.encryptedWebContentLink);
+    const decryptedLink = await encryptionService.decrypt(fileMeta.data.encryptedWebContentLink);
     return new NextResponse(null, {
       status: 302,
       headers: {
-        Location: decryptedWebContent,
+        Location: decryptedLink,
       },
     });
   } catch (error) {
     const e = error as Error;
-    console.error(e.message);
-    return new NextResponse(e.message, {
-      status: 500,
-    });
+    const message = e.message.replace(/\[.*\]/, "").trim();
+    const status = /\[.*\]/.exec(e.message)?.[0].replace(/\[|\]/g, "").trim() ?? 500;
+
+    return NextResponse.json(
+      {
+        scope: "api/raw",
+        message,
+        cause: e.cause ?? "Unknown",
+      },
+      {
+        status: Number(status),
+      },
+    );
   }
 }
