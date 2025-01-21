@@ -80,9 +80,6 @@ body {
     @apply border-border;
     /* @apply outline outline-1 outline-red-500; */
   }
-  body {
-    @apply bg-background text-foreground;
-  }
 
   ::-webkit-scrollbar {
     @apply h-1.5 w-1.5;
@@ -108,7 +105,7 @@ body {
     @apply scroll-m-20 text-xl font-semibold tracking-tight;
   }
   p {
-    @apply leading-7 [&:not(:first-child)]:mt-6;
+    @apply leading-7 [&:not(:first-of-type)]:mt-6;
   }
   blockquote {
     @apply mt-6 border-l-2 pl-6 italic;
