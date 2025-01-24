@@ -90,7 +90,7 @@ export const Schema_v1_Config = z.object({
   }),
 });
 
-export const Schema_Config_API = z
+const Schema_Config_API = z
   .object({
     rootFolder: z.string(),
     isTeamDrive: z.coerce.boolean(),
@@ -122,7 +122,7 @@ export const Schema_Config_API = z
     { message: "sharedDrive is required when isTeamDrive is true" },
   );
 
-export const Schema_v2_3_Config_Site = z.object({
+const Schema_v2_3_Config_Site = z.object({
   siteName: z.string(),
   siteNameTemplate: z.string().optional().default("%s"),
   siteDescription: z.string(),
@@ -298,32 +298,6 @@ export type ConfigurationValue<
   T extends keyof z.infer<typeof Schema_App_Configuration>,
   K extends keyof z.infer<typeof Schema_App_Configuration>[T],
 > = z.infer<typeof Schema_App_Configuration>[T][K];
-
-export type ButtonState = "idle" | "loading";
-
-export const Schema_Theme = z.object({
-  "background": z.string(),
-  "foreground": z.string(),
-  "card": z.string(),
-  "card-foreground": z.string(),
-  "popover": z.string(),
-  "popover-foreground": z.string(),
-  "primary": z.string(),
-  "primary-foreground": z.string(),
-  "secondary": z.string(),
-  "secondary-foreground": z.string(),
-  "muted": z.string(),
-  "muted-foreground": z.string(),
-  "accent": z.string(),
-  "accent-foreground": z.string(),
-  "destructive": z.string(),
-  "destructive-foreground": z.string(),
-  "border": z.string(),
-  "input": z.string(),
-  "ring": z.string(),
-  "radius": z.string(),
-});
-export type ThemeKeys = keyof z.infer<typeof Schema_Theme>;
 
 export const Schema_FileToken = z.object({
   id: z.string(),
