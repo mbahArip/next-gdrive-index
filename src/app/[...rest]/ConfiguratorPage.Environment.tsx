@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { type ChangeEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { LoadingButton } from "~/components/ui/button";
@@ -7,7 +7,7 @@ import { Input } from "~/components/ui/input";
 
 import { GenerateServiceAccountB64 } from "~/actions/configuration";
 
-import { FormProps, FormSection } from "./ConfiguratorPage";
+import { type FormProps, FormSection } from "./ConfiguratorPage";
 
 export default function EnvironmentForm({ onResetField, form }: FormProps) {
   const serviceInputRef = useRef<HTMLInputElement>(null);
@@ -86,6 +86,7 @@ export default function EnvironmentForm({ onResetField, form }: FormProps) {
                 loading={serviceInputLoading}
                 size={"sm"}
                 onClick={() => serviceInputRef.current?.click()}
+                type='button'
               >
                 Load JSON
               </LoadingButton>

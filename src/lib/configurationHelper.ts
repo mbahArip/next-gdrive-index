@@ -1,6 +1,171 @@
-import { z } from "zod";
+import { type z } from "zod";
 
-const configurationTemplate = `import { type z } from "zod";
+import {
+  Schema_App_Configuration,
+  Schema_App_Configuration_Env,
+  Schema_Config,
+  Schema_v1_Config,
+  Schema_v2_3_Config,
+} from "~/types/schema";
+
+import config from "~/config/gIndex.config";
+
+export const versionExpectMap: Record<"v1" | "v2" | "latest", string[]> = {
+  v1: ["1.0.0", "1.0.1", "1.0.2", "1.0.3"],
+  v2: ["2.0.0", "2.0.1", "2.0.2", "2.0.3"],
+  latest: ["2.0.4"],
+};
+export type PickFileResponse =
+  | {
+      success: true;
+      data: string;
+    }
+  | {
+      success: false;
+      message: string;
+      details: string[];
+    };
+type PickFileProps = {
+  accept: string;
+  onLoad: (response: PickFileResponse) => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
+  fileName?: string;
+};
+export function pickFile({ accept, fileName, onLoad }: PickFileProps): void {
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = accept;
+  fileInput.oncancel = async () => {
+    await onLoad({
+      success: false,
+      message: "File picker canceled",
+      details: [],
+    });
+  };
+  fileInput.onchange = async (fileEvent) => {
+    const file = (fileEvent.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      await onLoad({
+        success: false,
+        message: "No file selected",
+        details: [],
+      });
+      return;
+    }
+
+    if (fileName) {
+      const { name } = file;
+      if (name.toLowerCase() !== fileName.toLowerCase()) {
+        await onLoad({
+          success: false,
+          message: `Invalid file name`,
+          details: [`Expected: ${fileName}`, `Received: ${name}`],
+        });
+        return;
+      }
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (readerEvent) => {
+      const result = readerEvent.target?.result as string;
+      if (!result) {
+        await onLoad({
+          success: false,
+          message: "Failed to read file",
+          details: [],
+        });
+        return;
+      }
+      fileInput.value = "";
+
+      await onLoad({
+        success: true,
+        data: result,
+      });
+    };
+    reader.onloadend = () => {
+      fileInput.remove();
+    };
+    reader.readAsText(file);
+  };
+  fileInput.click();
+  fileInput.remove();
+}
+
+export const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
+  version: config.version,
+  environment: {
+    ENCRYPTION_KEY: "",
+    SITE_PASSWORD: "",
+    GD_SERVICE_B64: "",
+    NEXT_PUBLIC_DOMAIN: "",
+  },
+
+  api: {
+    cache: {
+      public: true,
+      maxAge: 60,
+      sMaxAge: 60,
+      staleWhileRevalidate: true,
+    },
+    rootFolder: "",
+    isTeamDrive: false,
+    sharedDrive: "",
+    defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
+    defaultField:
+      "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
+    defaultOrder: "folder, name asc, modifiedTime desc",
+    itemsPerPage: 50,
+    searchResult: 5,
+    proxyThumbnail: true,
+    streamMaxSize: 100 * 1024 * 1024,
+    specialFile: {
+      password: ".password",
+      readme: ".readme.md",
+      banner: ".banner",
+    },
+    hiddenFiles: [".password", ".readme.md", ".banner", ".banner.jpg", ".banner.png", ".banner.webp"],
+    allowDownloadProtectedFile: false,
+    temporaryTokenDuration: 6,
+    maxFileSize: 4 * 1024 * 1024,
+  },
+
+  site: {
+    guideButton: false,
+
+    siteName: "next-gdrive-index",
+    siteNameTemplate: "%s - %t",
+    siteDescription: "A simple file browser for Google Drive",
+    siteIcon: "/logo.svg",
+    siteAuthor: "mbaharip",
+    favIcon: "/favicon.png",
+
+    robots: "noindex, nofollow",
+    twitterHandle: "@mbaharip_",
+    showFileExtension: true,
+    footer: [
+      { value: "{{ poweredBy }}" },
+      { value: "Made with ❤️ by [**{{ author }}**](https://github.com/mbaharip)" },
+    ],
+    experimental_pageLoadTime: false,
+    privateIndex: false,
+    breadcrumbMax: 3,
+    toaster: {
+      position: "bottom-right",
+      duration: 3000,
+    },
+    navbarItems: [],
+    supports: [],
+    previewSettings: {
+      manga: {
+        maxSize: 15 * 1024 * 1024,
+        maxItem: 10,
+      },
+    },
+  },
+};
+
+export const configurationTemplate = `import { type z } from "zod";
 import { BASE_URL } from "~/constant";
 
 import { type Schema_Config } from "~/types/schema";
@@ -293,7 +458,7 @@ const config: z.input<typeof Schema_Config> = {
 
 export default config;
 `;
-const environmentTemplate = `# Base64 Encoded Service Account JSON
+export const environmentTemplate = `# Base64 Encoded Service Account JSON
 GD_SERVICE_B64={{ serviceAccount }}
 # Secret Key for Encryption
 ENCRYPTION_KEY={{ key }}
@@ -304,18 +469,279 @@ SITE_PASSWORD={{ password }}
 # Needed if you're not using Vercel
 NEXT_PUBLIC_DOMAIN={{ domain }}`;
 
-const version1Schema = z.object({});
-const version2Schema = z.object({});
-const newVersion2Schema = z.object({});
-const environmentSchema = z.object({
-  GD_SERVICE_B64: z.string(),
-  ENCRYPTION_KEY: z.string(),
-  SITE_PASSWORD: z.string().optional(),
-  NEXT_PUBLIC_DOMAIN: z.string().optional(),
-});
+const version1Schema = Schema_v1_Config;
+const version2Schema = Schema_v2_3_Config;
+const newVersion2Schema = Schema_Config;
+const formSchema = Schema_App_Configuration.omit({ environment: true });
+const latestEnvironmentSchema = Schema_App_Configuration_Env;
 
-export function parseVersion1Config(configuration: string) {}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ConfigurationResponse<T extends z.ZodObject<any>> =
+  | z.infer<T>
+  | {
+      message: string;
+      details: string[];
+    };
 
-export function parseVersion2Config(configuration: string) {}
+export function parseVersion1Config(configuration: string) {
+  const config = (configuration.split(/const config:\s.*?=\s/g)[1]?.split("export default config;")[0] ?? "")
 
-export function parseEnvironmentConfig(configuration: string) {}
+    .replace(/\\/g, "") // Remove all escape backslashes
+    .replace(/\/\*[\s\S]*?\*\//g, "") // Remove all multi-line comments
+    .replace(/,\s\/\/\s.*/g, ",") // Remove comments after values
+    .replace(/[^,]\/\/\s.*?,/g, "") // Remove single line comments
+
+    .replace(/\r\n/g, "")
+    .replace(/\n/g, "")
+    .replace(/\t/g, "") // Remove line breaks and tabs
+
+    .replace(/basePath:(.*?),/g, 'basePath: "placeholder-domain",') // Replace basePath variable with placeholder
+    .replace(/maxFileSize:(.*?),/g, (str) => {
+      if (!str) return "maxFileSize: 4194304,"; // Set maxFileSize to 4MB
+      const value = str?.split(":")[1]?.split(",")[0]?.trim() ?? "";
+      const numbers = value.split("*").map((v) => Number(v ?? "1"));
+      return `maxFileSize: ${numbers.reduce((a, b) => a * b, 1)}`;
+    })
+
+    .replace(/([a-zA-Z]*?):\s/g, '"$1": ') // Add double quotes to keys
+    .replace(/\s{2,4}|/g, "") // Replace all double+ spaces with single space
+    .replace(/,(?=[^,]*$)/, "") // Remove trailing comma
+    .replace(/(,\])/g, "]") // Remove trailing comma before closing bracket
+    .replace(/(,\})/g, "}") // Remove trailing comma before closing brace
+    .slice(0, -1);
+
+  const json = JSON.parse(config) as object;
+  const parsedJson = version1Schema.safeParse(json);
+  if (!parsedJson.success) {
+    return {
+      message: "Failed to match the version 1 schema",
+      details: parsedJson.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+    };
+  }
+
+  const { data } = parsedJson;
+
+  const migratedData: z.input<typeof formSchema> = {
+    version: data.version,
+    api: {
+      ...initialConfiguration.api,
+      cache: {
+        public: data.cacheControl.includes("public"),
+        maxAge: Number(/max-age=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+        sMaxAge: Number(/s-maxage=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+        staleWhileRevalidate: data.cacheControl.includes("stale-while-revalidate"),
+      },
+      rootFolder: data.apiConfig.rootFolder,
+      isTeamDrive: false,
+      sharedDrive: "",
+      itemsPerPage: data.apiConfig.itemsPerPage,
+      searchResult: data.apiConfig.searchResult,
+      specialFile: {
+        password: data.apiConfig.specialFile.password,
+        readme: data.apiConfig.specialFile.readme,
+        banner: data.apiConfig.specialFile.banner,
+      },
+      hiddenFiles: data.apiConfig.hiddenFiles,
+      allowDownloadProtectedFile: data.apiConfig.allowDownloadProtectedFile,
+      temporaryTokenDuration: data.apiConfig.temporaryTokenDuration,
+      maxFileSize: data.apiConfig.maxFileSize,
+    },
+    site: {
+      ...initialConfiguration.site,
+      guideButton: false,
+      siteName: data.siteConfig.siteName,
+      siteDescription: data.siteConfig.siteDescription,
+      twitterHandle: data.siteConfig.twitterHandle ?? initialConfiguration.site.twitterHandle ?? "@__mbaharip__",
+      privateIndex: data.siteConfig.privateIndex,
+      navbarItems: data.siteConfig.navbarItems.map((item) => ({
+        icon: "File",
+        name: item.name,
+        href: item.href,
+        external: item.external ?? false,
+      })),
+    },
+  };
+
+  const parsedData = formSchema.safeParse(migratedData);
+  if (!parsedData.success) {
+    return {
+      message: "Failed to migrate the old configuration to the new schema",
+      details: parsedData.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+    };
+  }
+
+  return parsedData.data;
+}
+
+export function parseVersion2Config(configuration: string) {
+  const isLatest = configuration.includes('version: "2.0.4"');
+  const config = (configuration.split(/const config:\s.*?=\s/g)[1]?.split("export default config;")[0] ?? "")
+
+    .replace(/\\/g, "") // Remove all escape backslashes
+    .replace(/\/\*[\s\S]*?\*\//g, "") // Remove all multi-line comments
+    .replace(/,\s\/\/\s.*/g, ",") // Remove comments after values
+    .replace(/[^,]\/\/\s.*?,/g, "") // Remove single line comments
+
+    .replace(/\r\n/g, "")
+    .replace(/\n/g, "")
+    .replace(/\t/g, "") // Remove line breaks and tabs
+
+    .replace(/basePath:(.*?),/g, 'basePath: "placeholder-domain",') // Replace basePath variable with placeholder
+    .replace(/streamMaxSize:(.*?),/g, (str) => {
+      if (!str) return "streamMaxSize: 104857600,"; // Set streamMaxSize to 100MB
+      const value = str?.split(":")[1]?.split(",")[0]?.trim() ?? "";
+      const numbers = value.split("*").map((v) => Number(v ?? "1"));
+      return `streamMaxSize: ${numbers.reduce((a, b) => a * b, 1)},`;
+    })
+    .replace(/temporaryTokenDuration:(.*?),/g, (str) => {
+      if (!str) return "temporaryTokenDuration: 6,"; // Set temporaryTokenDuration to 6 hours
+      const value = str?.split(":")[1]?.split(",")[0]?.trim() ?? "";
+      if (value.includes("/")) {
+        const numbers = value.split("/").map((v) => Number(v ?? "1"));
+        return `temporaryTokenDuration: ${numbers.reduce((a, b) => a / b, 1)},`;
+      } else {
+        return `temporaryTokenDuration: ${value},`;
+      }
+    })
+    .replace(/maxFileSize:(.*?),/g, (str) => {
+      if (!str) return "maxFileSize: 4194304,"; // Set maxFileSize to 4MB
+      const value = str?.split(":")[1]?.split(",")[0]?.trim() ?? "";
+      const numbers = value.split("*").map((v) => Number(v ?? "1"));
+      return `maxFileSize: ${numbers.reduce((a, b) => a * b, 1)},`;
+    })
+    .replace(/maxSize:(.*?),/g, (str) => {
+      if (!str) return "maxSize: 15728640,"; // Set maxSize to 15MB
+      const value = str?.split(":")[1]?.split(",")[0]?.trim() ?? "";
+      const numbers = value.split("*").map((v) => Number(v ?? "1"));
+      return `maxSize: ${numbers.reduce((a, b) => a * b, 1)},`;
+    })
+
+    .replace(/([a-zA-Z_]*?):\s/g, '"$1": ') // Add double quotes to keys
+    .replace(/\s{2,4}|/g, "") // Replace all double+ spaces with single space
+    .replace(/,(?=[^,]*$)/, "") // Remove trailing comma
+    .replace(/(,\])/g, "]") // Remove trailing comma before closing bracket
+    .replace(/(,\})/g, "}") // Remove trailing comma before closing brace
+    .slice(0, -1);
+
+  const json = JSON.parse(config) as object;
+  if (isLatest) {
+    const parsedJson = newVersion2Schema.safeParse(json);
+    if (!parsedJson.success) {
+      return {
+        message: `Failed to match the schema for ${isLatest ? "latest" : "version 2.3 / below"} configuration`,
+        details: parsedJson.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+      };
+    }
+
+    const { data } = parsedJson;
+
+    const migratedData: z.input<typeof formSchema> = {
+      version: data.version,
+      api: {
+        ...initialConfiguration.api,
+        ...data.apiConfig,
+        rootFolder: "",
+        isTeamDrive: false,
+        sharedDrive: "",
+        cache: {
+          public: data.cacheControl.includes("public"),
+          maxAge: Number(/max-age=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+          sMaxAge: Number(/s-maxage=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+          staleWhileRevalidate: data.cacheControl.includes("stale-while-revalidate"),
+        },
+      },
+      site: {
+        ...initialConfiguration.site,
+        ...data.siteConfig,
+        guideButton: false,
+      },
+    };
+
+    const parsedData = formSchema.safeParse(migratedData);
+    if (!parsedData.success) {
+      return {
+        message: "Failed to migrate the old configuration to the new schema",
+        details: parsedData.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+      };
+    }
+
+    return parsedData.data;
+  } else {
+    const parsedJson = version2Schema.safeParse(json);
+    if (!parsedJson.success) {
+      return {
+        message: `Failed to match the schema for ${isLatest ? "latest" : "version 2.3 / below"} configuration`,
+        details: parsedJson.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+      };
+    }
+
+    const { data } = parsedJson;
+
+    const migratedData: z.input<typeof formSchema> = {
+      version: data.version,
+      api: {
+        ...initialConfiguration.api,
+        rootFolder: "",
+        isTeamDrive: false,
+        sharedDrive: "",
+        cache: {
+          public: data.cacheControl.includes("public"),
+          maxAge: Number(/max-age=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+          sMaxAge: Number(/s-maxage=(\d+)/.exec(data.cacheControl)?.[1] ?? 60),
+          staleWhileRevalidate: data.cacheControl.includes("stale-while-revalidate"),
+        },
+      },
+      site: {
+        ...initialConfiguration.site,
+        ...data.siteConfig,
+        footer: (data.siteConfig.footer ?? []).map((item) => ({ value: item })),
+        guideButton: false,
+      },
+    };
+
+    const parsedData = formSchema.safeParse(migratedData);
+    if (!parsedData.success) {
+      return {
+        message: "Failed to migrate the old configuration to the new schema",
+        details: parsedData.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+      };
+    }
+
+    return parsedData.data;
+  }
+}
+
+export function parseEnvironment(configuration: string): ConfigurationResponse<typeof latestEnvironmentSchema> {
+  const lines = configuration.split("\n");
+  const result: Record<string, string> = {};
+  const availableKeys = [
+    "GD_SERVICE_B64",
+    "ENCRYPTION_KEY",
+    "SITE_PASSWORD",
+    "NEXT_PUBLIC_DOMAIN",
+    "NEXT_PUBLIC_VERCEL_URL",
+    "NEXT_PUBLIC_ENCRYPTION_KEY",
+    "NEXT_PUBLIC_SITE_PASSWORD",
+  ];
+  for (const line of lines) {
+    if (!availableKeys.some((key) => line.startsWith(key))) {
+      continue;
+    }
+
+    const [key, value] = line.split("=");
+    if (!key || !value) continue;
+    const formattedValue = value.replace(/"/g, "").trim();
+    const formattedKey = ["NEXT_PUBLIC_ENCRYPTION_KEY", "NEXT_PUBLIC_SITE_PASSWORD"].includes(key)
+      ? key.replace("NEXT_PUBLIC_", "")
+      : key;
+    result[formattedKey] = formattedValue;
+  }
+  const validated = latestEnvironmentSchema.safeParse(result);
+  if (!validated.success)
+    return {
+      message: "Failed to match the latest environment schema",
+      details: validated.error.errors.map((error) => `[${error.path.join(".")}] ${error.message}`),
+    };
+
+  return validated.data;
+}

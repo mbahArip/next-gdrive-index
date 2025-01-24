@@ -3,105 +3,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { type PropsWithChildren, useState } from "react";
-import { FieldPath, type UseFormReturn, useForm } from "react-hook-form";
+import { type FieldPath, type UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { type z } from "zod";
 
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  ResponsiveDropdownMenu,
-  ResponsiveDropdownMenuContent,
-  ResponsiveDropdownMenuItem,
-  ResponsiveDropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu.responsive";
+import { Button, LoadingButton } from "~/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Form } from "~/components/ui/form";
-import Icon from "~/components/ui/icon";
 import { Separator } from "~/components/ui/separator";
 
-import { useResponsive } from "~/context/responsiveContext";
+import { type PickFileResponse, initialConfiguration, pickFile, versionExpectMap } from "~/lib/configurationHelper";
 
 import { type ConfigurationCategory, Schema_App_Configuration } from "~/types/schema";
+
+import { GenerateConfiguration, ProcessConfiguration, ProcessEnvironmentConfig } from "~/actions/configuration";
 
 import ApiForm from "./ConfigurationPage.Api";
 import SiteForm from "./ConfigurationPage.Site";
 import EnvironmentForm from "./ConfiguratorPage.Environment";
 
-const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
-  environment: {
-    ENCRYPTION_KEY: "",
-    SITE_PASSWORD: "",
-    GD_SERVICE_B64: "",
-    NEXT_PUBLIC_DOMAIN: "",
-  },
-
-  api: {
-    cache: {
-      public: true,
-      maxAge: 60,
-      sMaxAge: 60,
-      staleWhileRevalidate: true,
-    },
-    rootFolder: "",
-    isTeamDrive: false,
-    sharedDrive: "",
-    defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
-    defaultField:
-      "id, name, mimeType, thumbnailLink, fileExtension, modifiedTime, size, imageMediaMetadata, videoMediaMetadata, webContentLink, trashed",
-    defaultOrder: "folder, name asc, modifiedTime desc",
-    itemsPerPage: 50,
-    searchResult: 5,
-    proxyThumbnail: true,
-    streamMaxSize: 100 * 1024 * 1024,
-    specialFile: {
-      password: ".password",
-      readme: ".readme.md",
-      banner: ".banner",
-    },
-    hiddenFiles: [".password", ".readme.md", ".banner", ".banner.jpg", ".banner.png", ".banner.webp"],
-    allowDownloadProtectedFile: false,
-    temporaryTokenDuration: 6,
-    maxFileSize: 4 * 1024 * 1024,
-  },
-
-  site: {
-    guideButton: false,
-
-    siteName: "next-gdrive-index",
-    siteNameTemplate: "%s - %t",
-    siteDescription: "A simple file browser for Google Drive",
-    siteIcon: "/logo.svg",
-    siteAuthor: "mbaharip",
-    favIcon: "/favicon.png",
-
-    robots: "noindex, nofollow",
-    twitterHandle: "@mbaharip_",
-    showFileExtension: true,
-    footer: [
-      { value: "{{ poweredBy }}" },
-      { value: "Made with ❤️ by [**{{ author }}**](https://github.com/mbaharip)" },
-    ],
-    experimental_pageLoadTime: false,
-    privateIndex: false,
-    breadcrumbMax: 3,
-    toaster: {
-      position: "bottom-right",
-      duration: 3000,
-    },
-    navbarItems: [],
-    supports: [],
-    previewSettings: {
-      manga: {
-        maxSize: 15 * 1024 * 1024,
-        maxItem: 10,
-      },
-    },
-  },
-};
-
 export default function ConfiguratorPage() {
-  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [isLoadingEnv, setIsLoadingEnv] = useState<boolean>(false);
+  const [isLoadingConfig, setIsLoadingConfig] = useState<boolean>(false);
   const form = useForm<z.infer<typeof Schema_App_Configuration>>({
     resolver: zodResolver(Schema_App_Configuration),
     defaultValues: initialConfiguration,
@@ -113,11 +37,146 @@ export default function ConfiguratorPage() {
     } else {
       form.resetField(category);
     }
+    toast.success("Form reverted to initial state");
   }
-  function onFormSubmit(values: z.infer<typeof Schema_App_Configuration>) {
-    toast.info("Form submitted", {
-      description: <pre className='w-full overflow-auto'>{JSON.stringify(values, null, 2)}</pre>,
+  async function onFormSubmit(values: z.infer<typeof Schema_App_Configuration>) {
+    const id = `download-${Date.now()}`;
+    toast.loading("Generating configuration...", {
+      id,
+      duration: 0,
     });
+
+    const data = await GenerateConfiguration(values);
+    if (!data.success) {
+      toast.error(data.message, {
+        id,
+        description: data.error,
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(data.data.zip);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${Date.now()}-gIndex.config.zip`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+    a.remove();
+
+    toast.success("Configuration generated", {
+      id,
+    });
+  }
+
+  async function onLoadEnv(response: PickFileResponse) {
+    const id = `env-latest-${Date.now()}`;
+    toast.loading("Waiting for file...", {
+      id,
+      duration: 0,
+    });
+    if (!response.success) {
+      toast.error(response.message, {
+        id,
+        description: response.details.length ? (
+          <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>
+            {response.details.join("\n")}
+          </pre>
+        ) : undefined,
+      });
+      setIsLoadingEnv(false);
+
+      return;
+    }
+
+    toast.loading("Processing environment file...", {
+      id,
+      duration: 0,
+    });
+    const data = await ProcessEnvironmentConfig(response.data);
+    if (!data.success) {
+      toast.error(data.message, {
+        id,
+        description: <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>{data.error}</pre>,
+      });
+      setIsLoadingEnv(false);
+      return;
+    }
+
+    form.setValue("environment", data.data);
+
+    toast.success(data.message, {
+      id,
+    });
+    setIsLoadingEnv(false);
+  }
+  async function onLoadConfig(response: PickFileResponse) {
+    const id = `config-${Date.now()}`;
+    toast.loading("Waiting for file...", {
+      id,
+      duration: 0,
+    });
+    if (!response.success) {
+      toast.error(response.message, {
+        id,
+        description: response.details.length ? (
+          <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>
+            {response.details.join("\n")}
+          </pre>
+        ) : undefined,
+      });
+      setIsLoadingConfig(false);
+
+      return;
+    }
+
+    const loadedVersion = /version:\s*["']?(\d+\.\d+\.\d+)["']?/.exec(response.data)?.[1];
+    if (!loadedVersion) {
+      toast.error("Version not found in configuration file", {
+        id,
+      });
+      setIsLoadingConfig(false);
+      return;
+    }
+
+    const versionGroup = Object.entries(versionExpectMap).find(([_, v]) => v.includes(loadedVersion))?.[0];
+    if (!versionGroup) {
+      toast.error("Version not recognized", {
+        id,
+        description: (
+          <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>
+            {`Loaded version: ${loadedVersion}, not matching any known version`}
+          </pre>
+        ),
+      });
+      setIsLoadingConfig(false);
+      return;
+    }
+
+    toast.loading(`Version ${loadedVersion} detected, processing...`, {
+      id,
+      duration: 0,
+    });
+    const data = await ProcessConfiguration(response.data, versionGroup as "v1" | "v2" | "latest");
+    if (!data.success) {
+      toast.error(data.message, {
+        id,
+        description: <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>{data.error}</pre>,
+      });
+      setIsLoadingConfig(false);
+      return;
+    }
+
+    form.setValue("api", data.data.api);
+    form.setValue("site", data.data.site);
+    form.setValue("site.navbarItems", data.data.site.navbarItems);
+    form.setValue("site.supports", data.data.site.supports);
+    form.setValue("site.footer", data.data.site.footer);
+
+    toast.success(data.message, {
+      id,
+    });
+    setIsLoadingConfig(false);
   }
 
   return (
@@ -130,7 +189,7 @@ export default function ConfiguratorPage() {
             href={"https://themes.fkaya.dev/"}
             target='_blank'
             rel='noopener noreferrer'
-            className='text-balance text-sm text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
+            className='text-balance text-sm font-medium text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
           >
             themes.fkaya.dev
           </Link>
@@ -139,7 +198,7 @@ export default function ConfiguratorPage() {
             href={"https://themeshadcn.com/"}
             target='_blank'
             rel='noopener noreferrer'
-            className='text-balance text-sm text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
+            className='text-balance text-sm font-medium text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
           >
             themeshadcn.com
           </Link>{" "}
@@ -148,7 +207,7 @@ export default function ConfiguratorPage() {
             href={"https://ui.jln.dev/"}
             target='_blank'
             rel='noopener noreferrer'
-            className='text-balance text-sm text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
+            className='text-balance text-sm font-medium text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400'
           >
             ui.jln.dev
           </Link>{" "}
@@ -157,47 +216,44 @@ export default function ConfiguratorPage() {
       </Alert>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Configurator</CardTitle>
-          <CardDescription>Generate configurator for your index.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className='flex w-full flex-col items-center gap-2 pb-4 tablet:flex-row-reverse'>
-            <ResponsiveDropdownMenu>
-              <ResponsiveDropdownMenuTrigger asChild>
-                <Button className='w-full tablet:w-fit'>
-                  Load Config
-                  <Icon name='ChevronsUpDown' />
-                </Button>
-              </ResponsiveDropdownMenuTrigger>
-              <ResponsiveDropdownMenuContent
-                header={{
-                  title: "Load Config",
-                  description: "Load configuration from existing file",
-                }}
-              >
-                <ResponsiveDropdownMenuItem closeOnSelect>v2.4 / latest</ResponsiveDropdownMenuItem>
-                <ResponsiveDropdownMenuItem closeOnSelect>v2.3 / below</ResponsiveDropdownMenuItem>
-                <ResponsiveDropdownMenuItem closeOnSelect>v1.x / legacy</ResponsiveDropdownMenuItem>
-              </ResponsiveDropdownMenuContent>
-            </ResponsiveDropdownMenu>
-            <ResponsiveDropdownMenu>
-              <ResponsiveDropdownMenuTrigger asChild>
-                <Button className='w-full tablet:w-fit'>
-                  Load Env
-                  <Icon name='ChevronsUpDown' />
-                </Button>
-              </ResponsiveDropdownMenuTrigger>
-              <ResponsiveDropdownMenuContent
-                header={{
-                  title: "Load Env",
-                  description: "Load environment variables from existing file",
-                }}
-              >
-                <ResponsiveDropdownMenuItem closeOnSelect>v2.x / latest</ResponsiveDropdownMenuItem>
-                <ResponsiveDropdownMenuItem closeOnSelect>v1.x / legacy</ResponsiveDropdownMenuItem>
-              </ResponsiveDropdownMenuContent>
-            </ResponsiveDropdownMenu>
+        <CardHeader className='flex w-full flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between'>
+          <div className='flex grow flex-col space-y-1.5'>
+            <CardTitle>Configurator</CardTitle>
+            <CardDescription>Generate configurator for your index.</CardDescription>
+          </div>
+          <div className='flex flex-col items-center gap-2 tablet:flex-row-reverse'>
+            <LoadingButton
+              loading={isLoadingConfig}
+              className='w-full tablet:w-fit'
+              onClick={() => {
+                setIsLoadingConfig(true);
+
+                pickFile({
+                  accept: ".ts",
+                  async onLoad(response) {
+                    await onLoadConfig(response);
+                  },
+                });
+              }}
+            >
+              Load Config
+            </LoadingButton>
+            <LoadingButton
+              loading={isLoadingEnv}
+              className='w-full tablet:w-fit'
+              onClick={() => {
+                setIsLoadingEnv(true);
+
+                pickFile({
+                  accept: ".env",
+                  async onLoad(response) {
+                    await onLoadEnv(response);
+                  },
+                });
+              }}
+            >
+              Load Env
+            </LoadingButton>
             <Button
               className='w-full tablet:w-fit'
               variant={"destructive"}
@@ -206,11 +262,14 @@ export default function ConfiguratorPage() {
               Reset All
             </Button>
           </div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onFormSubmit)}
-              className='grid grid-cols-1 gap-8 tablet:px-2'
-            >
+        </CardHeader>
+        <Separator className='mb-6' />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onFormSubmit)}
+            className='grid grid-cols-1'
+          >
+            <CardContent className='grid grid-cols-1 gap-8'>
               <EnvironmentForm
                 form={form}
                 onResetField={(field) => form.resetField(field)}
@@ -229,9 +288,20 @@ export default function ConfiguratorPage() {
                 form={form}
                 onResetField={(field) => form.resetField(field)}
               />
-            </form>
-          </Form>
-        </CardContent>
+            </CardContent>
+            <CardFooter>
+              <LoadingButton
+                size={"lg"}
+                loading={form.formState.isSubmitting}
+                disabled={!form.formState.isValid || !form.formState.isDirty}
+                type='submit'
+                className='w-full'
+              >
+                Generate Configuration
+              </LoadingButton>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </>
   );
@@ -262,8 +332,6 @@ type FormSectionProps = {
   description: string;
 };
 export function FormSection({ title, description, children }: PropsWithChildren<FormSectionProps>) {
-  const { isDesktop } = useResponsive();
-
   return (
     <div
       id={title

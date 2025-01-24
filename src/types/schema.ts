@@ -40,7 +40,7 @@ export const Schema_File = z.object({
     .nullable(),
 });
 
-export const Schema_Old_Config = z.object({
+export const Schema_v1_Config = z.object({
   version: z.literal("1.0.0"),
   basePath: z.string(),
   masterKey: z.string(),
@@ -54,7 +54,7 @@ export const Schema_Old_Config = z.object({
     defaultField: z.string(),
     defaultOrder: z.string(),
     itemsPerPage: z.number().positive(),
-    searchRsult: z.number().positive(),
+    searchResult: z.number().positive(),
 
     specialFile: z.object({
       password: z.string(),
@@ -116,10 +116,56 @@ export const Schema_Config_API = z
   })
   .refine(
     (data) => {
-      if (data.isTeamDrive && !data.sharedDrive) return false;
+      if (data.isTeamDrive === true && !data.sharedDrive) return false;
+      return true;
     },
     { message: "sharedDrive is required when isTeamDrive is true" },
   );
+
+export const Schema_v2_3_Config_Site = z.object({
+  siteName: z.string(),
+  siteNameTemplate: z.string().optional().default("%s"),
+  siteDescription: z.string(),
+  siteIcon: z.string(),
+  siteAuthor: z.string().optional().default("mbaharip"),
+  favIcon: z.string(),
+  robots: z.string().optional().default("noindex, nofollow"),
+  twitterHandle: z.string().optional().default("@__mbaharip__"),
+
+  showFileExtension: z.boolean().optional().default(false),
+
+  footer: z.string().array().optional(),
+
+  privateIndex: z.boolean().optional().default(false),
+  breadcrumbMax: z.number(),
+
+  toaster: z
+    .object({
+      position: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]),
+      duration: z.number().positive(),
+    })
+    .optional()
+    .default({
+      position: "top-right",
+      duration: 5000,
+    }),
+
+  navbarItems: z.array(
+    z.object({
+      icon: z.enum(Object.keys(icons) as [keyof typeof icons]),
+      name: z.string(),
+      href: z.string(),
+      external: z.boolean().optional().default(false),
+    }),
+  ),
+  supports: z.array(
+    z.object({
+      name: z.string(),
+      currency: z.string(),
+      href: z.string(),
+    }),
+  ),
+});
 export const Schema_Config_Site = z.object({
   siteName: z.string(),
   siteNameTemplate: z.string().optional().default("%s"),
@@ -181,13 +227,17 @@ export const Schema_Config_Site = z.object({
     }),
   }),
 });
-export const Schema_App_Configuration_Env = z.object({
-  GD_SERVICE_B64: z.string(),
-  ENCRYPTION_KEY: z.string(),
-  SITE_PASSWORD: z.string().optional(),
-  NEXT_PUBLIC_DOMAIN: z.string().optional(),
-});
 
+export const Schema_v2_3_Config = z.object({
+  version: z.string(),
+  basePath: z.string(),
+  cacheControl: z.string(),
+  showDeployGuide: z.boolean(),
+
+  apiConfig: Schema_Config_API,
+
+  siteConfig: Schema_v2_3_Config_Site,
+});
 export const Schema_Config = z.object({
   version: z.string(),
   basePath: z.string(),
@@ -197,6 +247,13 @@ export const Schema_Config = z.object({
   apiConfig: Schema_Config_API,
 
   siteConfig: Schema_Config_Site,
+});
+
+export const Schema_App_Configuration_Env = z.object({
+  GD_SERVICE_B64: z.string(),
+  ENCRYPTION_KEY: z.string(),
+  SITE_PASSWORD: z.string().optional(),
+  NEXT_PUBLIC_DOMAIN: z.string().optional(),
 });
 
 export const Schema_ServiceAccount = z.object({
@@ -214,13 +271,14 @@ export const Schema_ServiceAccount = z.object({
 });
 
 export const Schema_App_Configuration = z.object({
+  version: z.string(),
   environment: Schema_App_Configuration_Env,
   api: Schema_Config_API.and(
     z.object({
       cache: z.object({
         public: z.coerce.boolean(),
-        maxAge: z.coerce.number().positive(),
-        sMaxAge: z.coerce.number().positive(),
+        maxAge: z.coerce.number().min(0),
+        sMaxAge: z.coerce.number().min(0),
         staleWhileRevalidate: z.coerce.boolean(),
       }),
     }),

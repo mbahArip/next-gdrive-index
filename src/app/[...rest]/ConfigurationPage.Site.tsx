@@ -4,7 +4,7 @@ import { useFieldArray } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { toast } from "sonner";
-import { z } from "zod";
+import { type z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { VirtualizedCombobox } from "~/components/ui/combobox.virtualized";
@@ -31,9 +31,9 @@ import { Textarea } from "~/components/ui/textarea";
 import { useResponsive } from "~/context/responsiveContext";
 import { cn, formatFooterContent } from "~/lib/utils";
 
-import { Schema_App_Configuration } from "~/types/schema";
+import { type Schema_App_Configuration } from "~/types/schema";
 
-import { FormColumn, FormProps, FormSection } from "./ConfiguratorPage";
+import { FormColumn, type FormProps, FormSection } from "./ConfiguratorPage";
 
 export default function SiteForm({ form, onResetField }: FormProps) {
   return (
@@ -297,7 +297,7 @@ export default function SiteForm({ form, onResetField }: FormProps) {
                 {...field}
               />
             </FormControl>
-            <FormDescription>Maximum number of breadcrumbs item before it's truncated.</FormDescription>
+            <FormDescription>Maximum number of breadcrumbs item before it&apos;s truncated.</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -366,6 +366,7 @@ export default function SiteForm({ form, onResetField }: FormProps) {
         />
 
         <Button
+          type='button'
           className='col-span-full w-full'
           variant={"secondary"}
           onClick={() => {
@@ -426,6 +427,7 @@ function NavbarItemsField({ form, onResetField }: FormProps) {
           <div className='flex w-full items-center justify-between gap-2 tablet:w-fit tablet:justify-start'>
             <Label>Navbar Items</Label>
             <Button
+              type='button'
               variant={"ghost"}
               disabled={!form.getFieldState("site.navbarItems").isDirty}
               onClick={() => {
@@ -493,7 +495,7 @@ function NavbarItemsField({ form, onResetField }: FormProps) {
                       )}
                     />
                   </div>
-                  <div className='inline-flex w-full flex-col gap-4 tablet:flex-row '>
+                  <div className='inline-flex w-full flex-col gap-4 tablet:flex-row tablet:items-end'>
                     <FormField
                       control={form.control}
                       name={`site.navbarItems.${index}.href`}
@@ -518,7 +520,6 @@ function NavbarItemsField({ form, onResetField }: FormProps) {
                       name={`site.navbarItems.${index}.external`}
                       render={({ field }) => (
                         <FormItem disableBorder>
-                          <FormLabel>External Link</FormLabel>
                           <FormControl>
                             <Button
                               type='button'
@@ -534,7 +535,7 @@ function NavbarItemsField({ form, onResetField }: FormProps) {
                                 field.value ? "opacity-100" : "opacity-30",
                               )}
                             >
-                              Open in new tab
+                              External Link
                             </Button>
                           </FormControl>
                           <FormMessage />
@@ -558,8 +559,8 @@ function NavbarItemsField({ form, onResetField }: FormProps) {
           )}
 
           <Button
-            className='w-full'
             type='button'
+            className='w-full'
             onClick={() => append({ icon: "Link", name: "New Item", href: "/new-item", external: false })}
           >
             <Icon name='Plus' />
@@ -583,6 +584,7 @@ function SupportsField({ form, onResetField }: FormProps) {
           <div className='flex w-full items-center justify-between gap-2 tablet:w-fit tablet:justify-start'>
             <Label>Supports / Donations</Label>
             <Button
+              type='button'
               variant={"ghost"}
               disabled={!form.getFieldState("site.supports").isDirty}
               onClick={() => {
@@ -746,6 +748,7 @@ function FooterField({ form, onResetField }: FormProps) {
           <div className='flex w-full items-center justify-between gap-2 tablet:w-fit tablet:justify-start'>
             <Label>Footer Items</Label>
             <Button
+              type='button'
               variant={"ghost"}
               disabled={!form.getFieldState("site.footer").isDirty}
               onClick={() => {

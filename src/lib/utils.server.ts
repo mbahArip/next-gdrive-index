@@ -64,11 +64,17 @@ export const base64Encode = (text: string, type: B64Type = "url") => {
   if (type === "standard") return encodeBase64(data);
   return encodeBase64url(data);
 };
-export const base64Decode = <T = unknown>(encoded: string, type: B64Type = "url"): T => {
-  let decoded: Uint8Array<ArrayBufferLike>;
-  if (type === "standard") decoded = decodeBase64(encoded);
-  else decoded = decodeBase64url(encoded);
-  return new TextDecoder().decode(decoded) as T;
+export const base64Decode = <T = unknown>(encoded: string, type: B64Type = "url"): T | null => {
+  try {
+    let decoded: Uint8Array<ArrayBufferLike>;
+    if (type === "standard") decoded = decodeBase64(encoded);
+    else decoded = decodeBase64url(encoded);
+    return new TextDecoder().decode(decoded) as T;
+  } catch (error) {
+    const e = error as Error;
+    console.error(`[base64Decode] ${e.message}`);
+    return null;
+  }
 };
 
 type ServiceAccount = {
@@ -90,15 +96,18 @@ class GoogleDriveService {
   public gdriveNoCache: drive_v3.Drive;
 
   constructor() {
-    const decodedBase64 = JSON.parse(base64Decode<string>(process.env.GD_SERVICE_B64!)) as ServiceAccount;
+    const decodedB64 = base64Decode<string>(process.env.GD_SERVICE_B64!);
+    if (!decodedB64) throw new Error("Failed to decode GD_SERVICE_B64");
+    const parsedAuth = JSON.parse(decodedB64) as ServiceAccount;
+
     this.auth = new google.auth.GoogleAuth({
       credentials: {
         type: "service_account",
-        private_key: decodedBase64.private_key,
-        client_email: decodedBase64.client_email,
-        client_id: decodedBase64.client_id,
+        private_key: parsedAuth.private_key,
+        client_email: parsedAuth.client_email,
+        client_id: parsedAuth.client_id,
       },
-      projectId: decodedBase64.project_id,
+      projectId: parsedAuth.project_id,
       scopes: ["https://www.googleapis.com/auth/drive"],
     });
     if (!this.auth) throw new Error("Failed to initialize Google Auth");

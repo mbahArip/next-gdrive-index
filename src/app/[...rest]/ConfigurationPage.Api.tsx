@@ -11,7 +11,7 @@ import { Switch } from "~/components/ui/switch";
 
 import { cn } from "~/lib/utils";
 
-import { FormColumn, FormProps, FormSection } from "./ConfiguratorPage";
+import { FormColumn, type FormProps, FormSection } from "./ConfiguratorPage";
 
 export default function ApiForm({ form, onResetField }: FormProps) {
   const [inputHiddenFile, setInputHiddenFile] = useState<string>("");
@@ -181,7 +181,7 @@ export default function ApiForm({ form, onResetField }: FormProps) {
       <FormField
         control={form.control}
         name='api.sharedDrive'
-        render={({ field, fieldState, formState }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <div className='inline-flex w-full items-center justify-between gap-4 tablet:justify-start'>
               <FormLabel
@@ -341,7 +341,7 @@ export default function ApiForm({ form, onResetField }: FormProps) {
       <FormField
         control={form.control}
         name='api.hiddenFiles'
-        render={({ field, fieldState }) => {
+        render={({ fieldState }) => {
           const watch = form.watch("api.hiddenFiles");
 
           return (
