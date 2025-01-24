@@ -4,6 +4,8 @@ import { type JSONClient } from "google-auth-library/build/src/auth/googleauth";
 import { type drive_v3, google } from "googleapis";
 import "server-only";
 
+import { Schema_ServiceAccount } from "~/types/schema";
+
 class EncryptionService {
   private key: string;
   private delimiter = ";";
@@ -77,19 +79,6 @@ export const base64Decode = <T = unknown>(encoded: string, type: B64Type = "url"
   }
 };
 
-type ServiceAccount = {
-  type: string;
-  project_id: string;
-  private_key_id: string;
-  private_key: string;
-  client_email: string;
-  client_id: string;
-  auth_uri: string;
-  token_uri: string;
-  auth_provider_x509_cert_url: string;
-  client_x509_cert_url: string;
-  universe_domain: string;
-};
 class GoogleDriveService {
   private auth: GoogleAuth<JSONClient>;
   public gdrive: drive_v3.Drive;
@@ -98,16 +87,17 @@ class GoogleDriveService {
   constructor() {
     const decodedB64 = base64Decode<string>(process.env.GD_SERVICE_B64!);
     if (!decodedB64) throw new Error("Failed to decode GD_SERVICE_B64");
-    const parsedAuth = JSON.parse(decodedB64) as ServiceAccount;
+    const parsedAuth = Schema_ServiceAccount.safeParse(JSON.parse(decodedB64));
+    if (!parsedAuth.success) throw new Error("Failed to parse service account");
 
     this.auth = new google.auth.GoogleAuth({
       credentials: {
         type: "service_account",
-        private_key: parsedAuth.private_key,
-        client_email: parsedAuth.client_email,
-        client_id: parsedAuth.client_id,
+        private_key: parsedAuth.data.private_key,
+        client_email: parsedAuth.data.client_email,
+        client_id: parsedAuth.data.client_id,
       },
-      projectId: parsedAuth.project_id,
+      projectId: parsedAuth.data.project_id,
       scopes: ["https://www.googleapis.com/auth/drive"],
     });
     if (!this.auth) throw new Error("Failed to initialize Google Auth");
