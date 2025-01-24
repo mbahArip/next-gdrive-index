@@ -1,11 +1,9 @@
-import twTypography from "@tailwindcss/typography";
-import twVidstack from "@vidstack/react/tailwind.cjs";
 import type { Config } from "tailwindcss";
-import twAnimate from "tailwindcss-animate";
 import tw from "tailwindcss/defaultTheme";
 
-const config: Config = {
+export default {
   darkMode: ["class"],
+  safelist: ["dark"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -105,13 +103,11 @@ const config: Config = {
     },
   },
   plugins: [
-    twAnimate,
-    twTypography,
-    twVidstack({
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+    require("@vidstack/react/tailwind.cjs")({
       selector: ".media-player",
       prefix: "media",
     }),
   ],
-};
-
-export default config;
+} satisfies Config;
