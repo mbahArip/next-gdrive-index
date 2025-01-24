@@ -9,6 +9,7 @@ import { Footer, Navbar, Password, Provider, ToTop } from "~/components/layout";
 import { cn, formatFooterContent } from "~/lib/utils";
 
 import { CheckIndexPassword } from "~/actions/password";
+import "~/styles/code-highlight.css";
 import "~/styles/globals.css";
 import "~/styles/markdown.css";
 
@@ -37,7 +38,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(BASE_URL.includes("http") ? BASE_URL : `https://${BASE_URL}`),
   title: {
     default: config.siteConfig.siteName,
     template: config.siteConfig.siteNameTemplate?.replace("%t", config.siteConfig.siteName) ?? "%s",
@@ -93,7 +94,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body
         className={cn(
           "overflow-x-hidden stroke-foreground font-sans text-foreground",
-          pathname.startsWith("/_/embed/") ? "h-fit bg-transparent" : "h-full min-h-screen bg-background",
+          pathname.startsWith("/ngdi-internal/embed/") ? "h-fit bg-transparent" : "h-full min-h-screen bg-background",
           jetbrainsMono.variable,
           sourceSans3.variable,
           outfit.variable,
@@ -102,12 +103,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Provider
           theme={{
             attribute: "class",
-            defaultTheme: "light",
             enableSystem: true,
             disableTransitionOnChange: true,
           }}
           tooltip={{
-            delayDuration: 250,
+            delayDuration: 500,
           }}
           toaster={{
             position: config.siteConfig.toaster?.position,
@@ -126,12 +126,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             )}
           >
             {config.siteConfig.privateIndex && !unlocked.success ? (
-              <>
-                <Password
-                  type='global'
-                  errorMessage={unlocked.error}
-                />
-              </>
+              <Password
+                type='global'
+                errorMessage={unlocked.error}
+              />
             ) : (
               <>{children}</>
             )}
