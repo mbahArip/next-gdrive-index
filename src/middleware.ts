@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
   `
     .replace(/\s+/g, " ")
     .trim();
-  if (pathname.startsWith("/_/embed/")) {
+  if (pathname.startsWith("/ngdi-internal/embed/")) {
     headers.set("Content-Security-Policy", cspHeader);
     headers.set("X-Frame-Options", "ALLOWALL");
     headers.set("X-Content-Type-Options", "nosniff");
@@ -31,7 +31,7 @@ export async function middleware(req: NextRequest) {
     },
   });
   response.headers.set("X-Pathname", req.nextUrl.pathname);
-  if (pathname.startsWith("/_/embed/")) {
+  if (pathname.startsWith("/ngdi-internal/embed/")) {
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;
   }
@@ -57,7 +57,6 @@ export async function middleware(req: NextRequest) {
 
   return response;
 }
-
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)"],
 };
