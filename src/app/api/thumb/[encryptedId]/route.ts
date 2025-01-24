@@ -6,6 +6,8 @@ import { encryptionService } from "~/lib/utils.server";
 
 import config from "config";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{
     encryptedId: string;
