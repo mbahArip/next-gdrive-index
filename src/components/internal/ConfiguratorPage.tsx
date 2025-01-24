@@ -19,9 +19,11 @@ import { type ConfigurationCategory, Schema_App_Configuration } from "~/types/sc
 
 import { GenerateConfiguration, ProcessConfiguration, ProcessEnvironmentConfig } from "~/actions/configuration";
 
-import ApiForm from "./ConfigurationPage.Api";
-import SiteForm from "./ConfigurationPage.Site";
-import EnvironmentForm from "./ConfiguratorPage.Environment";
+import {
+  APIConfigurator as ApiForm,
+  EnvironmentConfigurator as EnvironmentForm,
+  SiteConfigurator as SiteForm,
+} from ".";
 
 export default function ConfiguratorPage() {
   const [isLoadingEnv, setIsLoadingEnv] = useState<boolean>(false);

@@ -60,7 +60,7 @@ const content: Readonly<Record<GuideSection, string>> = {
 
 If you are new, you can follow along from the beginning. However, if you have previously deployed the project and wish to upgrade from v1 or v2.x, you can proceed directly to the [Migration Guide](#migration) section.
 
-You can also utilize the [next-gdrive-index configurator](/_/configurator) to generate configuration for your deployment!
+You can also utilize the [next-gdrive-index configurator](/ngdi-internal/configurator) to generate configuration for your deployment!
 
 This guide assumes that you have a fundamental understanding of how to deploy a Next.js application on Vercel or other platforms.
 
@@ -172,7 +172,7 @@ While the configurator is easier, you can only configure the basic settings, so 
 
 #### Using the configurator
 
-1. Open the configurator page [here](/_/configurator)
+1. Open the configurator page [here](/ngdi-internal/configurator)
 2. Fill the form with the required information
 3. Click the **Generate Config** button to download the configuration file
 4. Replace the existing configuration file (\`/src/config/gIndex.config.ts\`) with the downloaded file
@@ -269,7 +269,7 @@ The other configuration are new, you might want to read each description to unde
 
 ### Migrating from v2.3 or below
 
-For faster migration, you can use [the configurator](/_/configurator) to load your \`.env.local\` and \`gIndex.config.ts\` file, and generate the new configuration file.
+For faster migration, you can use [the configurator](/ngdi-internal/configurator) to load your \`.env.local\` and \`gIndex.config.ts\` file, and generate the new configuration file.
 It will automatically set the new configuration based on your old configuration.
 
 But if you want to manually change the configuration, you can follow the steps below
@@ -503,52 +503,6 @@ export default function DeployPage() {
             className='aspect-video h-full w-full max-w-[640px] rounded-lg'
             allowFullScreen
           ></iframe>
-          {/* <MediaPlayer
-            src={isMounted ? "youtube/B0u58LVomTM" : ""}
-            className='media-player mx-auto w-fit max-w-screen-md overflow-hidden rounded-xl'
-            playsInline
-            crossOrigin
-            preload='auto'
-            onProviderChange={(provider) => {
-              if (isYouTubeProvider(provider)) {
-                console.log("YouTube provider loaded");
-              } else {
-                console.log("Other provider loaded");
-              }
-            }}
-          >
-            <MediaProvider />
-            <DefaultVideoLayout
-              icons={MediaPlayerIcons}
-              colorScheme='default'
-              showTooltipDelay={150}
-              slots={{
-                beforeSettingsMenu: (
-                  <Tooltip.Root showDelay={150}>
-                    <Tooltip.Trigger asChild>
-                      <Link
-                        href={"/"}
-                        className='vds-button'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                      >
-                        <Icon
-                          name='ExternalLink'
-                          className='size-5'
-                        />
-                      </Link>
-                    </Tooltip.Trigger>
-                    <Tooltip.Content
-                      placement='top'
-                      className='vds-tooltip-content'
-                    >
-                      Watch on YouTube
-                    </Tooltip.Content>
-                  </Tooltip.Root>
-                ),
-              }}
-            />
-          </MediaPlayer> */}
         </CardContent>
       </Card>
       <Card>

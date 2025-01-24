@@ -33,6 +33,7 @@ import { PageLoader } from "~/components/layout";
 import Icon from "~/components/ui/icon";
 
 import useLoading from "~/hooks/useLoading";
+import { MediaPlayerIcons } from "~/lib/previewHelper";
 
 import { type Schema_File } from "~/types/schema";
 
@@ -442,7 +443,7 @@ export default function EmbedPage({ file, type }: Props) {
         >
           <MediaProvider />
           <DefaultAudioLayout
-            icons={icons}
+            icons={MediaPlayerIcons}
             colorScheme='default'
             smallLayoutWhen={smallAudioLayoutQuery}
             showTooltipDelay={150}
@@ -579,7 +580,7 @@ export default function EmbedPage({ file, type }: Props) {
             }}
           />
           <DefaultVideoLayout
-            icons={icons}
+            icons={MediaPlayerIcons}
             colorScheme='default'
             smallLayoutWhen={smallVideoLayoutQuery}
             showTooltipDelay={150}
