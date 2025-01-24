@@ -112,6 +112,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           toaster={{
             position: config.siteConfig.toaster?.position,
             duration: config.siteConfig.toaster?.duration,
+            pauseWhenPageIsHidden: true,
           }}
         >
           <Navbar />
