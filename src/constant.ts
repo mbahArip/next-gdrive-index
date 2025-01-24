@@ -18,7 +18,15 @@ export const USE_CACHE = false;
  */
 export const BASE_URL =
   process.env.NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_DOMAIN ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL ?? ""
+    ? process.env.NEXT_PUBLIC_DOMAIN ??
+      process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+      process.env.VERCEL_URL ??
+      process.env.URL ?? // Netlify
+      process.env.DEPLOY_URL ?? // Netlify
+      process.env.CF_PAGES_URL ?? // Cloudflare Pages
+      process.env.RAILWAY_PUBLIC_DOMAIN ?? // Railway
+      process.env.RENDER_EXTERNAL_HOSTNAME ?? // Render
+      "you-need-to-set-the-domain.com" // Fallback to prevent build error
     : "http://localhost:3000";
 
 /**
@@ -41,4 +49,4 @@ export const COOKIES_OPTIONS = {
 /**
  * On this paths, navbar and footer will not be rendered
  */
-export const NO_LAYOUT_PATHS = [/\/_\/embed\//g];
+export const NO_LAYOUT_PATHS = [/\/ngdi-internal\/embed\//g];
