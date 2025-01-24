@@ -1,9 +1,7 @@
 "use server";
 
-import { USE_CACHE } from "~/constant";
 import { type ActionResponseSchema } from "~/types";
 
-import { PathCache, PathValidationCache } from "~/lib/cache";
 import { encryptionService, gdrive } from "~/lib/utils.server";
 
 import config from "config";
@@ -24,15 +22,6 @@ export async function GetFilePaths(fileName: string, parentId?: string): Promise
   while (parentIdTemp) {
     if (parentIdTemp === decryptedRootId) break;
 
-    if (PathCache.has(parentIdTemp) && USE_CACHE) {
-      const cachedPath = PathCache.get(parentIdTemp)!;
-      if (cachedPath) {
-        paths.unshift(cachedPath.name);
-        parentIdTemp = cachedPath.id;
-        continue;
-      }
-    }
-
     const { data } = await gdrive.files.get({
       fileId: parentIdTemp,
       fields: "id,name,parents",
@@ -41,11 +30,6 @@ export async function GetFilePaths(fileName: string, parentId?: string): Promise
     if (!data.name) break;
 
     paths.unshift(data.name);
-    if (USE_CACHE)
-      PathCache.set(parentIdTemp, {
-        id: data.parents?.[0] ?? "",
-        name: data.name,
-      });
     parentIdTemp = data.parents?.[0];
   }
 
@@ -74,11 +58,6 @@ export async function ValidatePaths(
   const decryptedSharedDrive = isSharedDrive
     ? await encryptionService.decrypt(config.apiConfig.sharedDrive!)
     : undefined;
-
-  if (PathValidationCache.has(paths.join("/")) && USE_CACHE) {
-    const cachedPath = PathValidationCache.get(paths.join("/"))!;
-    if (cachedPath) return { success: true, message: "Paths validated from cache", data: cachedPath };
-  }
 
   const promises: Promise<PathFetch | null>[] = [];
   for (const [index, path] of paths.entries()) {
@@ -172,8 +151,6 @@ export async function ValidatePaths(
       mimeType: item.data[0]?.mimeType ?? "",
     });
   }
-
-  if (USE_CACHE) PathValidationCache.set(paths.join("/"), response);
 
   return {
     success: true,

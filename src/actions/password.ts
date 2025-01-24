@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { COOKIES_NAME, COOKIES_OPTIONS, USE_CACHE } from "~/constant";
+import { COOKIES_NAME, COOKIES_OPTIONS } from "~/constant";
 import { type ActionResponseSchema } from "~/types";
 
-import { PathValidationCache } from "~/lib/cache";
 import { toUrlPath } from "~/lib/utils";
 import { encryptionService, gdriveNoCache } from "~/lib/utils.server";
 
@@ -128,7 +127,7 @@ export async function CheckPagePassword(
     ? await encryptionService.decrypt(config.apiConfig.sharedDrive!)
     : undefined;
 
-  const pathsArray = USE_CACHE ? PathValidationCache.get(toUrlPath(paths)) ?? paths : paths;
+  const pathsArray = paths;
 
   const folderIds: string[] = [];
   for (const path of pathsArray) {
