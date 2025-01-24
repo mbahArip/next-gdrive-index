@@ -27,6 +27,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import Icon from "~/components/ui/icon";
 import { Separator } from "~/components/ui/separator";
+import { Skeleton } from "~/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 
 import { useConfirmDialog } from "~/context/confirmProvider";
@@ -37,8 +38,6 @@ import { cn } from "~/lib/utils";
 import { ClearSavedPasswords } from "~/actions/password";
 
 import config from "config";
-
-import { Skeleton } from "../ui/skeleton";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -67,7 +66,7 @@ export default function Navbar() {
   if (NO_LAYOUT_PATHS.some((path) => new RegExp(path).test(pathname))) return null;
 
   return (
-    <div className={cn("sticky left-0 top-0 z-50", "h-12 w-full")}>
+    <div className={cn("sticky left-0 top-0 z-[48]", "h-12 w-full")}>
       <nav
         slot='nav'
         className={cn(
@@ -126,7 +125,6 @@ export default function Navbar() {
                           >
                             <Icon
                               name={item.icon}
-                              className='text-foreground'
                               size={"1.25rem"}
                             />
                           </Link>
@@ -274,7 +272,7 @@ export default function Navbar() {
                         <DropdownMenuItem asChild>
                           <Link
                             prefetch={false}
-                            href={"/_/deploy"}
+                            href={"/ngdi-internal/deploy"}
                             className='flex w-full items-center justify-start gap-2'
                           >
                             <Icon name={"Book"} />
@@ -284,7 +282,7 @@ export default function Navbar() {
                         <DropdownMenuItem asChild>
                           <Link
                             prefetch={false}
-                            href={"/_/configurator"}
+                            href={"/ngdi-internal/configurator"}
                             className='flex w-full items-center justify-start gap-2'
                           >
                             <Icon name={"Wrench"} />
@@ -447,7 +445,7 @@ export default function Navbar() {
                             >
                               <Link
                                 prefetch={false}
-                                href={"/_/deploy"}
+                                href={"/ngdi-internal/deploy"}
                                 className='flex w-full items-center justify-between gap-4'
                                 onClick={() => setOpen(false)}
                               >
@@ -466,7 +464,7 @@ export default function Navbar() {
                             >
                               <Link
                                 prefetch={false}
-                                href={"/_/configurator"}
+                                href={"/ngdi-internal/configurator"}
                                 className='flex w-full items-center justify-between gap-4'
                                 onClick={() => setOpen(false)}
                               >
