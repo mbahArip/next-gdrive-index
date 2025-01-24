@@ -17,7 +17,7 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath: IS_DEV ? "http://localhost:3000" : new URL(BASE_URL).toString(),
+  basePath: IS_DEV ? "http://localhost:3000" : `https://${BASE_URL}`,
 
   /**
    * Show deploy guide dropdown on navbar
