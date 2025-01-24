@@ -1,5 +1,3 @@
-"use client";
-
 import { PageLoader } from "~/components/layout";
 
 export default function RootLoading() {
