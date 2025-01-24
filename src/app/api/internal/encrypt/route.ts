@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
     const key = sp.get("key");
     if (!query) return new NextResponse("Add query parameter 'q' with the value to encrypt", { status: 400 });
 
+    if (process.env.NODE_ENV !== "development" && !key) {
+      throw new Error("Key is required in production environment");
+    }
+
     const encrypted = await encryptionService.encrypt(query, key ?? undefined);
     const decrypted = await encryptionService.decrypt(encrypted, key ?? undefined);
 
