@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { cn } from "~/lib/utils";
 
-import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
+import Icon from "~/components/ui/icon";
 
 import useRouter from "~/hooks/usePRouter";
+import { cn } from "~/lib/utils";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset?: () => void }) {
   const router = useRouter();

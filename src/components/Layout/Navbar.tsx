@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import pkg from "~/../package.json";
 import { NO_LAYOUT_PATHS } from "~/constant";
 
-import { Icon } from "~/components/global";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -26,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import Icon from "~/components/ui/icon";
 import { Separator } from "~/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 

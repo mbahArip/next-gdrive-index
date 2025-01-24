@@ -14,7 +14,7 @@ import remarkSlug from "remark-slug";
 import remarkToc from "remark-toc";
 import { toast } from "sonner";
 
-import { Icon } from "~/components/global";
+import Icon from "~/components/ui/icon";
 
 import { cn } from "~/lib/utils";
 

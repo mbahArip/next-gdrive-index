@@ -7,9 +7,10 @@ import { toast } from "sonner";
 import { type z } from "zod";
 
 import { FileItem } from "~/components/explorer";
-import { Icon, Status } from "~/components/global";
+import { Status } from "~/components/global";
 import { PageLoader } from "~/components/layout";
 import { Button, LoadingButton } from "~/components/ui/button";
+import Icon from "~/components/ui/icon";
 
 import { useLayout } from "~/context/layoutContext";
 import useLoading from "~/hooks/useLoading";

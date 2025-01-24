@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Fragment, useState } from "react";
 import { type z } from "zod";
 
-import { Icon } from "~/components/global";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -14,6 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import Icon from "~/components/ui/icon";
 import { Skeleton } from "~/components/ui/skeleton";
 
 import useLoading from "~/hooks/useLoading";

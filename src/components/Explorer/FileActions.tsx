@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type z } from "zod";
 
-import { Icon, Status } from "~/components/global";
+import { Status } from "~/components/global";
 import { PageLoader } from "~/components/layout";
 import { Button } from "~/components/ui/button";
 import {
@@ -25,6 +25,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "~/components/ui/drawer";
+import Icon from "~/components/ui/icon";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
