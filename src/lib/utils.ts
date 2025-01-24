@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { type z } from "zod";
 
-import { Schema_Breadcrumb, Schema_Config_Site } from "~/types/schema";
+import { Schema_Breadcrumb, type Schema_Config_Site } from "~/types/schema";
 
 import config from "config";
 
