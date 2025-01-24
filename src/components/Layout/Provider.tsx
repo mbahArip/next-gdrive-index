@@ -6,13 +6,13 @@ import { usePathname } from "next/navigation";
 import NextTopLoader, { type NextTopLoaderProps } from "nextjs-toploader";
 import { type ToasterProps } from "sonner";
 
+import { Toaster } from "~/components/ui/sonner";
+import { TooltipProvider } from "~/components/ui/tooltip";
+
 import UseConfirmDialogProvider from "~/context/confirmProvider";
 import { LayoutProvider } from "~/context/layoutContext";
 import { ResponsiveProvider } from "~/context/responsiveContext";
 import { cn } from "~/lib/utils";
-
-import { Toaster } from "../ui/sonner";
-import { TooltipProvider } from "../ui/tooltip";
 
 type Props = {
   loader?: NextTopLoaderProps;
@@ -23,19 +23,19 @@ type Props = {
 export default function Provider(props: React.PropsWithChildren<Props>) {
   const pathname = usePathname();
   return (
-    <LayoutProvider>
-      <ResponsiveProvider>
-        <NextTopLoader
-          color='hsl(var(--primary))'
-          {...props.loader}
-        />
-        <ThemeProvider {...props.theme}>
+    <ThemeProvider {...props.theme}>
+      <LayoutProvider>
+        <ResponsiveProvider>
+          <NextTopLoader
+            color='hsl(var(--primary))'
+            {...props.loader}
+          />
           <UseConfirmDialogProvider>
             <TooltipProvider {...props.tooltip}>
               <div
                 className={cn(
                   "flex w-full flex-col items-start font-sans text-foreground",
-                  pathname.startsWith("/_/embed/") ? "h-fit" : "h-full min-h-screen",
+                  pathname.startsWith("/ngdi-internal/embed/") ? "h-fit" : "h-full min-h-screen",
                 )}
               >
                 {props.children}
@@ -44,8 +44,8 @@ export default function Provider(props: React.PropsWithChildren<Props>) {
 
             <Toaster {...props.toaster} />
           </UseConfirmDialogProvider>
-        </ThemeProvider>
-      </ResponsiveProvider>
-    </LayoutProvider>
+        </ResponsiveProvider>
+      </LayoutProvider>
+    </ThemeProvider>
   );
 }

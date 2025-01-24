@@ -6,11 +6,11 @@ import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { NO_LAYOUT_PATHS } from "~/constant";
 
+import { Skeleton } from "~/components/ui/skeleton";
+
 import useLoading from "~/hooks/useLoading";
 
 import config from "config";
-
-import { Skeleton } from "../ui/skeleton";
 
 type Props = {
   content?: string;

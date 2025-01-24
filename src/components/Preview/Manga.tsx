@@ -19,8 +19,8 @@ import {
 import Icon from "~/components/ui/icon";
 import { Progress } from "~/components/ui/progress";
 
+import { useResponsive } from "~/context/responsiveContext";
 import useLoading from "~/hooks/useLoading";
-import useMediaQuery from "~/hooks/useMediaQuery";
 import { cn } from "~/lib/utils";
 
 import { type Schema_File } from "~/types/schema";
@@ -123,7 +123,7 @@ export default function PreviewManga({ file }: Props) {
     unzip.push(buffer);
   }, []);
 
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { isDesktop } = useResponsive();
 
   useEffect(() => {
     if (!api) return;

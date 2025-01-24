@@ -4,15 +4,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { type z } from "zod";
 
+import { Status } from "~/components/global";
+import { PageLoader } from "~/components/layout";
+
 import useLoading from "~/hooks/useLoading";
 import { cn } from "~/lib/utils";
 
 import { type Schema_File } from "~/types/schema";
 
 import config from "config";
-
-import { Status } from "../global";
-import { PageLoader } from "../layout";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
@@ -54,7 +54,6 @@ export default function PreviewDocument({ file, token }: Props) {
             onLoad={() => setLoaded(true)}
             onError={() => setError("Failed to load PDF")}
             allowFullScreen
-            allowTransparency
           />
         </div>
       )}

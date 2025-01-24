@@ -5,6 +5,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { Button } from "~/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "~/components/ui/context-menu";
 import Icon from "~/components/ui/icon";
 
 import { type TLayout } from "~/context/layoutContext";
@@ -15,15 +23,6 @@ import { bytesToReadable, cn, durationToReadable, formatDate } from "~/lib/utils
 import { type Schema_File } from "~/types/schema";
 
 import config from "config";
-
-import { Button } from "../ui/button";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "../ui/context-menu";
 
 type Props = {
   data: z.infer<typeof Schema_File>;
@@ -108,7 +107,7 @@ export default function FileItem({ data, layout }: Props) {
               router.push(filePath);
             }}
             className={cn(
-              "group grid h-full w-full cursor-pointer overflow-hidden rounded-lg border bg-card text-card-foreground shadow transition hover:border-accent-foreground",
+              "group grid h-full w-full cursor-pointer overflow-hidden rounded-lg border bg-card text-card-foreground shadow transition hover:border-primary/50",
               layout === "list" && "flex items-center",
             )}
           >

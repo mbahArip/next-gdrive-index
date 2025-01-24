@@ -25,6 +25,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "~/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import Icon from "~/components/ui/icon";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
@@ -42,8 +48,6 @@ import { type Schema_File } from "~/types/schema";
 import { GetSearchResultPath, SearchFiles } from "~/actions/search";
 
 import config from "config";
-
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export default function FileActions() {
   const loading = useLoading();

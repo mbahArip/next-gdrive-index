@@ -6,17 +6,8 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-
-import { useResponsive } from "~/context/responsiveContext";
-import { getFileType } from "~/lib/previewHelper";
-import { bytesToReadable, durationToReadable, formatDate } from "~/lib/utils";
-
-import { type Schema_File } from "~/types/schema";
-
-import config from "config";
-
-import { Button } from "../ui/button";
 import {
   ResponsiveDialog,
   ResponsiveDialogBody,
@@ -27,16 +18,24 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   ResponsiveDialogTrigger,
-} from "../ui/dialog.responsive";
+} from "~/components/ui/dialog.responsive";
 import {
   ResponsiveDropdownMenu,
   ResponsiveDropdownMenuContent,
   ResponsiveDropdownMenuItem,
   ResponsiveDropdownMenuSeparator,
   ResponsiveDropdownMenuTrigger,
-} from "../ui/dropdown-menu.responsive";
-import Icon from "../ui/icon";
-import { Separator } from "../ui/separator";
+} from "~/components/ui/dropdown-menu.responsive";
+import Icon from "~/components/ui/icon";
+import { Separator } from "~/components/ui/separator";
+
+import { useResponsive } from "~/context/responsiveContext";
+import { getFileType } from "~/lib/previewHelper";
+import { bytesToReadable, durationToReadable, formatDate } from "~/lib/utils";
+
+import { type Schema_File } from "~/types/schema";
+
+import config from "config";
 
 type Props = {
   file: z.infer<typeof Schema_File>;
@@ -111,7 +110,7 @@ export default function PreviewInformation({ file, token }: Props) {
     });
     try {
       const embedContent = `<iframe title="${file.name}" src="${new URL(
-        `/_/embed/${pathname}`.replace(/\/+/g, "/"),
+        `/ngdi-internal/embed/${pathname}`.replace(/\/+/g, "/"),
         config.basePath,
       ).toString()}" frameborder="0" allowfullscreen allowtransparency width="100%" height="100%" style="max-width:${
         fileType === "audio" ? "480px" : "1280px"
@@ -309,7 +308,7 @@ export default function PreviewInformation({ file, token }: Props) {
                         onClick={onCopyEmbed}
                       >
                         {`<iframe title="${file.name}" src="${new URL(
-                          `/_/embed/${pathname}`.replace(/\/+/g, "/"),
+                          `/ngdi-internal/embed/${pathname}`.replace(/\/+/g, "/"),
                           config.basePath,
                         ).toString()}" frameborder="0" allowfullscreen allowtransparency width="100%" height="100%" style="max-width:${
                           fileType === "audio" ? "480px" : "1280px"

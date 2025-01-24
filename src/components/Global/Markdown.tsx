@@ -18,8 +18,6 @@ import Icon from "~/components/ui/icon";
 
 import { cn } from "~/lib/utils";
 
-import "~/styles/code-highlight.css";
-
 type Props = {
   content: string;
   view?: "markdown" | "raw";
