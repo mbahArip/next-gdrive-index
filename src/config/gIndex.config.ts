@@ -246,7 +246,7 @@ const config: z.input<typeof Schema_Config> = {
      */
     toaster: {
       position: "bottom-right",
-      duration: 3000,
+      duration: 5000,
     },
 
     /**
