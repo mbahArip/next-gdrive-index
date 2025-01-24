@@ -1,4 +1,5 @@
 import { FileActions, FileBreadcrumb, FileExplorerLayout, FileReadme } from "~/components/explorer";
+import { ErrorComponent } from "~/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 import { cn } from "~/lib/utils";
@@ -7,9 +8,8 @@ import { GetReadme, ListFiles } from "~/actions/files";
 
 import config from "config";
 
-import ErrorComponent from "./error";
-
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function RootPage() {
   const [data, readme] = await Promise.all([ListFiles(), GetReadme()]);
