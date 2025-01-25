@@ -40,11 +40,11 @@
 `next-gdrive-index` is a Google Drive directory index.
 The aim of this project is to simplify the process of sharing files using Google Drive, and also add some features that _I think_ is useful when sharing a files.
 
-> This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by [SpencerWooo](https://github.com/spencerwooo).
+This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by [SpencerWooo](https://github.com/spencerwooo).
 
 ## Why I made this?
 
-> **TLDR;**
+> ![NOTE] > **TLDR;**
 > It is cheaper to use Google Drive than other similar service
 
 There are a lot cloud storage service like Onedrive, Dropbox, Mega, etc.
@@ -91,7 +91,7 @@ I know there are a lot of people selling cheap education account especially for 
 
 ### File size limit
 
-> [!INFO]
+> [!IMPORTANT]
 > This only apply if `maxFileSize` is enabled / more than 0
 
 You need to set the file sharing permission to `Anyone with the link can view` on the root folder.
