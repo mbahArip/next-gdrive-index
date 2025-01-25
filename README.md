@@ -1,4 +1,4 @@
-![banner](/public/og.png)
+![banner](/public/og.webp)
 
 <p align='center'>
 	<a href='https://drive-demo.mbaharip.com' target='_blank'>Demo Site</a>
