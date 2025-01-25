@@ -69,7 +69,7 @@ export default async function RestPage({ params }: Props) {
     );
   }
 
-  const currentPath = paths.data.pop();
+  const currentPath = paths.data[paths.data.length - 1];
   if (!currentPath) return <ErrorComponent error={new Error("Failed to get current path")} />;
 
   const Layout: React.FC<{
