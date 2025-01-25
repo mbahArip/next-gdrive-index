@@ -73,17 +73,17 @@ Before you begin, you'll need to have the following:
 - A Github account
 - A Google Cloud Platform account
 - A Vercel (or similar service) account
-- Basic understanding of Next.js and common sense
+- ~Basic understanding of Next.js and common sense~
 
 ---
 
-### Fork or clone the repository
+### Fork and clone the repository
 
-As a first step, you'll need to fork or clone the repository to your GitHub account.
+As a first step, you'll need to fork and clone the repository to your GitHub account.
 
 **Forking the repository**
 - Click the **Fork** button or [click here](https://github.com/mbaharip/next-gdrive-index/fork)
-- Fill in the repository name, description, and visibility as you like
+- Fill in the repository name, and description as you like
 
 **Cloning the repository**
 - Click the **Code** button, and copy the repository URL
@@ -91,6 +91,9 @@ As a first step, you'll need to fork or clone the repository to your GitHub acco
 \`\`\`bash
 git clone <repository_url>
 \`\`\`
+
+> **Note**
+> You can also use **GitHub Codespaces** to edit the project if you prefer not to clone the repository.
 
 ---
 
@@ -128,20 +131,17 @@ Now that the Google Drive API is enabled, we need to create a service account to
 
 ### Creating service account
 
-If you're still on the Google Drive API page, you can click on **Credentials** menu on the sidebar.
-If you're not, you can go to the **APIs & Services** product, and then select **Credentials** menu.
-
-Now you should be on the Credentials page, you can follow these steps to create a service account:
+Go to the **Credentials** page on the Google Cloud Platform to create a service account (tt can be found on the left sidebar), and follow these steps to create a service account:
 
 1. Click on **Create Credentials** button, and choose **Service account**.
 2. Fill the service account name and description as you like, and then click the **Create and continue** button.
-2.1 You can skip both the **Grant this service account access to project** and **Grant users access to this service account** by clicking the **Done** button.
-3. You should see the service account you just created on the **Service Account** table, click on the service account name to open the details.
-4. Go to the **Keys** tab, and then click the **Add Key** button, choose the **Create new key**, and then pick the key type as **JSON**.
-5. A download prompt will appear, save the JSON file on easy-to-find location, and **keep it safe**. We will use it later on the configuration.
+3. You can skip both the **Grant this service account access to project** and **Grant users access to this service account** by clicking the **Done** button.
+4. You should see the service account you just created on the **Service Account** table, click on the service account name to open the details.
+5. Go to the **Keys** tab, and then click the **Add Key** button, choose the **Create new key**, and then pick the key type as **JSON**.
+6. A download prompt will appear, save the JSON file on easy-to-find location, and **keep it safe**. We will use it later on the configuration.
 
-**Note**
-The JSON file contains sensitive information, don't share it with anyone.
+> **Note**
+> The JSON file contains sensitive information, don't share it with anyone.
 
 ---
 
@@ -159,9 +159,9 @@ You can either set the folder to public or share it with the service account.
 
 Save the folder ID on notepad or somewhere safe, we will use it on the configuration.
 
-**Note**
-People can't download files larger than the download limit (more information on [configuring section](#configuring-the-project)) if the folder is not set to public.
-I'm still looking for a workaround for this.
+> **Note**
+> People can't download files larger than the download limit (more information on [configuring section](#configuring-the-project)) if the folder is not set to public.
+> I'm still looking for a workaround for this.
 
 ---
 
@@ -178,9 +178,9 @@ While the configurator is easier, you can only configure the basic settings, so 
 4. Replace the existing configuration file (\`/src/config/gIndex.config.ts\`) with the downloaded file
 5. Save the environment file (\`.env.local\`) to be used on the deployment
 
-**Important Note**
-Make sure you don't push / upload the environment file to the repository, or share it with anyone.
-Since it contains sensitive information, it should be kept secret.
+> **Important Note**
+> Make sure you don't push / upload the environment file to the repository, or share it with anyone.
+> Since it contains sensitive information, it should be kept secret.
 
 #### Manually editing the configuration file
 
@@ -193,9 +193,9 @@ The environment file should contain the following information:
 - \`SITE_PASSWORD\` - Will be used as the index password if you set **private index** to \`true\` on the configuration file
 - \`NEXT_PUBLIC_DOMAIN\` (optional) - Domain without protocol and trailing slash, e.g: \`example.com\`, default to your Vercel deployment domain / url (**If you're not using Vercel, you need to set this**)
 
-**Important Note**
-Make sure to keep the environment file safe, and don't share it with anyone.
-Since it contains sensitive information, it should be kept secret.
+> **Important Note**
+> Make sure to keep the environment file safe, and don't share it with anyone.
+> Since it contains sensitive information, it should be kept secret.
 
 After creating the environment file, you can edit the configuration file (\`/src/config/gIndex.config.ts\`) to configure the project.
 Before changing the configuration, you need to replace the \`apiConfig.rootFolder\` with the encrypted value of the folder ID you just copied.
@@ -208,9 +208,9 @@ To encrypt the value, you can use the following command:
 4. Make sure \`decryptedValue\` is the same as the folder ID you copied, and \`key\` is the same as the encryption key you used. If it's not, you need to recheck the encryption key and folder ID.
 5. Replace the \`apiConfig.rootFolder\` with the \`encryptedValue\` you got from the response.
 
-If you're using Shared Drive, please follow the [Shared Drive Guide](#using-shared-drive) before deploying the project.
+If you're using **Shared Drive**, please follow the [Shared Drive Guide](#using-shared-drive) before deploying the project.
 Now you can change the other configuration as you like, each configuration has a description to help you understand the purpose of the configuration.
-And don't forget to save the configuration file after you finish editing it.
+Then save the configuration file, and you're ready to deploy the project.
 
 ---
 
@@ -354,7 +354,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h1: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h1
         id={id}
@@ -372,7 +372,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h2: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h2
         id={id}
@@ -390,7 +390,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h3: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h3
         id={id}
@@ -408,7 +408,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h4: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h4
         id={id}
@@ -426,7 +426,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h5: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h5
         id={id}
@@ -444,7 +444,7 @@ const customComponents: Partial<Omit<NormalComponents, keyof SpecialComponents> 
   h6: ({ className, id, children, ...props }) => (
     <Link
       href={`#${id}`}
-      className='group block w-full !text-card-foreground !opacity-100'
+      className='group block w-fit !text-card-foreground !opacity-100'
     >
       <h6
         id={id}
@@ -466,7 +466,7 @@ export default function DeployPage() {
     <>
       <Alert variant={"warning"}>
         <AlertTitle>Heads up!</AlertTitle>
-        <AlertDescription>It is recommended to use desktop to follow along the guide.</AlertDescription>
+        <AlertDescription>It is recommended to use desktop / laptop to follow along the guide.</AlertDescription>
       </Alert>
 
       <TableOfContents guide={guide} />
