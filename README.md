@@ -44,7 +44,7 @@ This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.
 
 ## Why I made this?
 
-> ![NOTE] > **TLDR;**
+> **TLDR;** \
 > It is cheaper to use Google Drive than other similar service
 
 There are a lot cloud storage service like Onedrive, Dropbox, Mega, etc.
