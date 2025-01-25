@@ -6,6 +6,12 @@ export const Schema_Breadcrumb = z.object({
   href: z.string().optional(),
 });
 
+export const Schema_File_Shortcut = z.object({
+  shortcutDetails: z.object({
+    targetId: z.string(),
+    targetMimeType: z.string(),
+  }),
+});
 export const Schema_File = z.object({
   mimeType: z.string(),
   encryptedId: z.string(),
@@ -34,7 +40,7 @@ export const Schema_File = z.object({
     .nullable(),
 });
 
-export const Schema_Old_Config = z.object({
+export const Schema_v1_Config = z.object({
   version: z.literal("1.0.0"),
   basePath: z.string(),
   masterKey: z.string(),
@@ -48,7 +54,7 @@ export const Schema_Old_Config = z.object({
     defaultField: z.string(),
     defaultOrder: z.string(),
     itemsPerPage: z.number().positive(),
-    searchRsult: z.number().positive(),
+    searchResult: z.number().positive(),
 
     specialFile: z.object({
       password: z.string(),
@@ -84,18 +90,18 @@ export const Schema_Old_Config = z.object({
   }),
 });
 
-export const Schema_Config_API = z
+const Schema_Config_API = z
   .object({
     rootFolder: z.string(),
-    isTeamDrive: z.boolean(),
+    isTeamDrive: z.coerce.boolean(),
     sharedDrive: z.string().optional(),
     defaultQuery: z.array(z.string()),
     defaultField: z.string(),
     defaultOrder: z.string(),
-    itemsPerPage: z.number().positive(),
-    searchResult: z.number().positive(),
-    proxyThumbnail: z.boolean(),
-    streamMaxSize: z.number(),
+    itemsPerPage: z.coerce.number().positive(),
+    searchResult: z.coerce.number().positive(),
+    proxyThumbnail: z.coerce.boolean(),
+    streamMaxSize: z.coerce.number(),
 
     specialFile: z.object({
       password: z.string(),
@@ -104,17 +110,19 @@ export const Schema_Config_API = z
     }),
     hiddenFiles: z.array(z.string()),
 
-    allowDownloadProtectedFile: z.boolean(),
-    temporaryTokenDuration: z.number().positive(),
-    maxFileSize: z.number().positive(),
+    allowDownloadProtectedFile: z.coerce.boolean(),
+    temporaryTokenDuration: z.coerce.number().positive(),
+    maxFileSize: z.coerce.number().positive(),
   })
   .refine(
     (data) => {
-      if (data.isTeamDrive && !data.sharedDrive) return false;
+      if (data.isTeamDrive === true && !data.sharedDrive) return false;
+      return true;
     },
     { message: "sharedDrive is required when isTeamDrive is true" },
   );
-export const Schema_Config_Site = z.object({
+
+const Schema_v2_3_Config_Site = z.object({
   siteName: z.string(),
   siteNameTemplate: z.string().optional().default("%s"),
   siteDescription: z.string(),
@@ -158,14 +166,69 @@ export const Schema_Config_Site = z.object({
     }),
   ),
 });
-export const Schema_App_Configuration_Env = z.object({
-  GD_SERVICE_B64: z.string(),
-  ENCRYPTION_KEY: z.string(),
-  SITE_PASSWORD: z.string().optional(),
-  NEXT_PUBLIC_DOMAIN: z.string().optional(),
+export const Schema_Config_Site = z.object({
+  siteName: z.string(),
+  siteNameTemplate: z.string().optional().default("%s"),
+  siteDescription: z.string(),
+  siteIcon: z.string(),
+  siteAuthor: z.string().optional().default("mbaharip"),
+  favIcon: z.string(),
+  robots: z.string().optional().default("noindex, nofollow"),
+  twitterHandle: z.string().optional().default("@__mbaharip__"),
+
+  showFileExtension: z.coerce.boolean().optional().default(false),
+
+  footer: z
+    .array(
+      z.object({
+        value: z.string(),
+      }),
+    )
+    .default([]),
+  experimental_pageLoadTime: z
+    .literal(false)
+    .or(z.enum(["s", "ms"]))
+    .default("ms"),
+
+  privateIndex: z.coerce.boolean().optional().default(false),
+  breadcrumbMax: z.coerce.number(),
+
+  toaster: z
+    .object({
+      position: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]),
+      duration: z.coerce.number().positive(),
+    })
+    .optional()
+    .default({
+      position: "top-right",
+      duration: 5000,
+    }),
+
+  navbarItems: z.array(
+    z.object({
+      icon: z.enum(Object.keys(icons) as [keyof typeof icons]),
+      name: z.string(),
+      href: z.string(),
+      external: z.coerce.boolean().optional().default(false),
+    }),
+  ),
+  supports: z.array(
+    z.object({
+      name: z.string(),
+      currency: z.string(),
+      href: z.string(),
+    }),
+  ),
+
+  previewSettings: z.object({
+    manga: z.object({
+      maxSize: z.coerce.number().positive(),
+      maxItem: z.coerce.number().positive(),
+    }),
+  }),
 });
 
-export const Schema_Config = z.object({
+export const Schema_v2_3_Config = z.object({
   version: z.string(),
   basePath: z.string(),
   cacheControl: z.string(),
@@ -173,7 +236,24 @@ export const Schema_Config = z.object({
 
   apiConfig: Schema_Config_API,
 
+  siteConfig: Schema_v2_3_Config_Site,
+});
+export const Schema_Config = z.object({
+  version: z.string(),
+  basePath: z.string(),
+  cacheControl: z.string(),
+  showGuideButton: z.boolean(),
+
+  apiConfig: Schema_Config_API,
+
   siteConfig: Schema_Config_Site,
+});
+
+export const Schema_App_Configuration_Env = z.object({
+  GD_SERVICE_B64: z.string(),
+  ENCRYPTION_KEY: z.string(),
+  SITE_PASSWORD: z.string().optional(),
+  NEXT_PUBLIC_DOMAIN: z.string().optional(),
 });
 
 export const Schema_ServiceAccount = z.object({
@@ -191,9 +271,23 @@ export const Schema_ServiceAccount = z.object({
 });
 
 export const Schema_App_Configuration = z.object({
+  version: z.string(),
   environment: Schema_App_Configuration_Env,
-  api: Schema_Config_API,
-  site: Schema_Config_Site,
+  api: Schema_Config_API.and(
+    z.object({
+      cache: z.object({
+        public: z.coerce.boolean(),
+        maxAge: z.coerce.number().min(0),
+        sMaxAge: z.coerce.number().min(0),
+        staleWhileRevalidate: z.coerce.boolean(),
+      }),
+    }),
+  ),
+  site: Schema_Config_Site.and(
+    z.object({
+      guideButton: z.boolean(),
+    }),
+  ),
 });
 
 export type ConfigurationCategory = keyof z.infer<typeof Schema_App_Configuration>;
@@ -205,28 +299,8 @@ export type ConfigurationValue<
   K extends keyof z.infer<typeof Schema_App_Configuration>[T],
 > = z.infer<typeof Schema_App_Configuration>[T][K];
 
-export type ButtonState = "idle" | "loading";
-
-export const Schema_Theme = z.object({
-  "background": z.string(),
-  "foreground": z.string(),
-  "card": z.string(),
-  "card-foreground": z.string(),
-  "popover": z.string(),
-  "popover-foreground": z.string(),
-  "primary": z.string(),
-  "primary-foreground": z.string(),
-  "secondary": z.string(),
-  "secondary-foreground": z.string(),
-  "muted": z.string(),
-  "muted-foreground": z.string(),
-  "accent": z.string(),
-  "accent-foreground": z.string(),
-  "destructive": z.string(),
-  "destructive-foreground": z.string(),
-  "border": z.string(),
-  "input": z.string(),
-  "ring": z.string(),
-  "radius": z.string(),
+export const Schema_FileToken = z.object({
+  id: z.string(),
+  exp: z.number(),
+  iat: z.number(),
 });
-export type ThemeKeys = keyof z.infer<typeof Schema_Theme>;

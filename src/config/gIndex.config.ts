@@ -1,15 +1,14 @@
-import { z } from "zod";
+import { type z } from "zod";
+import { BASE_URL, IS_DEV } from "~/constant";
 
-import { isDev } from "~/utils/isDev";
-
-import { Schema_Config } from "~/types/schema";
+import { type Schema_Config } from "~/types/schema";
 
 const config: z.input<typeof Schema_Config> = {
   /**
    * If possible, please don't change this value
    * Even if you're creating a PR, just let me change it myself
    */
-  version: "2.0.3",
+  version: "2.0.4",
   /**
    * Base path of the app, used for generating links
    *
@@ -18,29 +17,25 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath: isDev
-    ? "http://localhost:3000"
-    : `https://${process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_VERCEL_URL}`,
+  basePath: IS_DEV ? "http://localhost:3000" : `https://${BASE_URL}`,
 
   /**
-   * Allow access to the deploy guide
-   * Will use the `/deploy` route, might be overlap with file / folder name
+   * Show deploy guide dropdown on navbar
+   * that contains the deploy guide and configurator
    *
-   * Set this to false on final deployment
-   *
-   * I'm using this to show the deploy guide on my own demo deployment
+   * Set this to false on final deployment, except you want to show it
    *
    * @default false
    */
-  showDeployGuide: true,
+  showGuideButton: true,
 
   /**
    * How long the cache will be stored in the browser
    * Used for all pages and api routes
    *
-   * @default "max-age=0, s-maxage=60, stale-while-revalidate"
+   * @default "public, max-age=60, s-maxage=60, stale-while-revalidate"
    */
-  cacheControl: "max-age=0, s-maxage=60, stale-while-revalidate",
+  cacheControl: "public, max-age=60, s-maxage=60, stale-while-revalidate",
 
   apiConfig: {
     /**
@@ -51,7 +46,8 @@ const config: z.input<typeof Schema_Config> = {
      * You need to create a new folder and share it with the service account
      * Then, copy the folder id and paste it here
      */
-    rootFolder: "b76c7c22083307a3aa99c28ab7cc69851d682f5a250d995679d4be5276cab16ab6c37f4d5b7ad1a9b93fb9bf768e752c",
+    rootFolder:
+      "e0a5fd4f9f7d05d220e517ef3ef4de7acf4277b64a09b916e8ee30703f0d6fd1cdbde87601a667ca61afd1a702e203e6ec;e13a51f76049b2e4e02c5d41",
 
     /**
      * If your rootfolder inside a shared drive, you NEED to set this to true
@@ -67,7 +63,7 @@ const config: z.input<typeof Schema_Config> = {
      * Then you need to encrypt it using `/api/internal/encrypt?q=:shared_drive_id` route
      */
     isTeamDrive: true,
-    sharedDrive: "77bfa156c9c9d159112fcb0494ed8545bdaf7a3d567cd760ba2e2e2cd33fcbfc",
+    sharedDrive: "908f663cfd7fa75a494061c4856f03c76ac72430d9212bb34bc0707d1867cfece98664;5f1d6ec93903f2af7b9cfe2f",
 
     defaultQuery: ["trashed = false", "(not mimeType contains 'google-apps' or mimeType contains 'folder')"],
     defaultField:
@@ -148,16 +144,16 @@ const config: z.input<typeof Schema_Config> = {
      * After 30 minutes, and the user still downloading the file, the download will NOT be interrupted
      * But if the user refresh the page / trying to download again, the download link will be expired
      *
-     * Default: 6 hours
+     * Default: 1 hour
      */
-    temporaryTokenDuration: 6,
+    temporaryTokenDuration: 1,
 
     /**
      * Maximum file size that can be downloaded via api routes
      * If it's larger than this, it will be redirected to the file url
      *
      * If you're using Vercel, they have a limit of ~4 - ~4.5MB response size
-     * ref: https://vercel.com/docs/platform/limits#serverless-function-payload-size-limit
+     * ref: https://vercel.com/docs/functions/runtimes#request-body-size
      * If you're using another platform, you can match the limit with your platform
      * Or you can set this to 0 to disable the limit
      *
@@ -198,7 +194,7 @@ const config: z.input<typeof Schema_Config> = {
      *
      * Default: false
      */
-    showFileExtension: false,
+    showFileExtension: true,
 
     /**
      * Footer content
@@ -210,13 +206,22 @@ const config: z.input<typeof Schema_Config> = {
      * Template:
      * - {{ year }} will be replaced with the current year
      * - {{ repository }} will be replaced with the original repository link
+     * - {{ poweredBy }} will be replaced with "Powered by next-gdrive-index", linked to the repository
      * - {{ author }} will be replaced with author from siteAuthor config above (If it's not set, it will be set to mbaharip)
      * - {{ version }} will be replaced with the current version
      * - {{ siteName }} will be replaced with the siteName config above
      * - {{ handle }} will be replaced with the twitter handle from twitterHandle config above
      * - {{ creator }} will be replaced with mbaharip if you want to credit me
      */
-    footer: ["{{ siteName }} *v{{ version }}* @ {{ repository }}", "{{ year }} - Made with ❤️ by **{{ author }}**"],
+    footer: [
+      { value: "{{ poweredBy }}" },
+      { value: "Made with ❤️ by [**{{ author }}**](https://github.com/mbaharip)" },
+    ],
+    /**
+     * Add page load time on the footer
+     * If you don't want to use it, you can set it to false
+     */
+    experimental_pageLoadTime: false,
 
     /**
      * Site wide password protection
@@ -241,7 +246,7 @@ const config: z.input<typeof Schema_Config> = {
      */
     toaster: {
       position: "bottom-right",
-      duration: 3000,
+      duration: 5000,
     },
 
     /**
@@ -299,6 +304,24 @@ const config: z.input<typeof Schema_Config> = {
         href: "https://saweria.co/mbaharip",
       },
     ],
+
+    /**
+     * Configuration for file preview
+     */
+    previewSettings: {
+      manga: {
+        /**
+         * Load first X MB of the file for preview
+         * or load first X items for preview
+         *
+         * @default
+         * maxSize: 15MB
+         * maxItem: 10 items
+         */
+        maxSize: 15 * 1024 * 1024,
+        maxItem: 10,
+      },
+    },
   },
 };
 

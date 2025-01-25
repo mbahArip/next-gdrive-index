@@ -1,0 +1,179 @@
+/* Version: ${pkg.version} */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Shadcn/ui theme */
+@layer base {
+  :root {
+    --background: 0 0% 97.69%;
+    --foreground: 334 55% 1%;
+    --muted: 0 0% 93.85%;
+    --muted-foreground: 0 0% 10.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10.2%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13.73%;
+    --border: 0 0% 80.78%;
+    --input: 0 0% 80.78%;
+    --primary: 211.29 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 85.49%;
+    --secondary-foreground: 334 0% 10%;
+    --accent: 211.29 100% 50%;
+    --accent-foreground: 334 0% 100%;
+    --destructive: 3.19 100% 59.41%;
+    --destructive-foreground: 18 0% 100%;
+    --ring: 0 0% 60%;
+    --chart-1: 211.29 100% 50%;
+    --chart-2: 0 0% 85.49%;
+    --chart-3: 211.29 100% 50%;
+    --chart-4: 0 0% 88.49%;
+    --chart-5: 211.29 103% 50%;
+    --radius: 0.5rem;
+
+    /**
+    * One Light theme for prism.js
+    * Based on Atom's One Light theme: https://github.com/atom/atom/tree/master/packages/one-light-syntax
+    */
+    /* From colors.less */
+    --mono-1: hsl(230, 8%, 24%);
+    --mono-2: hsl(230, 6%, 44%);
+    --mono-3: hsl(230, 4%, 64%);
+    --hue-1: hsl(198, 99%, 37%);
+    --hue-2: hsl(221, 87%, 60%);
+    --hue-3: hsl(301, 63%, 40%);
+    --hue-4: hsl(119, 34%, 47%);
+    --hue-5: hsl(5, 74%, 59%);
+    --hue-5-2: hsl(344, 84%, 43%);
+    --hue-6: hsl(35, 99%, 36%);
+    --hue-6-2: hsl(35, 99%, 40%);
+    --syntax-fg: hsl(230, 8%, 24%);
+    --syntax-bg: hsl(230, 1%, 98%);
+    --syntax-gutter: hsl(230, 1%, 62%);
+    --syntax-guide: hsla(230, 8%, 24%, 0.2);
+    --syntax-accent: hsl(230, 100%, 66%);
+    /* From syntax-variables.less */
+    --syntax-selection-color: hsl(230, 1%, 90%);
+    --syntax-gutter-background-color-selected: hsl(230, 1%, 90%);
+    --syntax-cursor-line: hsla(230, 8%, 24%, 0.05);
+
+    @apply text-[100%];
+  }
+
+  .dark {
+    --background: 217.5 9.09% 17.25%;
+    --foreground: 334 34% 98%;
+    --muted: 210 9.09% 12.94%;
+    --muted-foreground: 334 0% 60.77%;
+    --popover: 210 9.09% 12.94%;
+    --popover-foreground: 334 34% 98%;
+    --card: 210 9.09% 12.94%;
+    --card-foreground: 334 34% 98%;
+    --border: 334 0% 18.46%;
+    --input: 214.29 5.04% 27.25%;
+    --primary: 226.73 58.43% 65.1%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214.29 5.04% 27.25%;
+    --secondary-foreground: 334 0% 100%;
+    --accent: 217.5 9.09% 17.25%;
+    --accent-foreground: 226.73 58.43% 65.1%;
+    --destructive: 358.16 68.78% 53.53%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 217.5 9.09% 17.25%;
+    --chart-1: 226.73 58.43% 65.1%;
+    --chart-2: 214.29 5.04% 27.25%;
+    --chart-3: 217.5 9.09% 17.25%;
+    --chart-4: 214.29 5.04% 30.25%;
+    --chart-5: 226.73 61.43% 65.1%;
+
+    /**
+    * One Dark theme for prism.js
+    * Based on Atom's One Dark theme: https://github.com/atom/atom/tree/master/packages/one-dark-syntax
+    */
+    /* From colors.less */
+    --mono-1: hsl(220, 14%, 71%);
+    --mono-2: hsl(220, 9%, 55%);
+    --mono-3: hsl(220, 10%, 40%);
+    --hue-1: hsl(187, 47%, 55%);
+    --hue-2: hsl(207, 82%, 66%);
+    --hue-3: hsl(286, 60%, 67%);
+    --hue-4: hsl(95, 38%, 62%);
+    --hue-5: hsl(355, 65%, 65%);
+    --hue-5-2: hsl(5, 48%, 51%);
+    --hue-6: hsl(29, 54%, 61%);
+    --hue-6-2: hsl(39, 67%, 69%);
+    --syntax-fg: hsl(220, 14%, 71%);
+    --syntax-bg: hsl(220, 13%, 18%);
+    --syntax-gutter: hsl(220, 14%, 45%);
+    --syntax-guide: hsla(220, 14%, 71%, 0.15);
+    --syntax-accent: hsl(220, 100%, 66%);
+    /* From syntax-variables.less */
+    --syntax-selection-color: hsl(220, 13%, 28%);
+    --syntax-gutter-background-color-selected: hsl(220, 13%, 26%);
+    --syntax-cursor-line: hsla(220, 100%, 80%, 0.04);
+  }
+
+  div.preview * {
+    @apply !transition-none;
+  }
+
+  * {
+    @apply border-border;
+    /* @apply outline outline-1 outline-red-500; */
+  }
+
+  ::-webkit-scrollbar {
+    @apply h-1.5 w-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-primary/5;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-primary/25 hover:bg-primary/50;
+  }
+
+  /* Typography */
+  h1 {
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
+  }
+  h2 {
+    @apply scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0;
+  }
+  h3 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+  }
+  h4 {
+    @apply scroll-m-20 text-xl font-semibold tracking-tight;
+  }
+  p {
+    @apply leading-7 [&:not(:first-of-type)]:mt-6;
+  }
+  blockquote {
+    @apply mt-6 border-l-2 pl-6 italic;
+  }
+  ul {
+    @apply my-6 ml-6 list-disc [&>li]:mt-2;
+  }
+  .lead {
+    @apply text-xl text-muted-foreground;
+  }
+  .large {
+    @apply text-lg font-semibold;
+  }
+  .muted {
+    @apply text-sm text-muted-foreground;
+  }
+  small {
+    @apply text-sm font-medium leading-none;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+@layer base {
+}

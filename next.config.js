@@ -1,23 +1,17 @@
+/* eslint-disable */
+const path = require("path");
+
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  pageExtensions: ["tsx", "ts"],
   webpack: (config) => {
-    config.resolve.alias.canvas = false;
-
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "~": path.resolve(__dirname, "./"),
+    };
     return config;
   },
-  // async headers() {
-  //   return [
-  //     {
-  //       source: "/:path*",
-  //       headers: [
-  //         {
-  //           key: "Cache-Control",
-  //           value: "max-age=300, s-maxage=300, stale-while-revalidate, public",
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // },
 };
 
 module.exports = nextConfig;

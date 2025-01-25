@@ -1,5 +1,5 @@
-import { NotFound } from "~/components/Layout";
+import { NotFoundComponent } from "~/components/layout";
 
-export default function NotFoundPage() {
-  return <NotFound />;
+export default function NotFound() {
+  return <NotFoundComponent />;
 }

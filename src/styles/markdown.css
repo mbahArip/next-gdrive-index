@@ -1,0 +1,118 @@
+@tailwind components;
+
+@layer components {
+  .markdown {
+    @apply text-base leading-relaxed tracking-wide;
+  }
+
+  .markdown p {
+    @apply leading-loose;
+  }
+
+  /* .markdown h1 {
+    @apply text-4xl font-medium;
+  }
+  .markdown h2 {
+    @apply text-3xl font-medium;
+  }
+  .markdown h3 {
+    @apply text-2xl font-medium;
+  }
+  .markdown h4 {
+    @apply text-xl font-medium;
+  }
+  .markdown h5 {
+    @apply text-lg font-medium;
+  }
+  .markdown h6 {
+    @apply text-base;
+  } */
+
+  .markdown h1,
+  .markdown h2,
+  .markdown h3 {
+    @apply mt-4 border-b-2 border-b-border first-letter:capitalize;
+  }
+
+  .markdown code:not(pre code) {
+    @apply mx-1 select-all whitespace-nowrap rounded-[0.375rem] border bg-[--syntax-bg] px-1 py-1 leading-normal tracking-wide text-foreground;
+  }
+
+  .markdown a {
+    @apply text-blue-600 opacity-80 transition-all duration-300 hover:opacity-100 dark:text-blue-400;
+  }
+
+  .markdown p {
+    @apply whitespace-normal text-pretty;
+  }
+
+  .markdown img {
+    @apply rounded-lg;
+  }
+
+  .markdown ul {
+    @apply my-3 !list-outside list-disc leading-loose;
+  }
+
+  .markdown ol {
+    @apply my-3 !list-inside list-decimal leading-loose;
+  }
+
+  .markdown li {
+    @apply my-0 ml-2;
+  }
+
+  .markdown table {
+    @apply mb-4 block w-full border-collapse border-spacing-0 overflow-auto;
+  }
+
+  .markdown table th,
+  .markdown table td {
+    @apply border border-border px-2 py-1;
+  }
+
+  .markdown table th {
+    @apply bg-background text-foreground;
+  }
+
+  .markdown table tr {
+    @apply bg-secondary/50 text-foreground;
+  }
+
+  .markdown table tr:nth-child(2n) {
+    @apply bg-secondary/25 text-foreground;
+  }
+
+  .markdown ul.contains-task-list {
+    @apply list-none;
+  }
+
+  .markdown ul.contains-task-list li {
+    @apply ml-1 flex items-center;
+  }
+  .markdown del {
+    @apply text-muted-foreground;
+  }
+
+  .markdown input[type="checkbox"] {
+    @apply mr-2 aspect-square h-4 w-4 rounded-full p-2;
+    @apply appearance-none border border-border;
+    @apply disabled:bg-primary disabled:checked:bg-blue-600 dark:disabled:checked:bg-blue-400;
+  }
+
+  .markdown blockquote {
+    quotes: none !important;
+    @apply border border-l-4 bg-primary/5 py-2 text-sm not-italic text-foreground/75;
+    /* @apply my-2 rounded-r-lg border-l-4 border-l-primary/50 bg-muted/25 py-1.5 pl-3 text-foreground; */
+  }
+  .markdown blockquote > p > strong:first-child {
+    @apply text-base font-semibold text-foreground;
+  }
+  .markdown blockquote > p {
+    @apply my-0 !important;
+  }
+
+  .markdown hr {
+    @apply my-4 border-b border-t-0 border-b-border;
+  }
+}

@@ -1,0 +1,60 @@
+.vds-audio-layout {
+  --audio-bg: hsl(var(--background));
+  --audio-border-radius: var(--radius);
+  --audio-play-button-border-radius: 9999px;
+  --audio-play-button-color: hsl(var(--primary-foreground));
+  --audio-play-button-size: 48px;
+
+  --media-brand: hsl(var(--primary));
+  --media-controls-color: hsl(var(--foreground));
+  --media-buffering-size: 2.5rem;
+  --media-button-border-radius: 9999px;
+  --media-button-hover-bg: transparent;
+  --media-tooltip-bg-color: hsl(var(--popover));
+  --media-tooltip-color: hsl(var(--popover-foreground));
+  --media-tooltip-border: none;
+  --media-tooltip-border-radius: calc(var(--radius) - 2px);
+}
+.vds-video-layout {
+  --media-brand: hsl(var(--primary));
+  --media-buffering-size: 2.5rem;
+  --media-button-hover-bg: transparent;
+
+  --media-tooltip-bg-color: hsl(var(--popover));
+  --media-tooltip-color: hsl(var(--popover-foreground));
+  --media-tooltip-border: none;
+  --media-tooltip-border-radius: calc(var(--radius) - 2px);
+}
+.vds-video-layout .vds-controls-group:last-of-type {
+  background: linear-gradient(to bottom, transparent 0%, black 100%);
+}
+.vds-button {
+  transition: all 0.3 ease;
+}
+.vds-audio-layout .vds-time-slider {
+  max-width: unset;
+  transform: unset;
+  visibility: unset;
+}
+.vds-slider-preview {
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border-radius: calc(var(--radius) - 2px);
+}
+.vds-play-button:hover {
+  background: hsl(var(--primary) / 0.8) !important;
+}
+.vds-play-button:disabled {
+  background: hsl(var(--muted-foreground)) !important;
+  opacity: 0.75;
+}
+.vds-button {
+  display: grid;
+  place-items: center;
+}
+
+.media-player img,
+.media-player video {
+  max-height: 100dvh;
+  border-radius: 0px !important;
+}

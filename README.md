@@ -1,4 +1,4 @@
-![banner](/public/og.png)
+![banner](/public/og.webp)
 
 > [!IMPORTANT]  
 > It is **RECOMMENDED** to generate configuration from your deployment instead of demo site  
@@ -7,16 +7,14 @@
 <p align='center'>
 	<a href='https://drive-demo.mbaharip.com' target='_blank'>Demo Site</a>
 		·
-	<a href='https://drive-demo.mbaharip.com/deploy' target='_blank'>Deploy / Version Upgrade Guide</a>
+	<a href='https://drive-demo.mbaharip.com/ngdi-internal/deploy' target='_blank'>Deploy / Version Upgrade Guide</a>
 		·
-	<a href='https://github.com/mbahArip/next-gdrive-index/wiki/FAQ' target='_blank'>FAQ</a>
+	<a href='#' target='_blank'>How to Deploy (Youtube)</a>
 </p>
 <p align='center'>
-	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index?label=prod' alt='Demo version' />
-	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index/v2?label=dev' alt='Dev' />
+	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index?label=Production' alt='Demo version' />
+	<img src='https://img.shields.io/github/package-json/v/mbaharip/next-gdrive-index/v2?label=Preview' alt='Dev' />
 </p>
-
----
 
 <!-- Generate TOC -->
 
@@ -28,6 +26,8 @@
 - [Known Issues](#known-issues)
   - [File size limit](#file-size-limit)
   - [No support for Google Docs, Sheets, and Slides](#no-support-for-google-docs-sheets-and-slides)
+  - [No support for Shortcut](#no-support-for-shortcut)
+  - [Encryption cause error](#encryption-cause-error)
   - [Can't seek on audio and video preview](#cant-seek-on-audio-and-video-preview)
   - [Shared Drive is not supported](#shared-drive-is-not-supported)
 - [Might be Implemented](#might-be-implemented)
@@ -44,11 +44,11 @@
 `next-gdrive-index` is a Google Drive directory index.
 The aim of this project is to simplify the process of sharing files using Google Drive, and also add some features that _I think_ is useful when sharing a files.
 
-> This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by [SpencerWooo](https://github.com/spencerwooo).
+This project are **HEAVILY INSPIRED** by [onedrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) by [SpencerWooo](https://github.com/spencerwooo).
 
 ## Why I made this?
 
-> **TLDR;**
+> **TLDR;** \
 > It is cheaper to use Google Drive than other similar service
 
 There are a lot cloud storage service like Onedrive, Dropbox, Mega, etc.
@@ -64,8 +64,8 @@ _Price are converted to IDR, since it's easier for me to compare this using my o
 | **Dropbox**\*    | 2GB             | 2TB       | ~191k IDR<br>~159k IDR | 10.5GB / 1k / mo<br>12.5GB / 1k / yr        |       O        |
 | **MEGA**         | **<u>20GB</u>** | 2TB       | ~174k IDR<br>~145k IDR | 11.5GB / 1k / mo<br>13.8GB / 1k / yr        |       O        |
 
-\* Price are in USD, and there are no regional price for IDR
-\*\* There are no 2TB plan
+> \* Price are in USD, and there are no regional price for IDR \
+> \*\* There are no 2TB plan
 
 By using this data, I picked Google Drive instead other service.
 I know there are a lot of people selling cheap education account especially for Google Drive and Onedrive, but most of the time <u>those account doesn't last long</u>.
@@ -82,11 +82,12 @@ I know there are a lot of people selling cheap education account especially for 
   - Document preview
   - Code / Text / Markdown preview
   - Manga preview (cbz)
+- **Embed media**, embed media like video or audio to your site
 - **File search**, search by the file or folder name
 - **Direct download**, download directly via API route instead of google drive link ( Size limit can be adjusted )
 - **Raw file link**, embed your media files
 - **Light/Dark mode**, choose your side!
-- **Customizable Theme**, we are using `shadcn/ui` now! you can customize your site [https;//drive-demo.mbaharip.com/deploy#theme]
+- **Customizable Theme**, we are using `shadcn/ui` now! you can customize your site with the theme you like
 - **Links**, add social, or information link on the navbar
 - **Sponsors**, using this for thing for community? add a sponsor / donate button on your navbar!
 
@@ -94,20 +95,31 @@ I know there are a lot of people selling cheap education account especially for 
 
 ### File size limit
 
+> [!IMPORTANT]
 > This only apply if `maxFileSize` is enabled / more than 0
 
 You need to set the file sharing permission to `Anyone with the link can view` on the root folder.
 
 **Why?**
-The download link will be redirected if the file you're trying to download is bigger than the `maxFileSize`, and most of platform are limiting the response body size (ex: Vercel limit is 4MB).  
+The download link will be redirected if the file you're trying to download is bigger than the `maxFileSize`, and most of platform are limiting the response body size (ex: Vercel limit is 4MB).
 If you don't set the permission, people can't access or download the file.
 
-This will <u>expose the file ID</u>, and people can access the file directly from Google Drive.  
-But it <u>only apply to the file</u>, and they can't see or browse the folder directly from Google Drive.
+> [!WARNING]
+> This will **expose the file ID**
+> While they can view the file directly from Google Drive, they can't see or browse the folder that contains the file from Google Drive.
 
 ### No support for Google Docs, Sheets, and Slides
 
 For now, I don't have any plan to implement this, because I think it's not necessary.
+
+### No support for Shortcut
+
+While I think it's important, I don't have any plan to implement this for now.
+
+### ~Encryption cause error~
+
+~~It seems the configurator are generating wrong encrypted folder ID, so it will cause error when you try to access the folder.~~
+Should be fixed on v2.0.4, waiting for feedback / confirmation
 
 ### ~~Can't seek on audio and video preview~~
 
@@ -133,7 +145,7 @@ It's either from multiple Google Drive account with multiple Service Account, or
 
 ### Authentication
 
-Probably a good feature if you are a content creator that only want the one who subscribed to you get the files.  
+Probably a good feature if you are a content creator that only want the one who subscribed to you get the files.
 It might need a database, but idk if I can implement it without the need of database
 
 ## Running on Local
@@ -163,7 +175,7 @@ It might need a database, but idk if I can implement it without the need of data
 Want to add new feature or improve the existing one? or you find a bug and fixed it yourself?
 
 - Please check the issue tab first to see if someone already reporting a bug, or if you want to check any new feature / enhancement that not yet implemented
-- Use code base from `v2` branch instead of the `main`, since it was made for development on current version
+- Use code base from the latest version branch instead of the `main`, since it was made for development on current version
 - Create a Pull Request, and wait for me checking your code
 
 ## Support and Donations
