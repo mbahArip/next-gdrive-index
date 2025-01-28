@@ -62,11 +62,7 @@ If you are new, you can follow along from the beginning. However, if you have pr
 
 You can also utilize the [next-gdrive-index configurator](/ngdi-internal/configurator) to generate configuration for your deployment!
 
-This guide assumes that you have a fundamental understanding of how to deploy a Next.js application on Vercel or other platforms.
-
----
-
-If you prefer a video tutorial, you can watch the video below to deploy the project.`,
+This guide assumes that you have a fundamental understanding of how to deploy a Next.js application on Vercel or other platforms.`,
   newUser: `For new user, this guide will provide step-by-step instructions on deploying the project to Vercel or similar services.
 Before you begin, you'll need to have the following:
 
@@ -495,14 +491,14 @@ export default function DeployPage() {
             customComponents={customComponents}
             content={guide.gettingStarted.content}
           />
-          <iframe
+          {/* <iframe
             src='https://www.youtube-nocookie.com/embed/Wt-w5zWyOlk?si=z6j1Htb_YsaLswGW'
             title='next-gdrive-index deployment guide'
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
             referrerPolicy='strict-origin-when-cross-origin'
             className='aspect-video h-full w-full max-w-[640px] rounded-lg'
             allowFullScreen
-          ></iframe>
+          ></iframe> */}
         </CardContent>
       </Card>
       <Card>
