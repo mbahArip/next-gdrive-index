@@ -1,54 +1,58 @@
 "use client";
 
-import { type ChangeEvent, useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { LoadingButton } from "~/components/ui/button";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
+import { type PickFileResponse, pickFile } from "~/lib/configurationHelper";
+
 import { GenerateServiceAccountB64 } from "~/actions/configuration";
 
 import { type FormProps, FormSection } from "./ConfiguratorPage";
 
 export default function EnvironmentForm({ onResetField, form }: FormProps) {
-  const serviceInputRef = useRef<HTMLInputElement>(null);
-  const [serviceInputLoading, setServiceInputLoading] = useState<boolean>(false);
+  const [isLoadServiceLoading, setLoadServiceLoading] = useState<boolean>(false);
 
-  function onLoadServiceAccount(e: ChangeEvent<HTMLInputElement>) {
-    setServiceInputLoading(true);
-    toast.loading("Processing service account file", {
-      id: "service-account",
+  async function onLoadServiceAccount(response: PickFileResponse) {
+    const id = `service-account-${Date.now()}`;
+    toast.loading("Waiting for file...", {
+      id,
+      duration: 0,
     });
-
-    try {
-      const file = e.target.files?.[0];
-      if (!file) throw new Error("No file selected");
-
-      const fr = new FileReader();
-      fr.onload = async () => {
-        if (!fr.result) throw new Error("Failed to read file content");
-        const stringResult = typeof fr.result === "object" ? JSON.stringify(fr.result) : String(fr.result);
-        const b64 = await GenerateServiceAccountB64(stringResult);
-        if (!b64.success) throw new Error(b64.error);
-
-        form.setValue("environment.GD_SERVICE_B64", b64.data);
-        toast.success("Service account encoded", {
-          id: "service-account",
-        });
-      };
-      fr.readAsText(file);
-    } catch (error) {
-      const e = error as Error;
-      console.error(e.message);
+    if (!response.success) {
       toast.error("Failed to load service account file", {
-        description: e.message,
-        id: "service-account",
+        id,
+        description: response.details.length ? (
+          <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>
+            {response.details.join("\n")}
+          </pre>
+        ) : undefined,
       });
-    } finally {
-      e.target.value = ""; // Reset file input wether success or not
-      setServiceInputLoading(false);
+      setLoadServiceLoading(false);
+      return;
     }
+
+    toast.loading("Processing service account file", {
+      id,
+    });
+    const data = await GenerateServiceAccountB64(response.data);
+    if (!data.success) {
+      toast.error("Failed to encode service account", {
+        id,
+        description: <pre className='w-full overflow-auto whitespace-pre-wrap font-mono text-xs'>{data.error}</pre>,
+      });
+      setLoadServiceLoading(false);
+      return;
+    }
+
+    form.setValue("environment.GD_SERVICE_B64", data.data);
+    toast.success("Service account encoded", {
+      id,
+    });
+    setLoadServiceLoading(false);
   }
 
   return (
@@ -77,17 +81,19 @@ export default function EnvironmentForm({ onResetField, form }: FormProps) {
                   {...field}
                 />
               </FormControl>
-              <input
-                ref={serviceInputRef}
-                type='file'
-                hidden
-                accept='.json'
-                onChange={onLoadServiceAccount}
-              />
               <LoadingButton
-                loading={serviceInputLoading}
+                loading={isLoadServiceLoading}
                 size={"sm"}
-                onClick={() => serviceInputRef.current?.click()}
+                onClick={() => {
+                  setLoadServiceLoading(true);
+
+                  pickFile({
+                    accept: ".json",
+                    async onLoad(response) {
+                      await onLoadServiceAccount(response);
+                    },
+                  });
+                }}
                 type='button'
               >
                 Load JSON

@@ -621,6 +621,7 @@ export function parseVersion2Config(configuration: string) {
     .replace(/,(?=[^,]*$)/, "") // Remove trailing comma
     .replace(/(,\])/g, "]") // Remove trailing comma before closing bracket
     .replace(/(,\})/g, "}") // Remove trailing comma before closing brace
+    .replace(/\"{3,}/g, '"') // Remove multiple double quotes
     .slice(0, -1);
 
   const json = JSON.parse(config) as object;
