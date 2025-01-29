@@ -22,10 +22,10 @@ export const BASE_URL = (() => {
   const deploymentEnvironment = [
     process.env.NEXT_PUBLIC_DOMAIN,
     // Vercel
-    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL,
     process.env.NEXT_PUBLIC_VERCEL_URL,
-    process.env.VERCEL_PROJECT_PRODUCTION_URL,
     process.env.VERCEL_URL,
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
     // Netlify
     process.env.URL,
     process.env.DEPLOY_URL,
