@@ -16,18 +16,33 @@ export const USE_CACHE = false;
  *
  * On development, it will use `http://localhost:3000`
  */
-export const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_DOMAIN ??
-      process.env.VERCEL_PROJECT_PRODUCTION_URL ??
-      process.env.VERCEL_URL ??
-      process.env.URL ?? // Netlify
-      process.env.DEPLOY_URL ?? // Netlify
-      process.env.CF_PAGES_URL ?? // Cloudflare Pages
-      process.env.RAILWAY_PUBLIC_DOMAIN ?? // Railway
-      process.env.RENDER_EXTERNAL_HOSTNAME ?? // Render
-      "you-need-to-set-the-domain.com" // Fallback to prevent build error
-    : "http://localhost:3000";
+export const BASE_URL = (() => {
+  if (IS_DEV) return "http://localhost:3000";
+
+  const deploymentEnvironment = [
+    process.env.NEXT_PUBLIC_DOMAIN,
+    // Vercel
+    process.env.NEXT_PUBLIC_VERCEL_URL,
+    process.env.VERCEL_URL,
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    // Netlify
+    process.env.URL,
+    process.env.DEPLOY_URL,
+    // Cloudflare
+    process.env.CF_PAGES_URL,
+    // Railway
+    process.env.RAILWAY_PUBLIC_DOMAIN,
+    // Render
+    process.env.RENDER_EXTERNAL_HOSTNAME,
+
+    // ...Add more here
+  ].filter(Boolean);
+  if (deploymentEnvironment.length > 0) return deploymentEnvironment[0]!;
+
+  // Fallback
+  return "you-needs-to-set-the-domain.com";
+})();
 
 /**
  * Cookies name for the app
