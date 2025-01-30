@@ -101,6 +101,11 @@ export default function PreviewInformation({ file, token }: Props) {
 
     return value;
   }, [file]);
+  const downloadUrl = useMemo<string>(() => {
+    const downloadUrl = new URL(`/api/download/${pathname}`.replace(/\/+/g, "/"), config.basePath);
+    if (!config.apiConfig.allowDownloadProtectedFile) downloadUrl.searchParams.append("token", token);
+    return downloadUrl.toString();
+  }, [pathname, token]);
 
   const [isRawExplanationOpen, setIsRawExplanationOpen] = useState<boolean>(false);
 
@@ -152,9 +157,9 @@ export default function PreviewInformation({ file, token }: Props) {
     });
     try {
       // const downloadUrl = new URL(`/api/download/${file.encryptedId}`, config.basePath);
-      const downloadUrl = new URL(`/api/download/${pathname}`.replace(/\/+/g, "/"), config.basePath);
-      if (!config.apiConfig.allowDownloadProtectedFile) downloadUrl.searchParams.append("token", token);
-      await navigator.clipboard.writeText(downloadUrl.toString());
+      // const downloadUrl = new URL(`/api/download/${pathname}`.replace(/\/+/g, "/"), config.basePath);
+      // if (!config.apiConfig.allowDownloadProtectedFile) downloadUrl.searchParams.append("token", token);
+      await navigator.clipboard.writeText(downloadUrl);
       toast.success("Download link copied!", {
         id: `download-${file.encryptedId}`,
       });
@@ -165,7 +170,7 @@ export default function PreviewInformation({ file, token }: Props) {
         id: `download-${file.encryptedId}`,
       });
     }
-  }, [file.encryptedId, token, pathname]);
+  }, [file.encryptedId, downloadUrl]);
   const onViewDocument = useCallback(async () => {
     try {
       const viewerUrl =
@@ -340,10 +345,13 @@ export default function PreviewInformation({ file, token }: Props) {
               asChild
               className='w-full tablet:w-fit'
             >
-              <Link href={`/api/download/${file.encryptedId}?token=${token}`}>
+              <a
+                href={downloadUrl}
+                target='_blank'
+              >
                 <Icon name='Download' />
                 Download File
-              </Link>
+              </a>
             </Button>
           </div>
         </CardContent>
