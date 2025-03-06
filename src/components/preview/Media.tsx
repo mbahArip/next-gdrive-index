@@ -39,11 +39,11 @@ type Props = {
   type: "video" | "audio";
 };
 export default function PreviewMedia({ file, type }: Props) {
-  const loading = useLoading();
   const player = useRef<MediaPlayerInstance>(null);
   const [canPlay, setCanPlay] = useState<boolean>(false);
 
   const [isLoop, setIsLoop] = useState<boolean>(false);
+  const loading = useLoading();
 
   const smallAudioLayoutQuery = useCallback<MediaPlayerQuery>(({ width }) => {
     return width < 576;
@@ -53,7 +53,7 @@ export default function PreviewMedia({ file, type }: Props) {
   }, []);
 
   return (
-    <div className='flex h-full w-full items-center justify-center py-3'>
+    <div className='flex h-full w-full items-center justify-center gap-2 py-3 pb-0'>
       {loading ? (
         <PageLoader message='Loading media...' />
       ) : (
@@ -65,7 +65,6 @@ export default function PreviewMedia({ file, type }: Props) {
             type: file.mimeType as AudioMimeType | VideoMimeType,
           }}
           loop={isLoop}
-          autoPlay
           playsInline
           crossOrigin
           viewType={type === "audio" ? "audio" : "video"}

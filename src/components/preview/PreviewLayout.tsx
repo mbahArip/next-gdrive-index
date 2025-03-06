@@ -14,7 +14,7 @@ import {
   PreviewUnknown,
 } from "~/components/preview";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 
 import { type getFileType } from "~/lib/previewHelper";
 import { cn } from "~/lib/utils";
@@ -23,29 +23,27 @@ import { type Schema_File } from "~/types/schema";
 
 import config from "config";
 
+import MediaPlaylistLayout from "./MediaPlaylistLayout";
+
 type Props = {
   data: z.infer<typeof Schema_File>;
   fileType: "unknown" | ReturnType<typeof getFileType>;
   token: string;
+  playlist: z.infer<typeof Schema_File>[];
+  paths: string[];
 };
-export default function PreviewLayout({ data, fileType, token }: Props) {
+export default function PreviewLayout({ data, paths, fileType, token, playlist }: Props) {
   const [view, setView] = useState<"markdown" | "raw">("markdown");
   const PreviewComponent = useMemo(() => {
     switch (fileType) {
       case "image":
         return <PreviewImage file={data} />;
       case "video":
-        return (
-          <PreviewMedia
-            file={data}
-            type='video'
-          />
-        );
       case "audio":
         return (
           <PreviewMedia
             file={data}
-            type='audio'
+            type={fileType}
           />
         );
       case "code":
@@ -135,6 +133,15 @@ export default function PreviewLayout({ data, fileType, token }: Props) {
             <>{PreviewComponent}</>
           )}
         </CardContent>
+
+        <CardFooter>
+          <MediaPlaylistLayout
+            type={"inside"}
+            paths={paths}
+            currentItem={data}
+            playlist={playlist}
+          />
+        </CardFooter>
       </Card>
 
       <PreviewInformation
