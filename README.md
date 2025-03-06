@@ -112,7 +112,11 @@ For now, I don't have any plan to implement this, because I think it's not neces
 
 While I think it's important, I don't have any plan to implement this for now.
 
-### ~Encryption cause error~
+### TS video file doesn't recognized
+
+Somehow google return the mime type as code instead of video. I don't know how to fix this, so for now you can't preview the TS video file.
+
+### ~~Encryption cause error~~
 
 ~~It seems the configurator are generating wrong encrypted folder ID, so it will cause error when you try to access the folder.~~
 Should be fixed on v2.0.4, waiting for feedback / confirmation
