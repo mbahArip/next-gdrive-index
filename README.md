@@ -1,5 +1,9 @@
 ![banner](/public/og.webp)
 
+> [!IMPORTANT]  
+> It is **RECOMMENDED** to generate configuration from your deployment instead of demo site  
+> If you experiencing `Failed to decrypt data` error, you should try to regenerate your configuration from your deployment instead
+
 <p align='center'>
 	<a href='https://drive-demo.mbaharip.com' target='_blank'>Demo Site</a>
 		·
