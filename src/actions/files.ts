@@ -9,6 +9,8 @@ import { Schema_File, Schema_File_Shortcut } from "~/types/schema";
 
 import config from "config";
 
+import { ValidatePaths } from "./paths";
+
 /**
  * List files in a folder
  * @param {object} options
@@ -370,5 +372,92 @@ export async function GetContent(id: string): Promise<ActionResponseSchema<strin
     success: true,
     message: "Content found",
     data: data as string,
+  };
+}
+
+/**
+ * Get siblings media files from the same parent folder
+ * @param paths - Paths to check
+ */
+export async function GetSiblingsMedia(paths: string[]): Promise<ActionResponseSchema<z.infer<typeof Schema_File>[]>> {
+  const pathIds = await ValidatePaths(paths);
+  if (!pathIds.success)
+    return {
+      success: false,
+      message: "Failed to validate paths",
+      error: pathIds.error,
+    };
+  const folderPaths = pathIds.data.filter((item) => item.mimeType === "application/vnd.google-apps.folder");
+
+  const parentId = folderPaths[folderPaths.length - 1]?.id ?? config.apiConfig.rootFolder;
+  const isSharedDrive = !!(config.apiConfig.isTeamDrive && config.apiConfig.sharedDrive);
+  const decryptedParentId = await encryptionService.decrypt(parentId);
+  const decryptedSharedDrive = isSharedDrive
+    ? await encryptionService.decrypt(config.apiConfig.sharedDrive!)
+    : undefined;
+
+  const filterName = config.apiConfig.hiddenFiles.map((item) => `not name = '${item}'`).join(" and ");
+  const filterQuery: string = [
+    ...config.apiConfig.defaultQuery,
+    `'${decryptedParentId}' in parents`,
+    filterName,
+    "(mimeType contains 'video' or mimeType contains 'audio')",
+  ].join(" and ");
+
+  const { data } = await gdrive.files.list({
+    q: filterQuery,
+    fields: `files(${config.apiConfig.defaultField})`,
+    orderBy: config.apiConfig.defaultOrder,
+    pageSize: 100,
+    ...(decryptedSharedDrive && {
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      driveId: decryptedSharedDrive,
+      corpora: "drive",
+    }),
+  });
+  if (!data.files?.length) return { success: true, message: "No siblings media found", data: [] };
+
+  const files: z.infer<typeof Schema_File>[] = [];
+  for (const file of data.files) {
+    files.push({
+      encryptedId: await encryptionService.encrypt(file.id!),
+      encryptedWebContentLink: file.webContentLink ? await encryptionService.encrypt(file.webContentLink) : undefined,
+      name: file.name!,
+      mimeType: file.mimeType!,
+      trashed: file.trashed ?? false,
+      modifiedTime: new Date(file.modifiedTime!).toLocaleDateString(),
+      fileExtension: file.fileExtension ?? undefined,
+      size: file.size ? Number(file.size) : undefined,
+      thumbnailLink: file.thumbnailLink ?? undefined,
+      imageMediaMetadata: file.imageMediaMetadata
+        ? {
+            width: Number(file.imageMediaMetadata.width),
+            height: Number(file.imageMediaMetadata.height),
+            rotation: Number(file.imageMediaMetadata.rotation ?? 0),
+          }
+        : undefined,
+      videoMediaMetadata: file.videoMediaMetadata
+        ? {
+            durationMillis: Number(file.videoMediaMetadata.durationMillis),
+            height: Number(file.videoMediaMetadata.height),
+            width: Number(file.videoMediaMetadata.width),
+          }
+        : undefined,
+    });
+  }
+
+  const parsed = Schema_File.array().safeParse(files);
+  if (!parsed.success)
+    return {
+      success: false,
+      message: "Failed to parse siblings media",
+      error: parsed.error.message,
+    };
+
+  return {
+    success: true,
+    message: "Siblings media fetched",
+    data: parsed.data,
   };
 }
