@@ -62,7 +62,6 @@ export default function MediaPlaylistLayout({
     });
   }, [api]);
 
-  // <= 1, because it always include current media
   if (!uniquePlaylist.length) return null;
   if (type === "separated")
     return (
@@ -181,7 +180,6 @@ export default function MediaPlaylistLayout({
                 {/* Playlist */}
                 <Carousel
                   className={"relative col-span-2 tablet:col-span-3"}
-                  // plugins={[WheelGesturesPlugin({ forceWheelAxis: "y" })]}
                   setApi={setApi}
                   opts={{
                     dragFree: true,
@@ -196,7 +194,7 @@ export default function MediaPlaylistLayout({
                           key={item.encryptedId}
                           className='basis-1/2 tablet:basis-1/3'
                         >
-                          <Link href={itemUrl}>
+                          <Link href={`/${itemUrl}`}>
                             <Item
                               item={item}
                               isCurrent={false}
