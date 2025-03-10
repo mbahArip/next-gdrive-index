@@ -8,7 +8,7 @@ const config: z.input<typeof Schema_Config> = {
    * If possible, please don't change this value
    * Even if you're creating a PR, just let me change it myself
    */
-  version: "2.0.4",
+  version: "2.4.2",
   /**
    * Base path of the app, used for generating links
    *
@@ -27,7 +27,7 @@ const config: z.input<typeof Schema_Config> = {
    *
    * @default false
    */
-  showGuideButton: true,
+  showGuideButton: false,
 
   /**
    * How long the cache will be stored in the browser
