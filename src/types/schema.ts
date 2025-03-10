@@ -112,7 +112,7 @@ const Schema_Config_API = z
 
     allowDownloadProtectedFile: z.coerce.boolean(),
     temporaryTokenDuration: z.coerce.number().positive(),
-    maxFileSize: z.coerce.number().positive(),
+    maxFileSize: z.coerce.number(),
   })
   .refine(
     (data) => {
