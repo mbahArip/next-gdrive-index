@@ -13,7 +13,7 @@ import config from "~/config/gIndex.config";
 export const versionExpectMap: Record<"v1" | "v2" | "latest", string[]> = {
   v1: ["1.0.0", "1.0.1", "1.0.2", "1.0.3"],
   v2: ["2.0.0", "2.0.1", "2.0.2", "2.0.3"],
-  latest: ["2.0.4"],
+  latest: ["2.0.4", "2.4.0", "2.4.1", "2.4.2"],
 };
 export type PickFileResponse =
   | {
@@ -166,7 +166,7 @@ export const initialConfiguration: z.input<typeof Schema_App_Configuration> = {
 };
 
 export const configurationTemplate = `import { type z } from "zod";
-import { BASE_URL } from "~/constant";
+import { BASE_URL, IS_DEV } from "~/constant";
 
 import { type Schema_Config } from "~/types/schema";
 
@@ -184,7 +184,7 @@ const config: z.input<typeof Schema_Config> = {
    * @default process.env.NEXT_PUBLIC_DOMAIN
    * @fallback process.env.NEXT_PUBLIC_VERCEL_URL
    */
-  basePath: \`https://\${BASE_URL}\`,
+  basePath: IS_DEV ? "http://localhost:3000" : \`https://\${BASE_URL}\`,
 
   /**
    * Show deploy guide dropdown on navbar

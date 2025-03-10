@@ -256,7 +256,7 @@ export default function Navbar() {
                     className='mx-2 my-auto h-6'
                   />
 
-                  {!!config.showGuideButton && (
+                  {!!config.showGuideButton ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -291,6 +291,8 @@ export default function Navbar() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  ) : (
+                    <></>
                   )}
 
                   <Button
