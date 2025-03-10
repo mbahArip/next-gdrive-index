@@ -906,6 +906,7 @@ function FooterField({ form, onResetField }: FormProps) {
               onClick={() => {
                 setContent(formatFooterContent(form.watch("site.footer"), form.getValues("site")));
               }}
+              type='button'
             >
               Reload Preview
             </Button>
