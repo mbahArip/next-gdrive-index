@@ -27,7 +27,7 @@ const config: z.input<typeof Schema_Config> = {
    *
    * @default false
    */
-  showGuideButton: false,
+  showGuideButton: true,
 
   /**
    * How long the cache will be stored in the browser
