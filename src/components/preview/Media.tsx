@@ -21,6 +21,7 @@ import "@vidstack/react/player/styles/default/layouts/audio.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
 import "@vidstack/react/player/styles/default/theme.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { type z } from "zod";
 
@@ -28,7 +29,8 @@ import { PageLoader } from "~/components/layout";
 import Icon from "~/components/ui/icon";
 
 import useLoading from "~/hooks/useLoading";
-import { MediaPlayerIcons } from "~/lib/previewHelper";
+import { MediaPlayerIcons, getPreviewIcon } from "~/lib/previewHelper";
+import { cn, formatDate } from "~/lib/utils";
 
 import { type Schema_File } from "~/types/schema";
 
@@ -37,8 +39,9 @@ import "~/styles/vidstack.css";
 type Props = {
   file: z.infer<typeof Schema_File>;
   type: "video" | "audio";
+  playlist: z.infer<typeof Schema_File>[];
 };
-export default function PreviewMedia({ file, type }: Props) {
+export default function PreviewMedia({ file, type, playlist }: Props) {
   const player = useRef<MediaPlayerInstance>(null);
   const [canPlay, setCanPlay] = useState<boolean>(false);
 
@@ -85,7 +88,7 @@ export default function PreviewMedia({ file, type }: Props) {
               seekBackwardButton: null,
               seekForwardButton: null,
               playButton: (
-                <div className='flex w-full items-center justify-center gap-2 md:w-fit'>
+                <div className='flex w-full items-center justify-center gap-1 md:w-fit'>
                   <SeekButton
                     className='vds-button'
                     seconds={-10}
@@ -93,7 +96,7 @@ export default function PreviewMedia({ file, type }: Props) {
                     <MediaPlayerIcons.SeekButton.Backward />
                   </SeekButton>
                   <PlayButton
-                    className='vds-button vds-play-button'
+                    className='vds-button vds-play-button aspect-square'
                     disabled={canPlay === false}
                   >
                     {canPlay ? (
@@ -144,6 +147,12 @@ export default function PreviewMedia({ file, type }: Props) {
                   </div>
 
                   <div className='flex items-center'>
+                    <PlaylistMenu
+                      playlist={playlist}
+                      file={file}
+                      placement={"bottom end"}
+                    />
+
                     <Menu.Root className='vds-menu'>
                       <Menu.Button
                         className='vds-menu-button vds-button'
@@ -216,7 +225,7 @@ export default function PreviewMedia({ file, type }: Props) {
             icons={MediaPlayerIcons}
             colorScheme='default'
             smallLayoutWhen={smallVideoLayoutQuery}
-            showTooltipDelay={150}
+            showTooltipDelay={200}
             slots={{
               currentTime: (
                 <Time
@@ -230,69 +239,77 @@ export default function PreviewMedia({ file, type }: Props) {
                   type='duration'
                 />
               ),
+              beforeSettingsMenu: (
+                <PlaylistMenu
+                  playlist={playlist}
+                  file={file}
+                />
+              ),
               settingsMenu: (
-                <Menu.Root className='vds-menu'>
-                  <Menu.Button
-                    className='vds-menu-button vds-button'
-                    aria-label='Settings'
-                  >
-                    <MediaPlayerIcons.Menu.Settings />
-                  </Menu.Button>
-                  <Menu.Items
-                    className='vds-menu-items'
-                    placement={"top"}
-                    offset={0}
-                  >
-                    {/* Loop */}
-                    <Menu.Root>
-                      <Menu.Button className='vds-menu-item'>
-                        <ChevronLeft className='vds-menu-close-icon' />
-                        <Icon
-                          name='Repeat'
-                          className='vds-icon'
-                        />
-                        <span className='vds-menu-item-label'>Loop</span>
-                        <span className='vds-menu-item-hint'>{isLoop ? "On" : "Off"}</span>
-                        <ChevronRight className='vds-menu-open-icon' />
-                      </Menu.Button>
-                      <Menu.Content className='vds-menu-items'>
-                        <Menu.RadioGroup
-                          className='vds-radio-group'
-                          value={String(isLoop)}
-                        >
-                          <Menu.Radio
-                            className='vds-radio'
-                            value='true'
-                            onSelect={() => setIsLoop(true)}
+                <>
+                  <Menu.Root className='vds-menu'>
+                    <Menu.Button
+                      className='vds-menu-button vds-button'
+                      aria-label='Settings'
+                    >
+                      <MediaPlayerIcons.Menu.Settings />
+                    </Menu.Button>
+                    <Menu.Items
+                      className='vds-menu-items'
+                      placement={"top"}
+                      offset={0}
+                    >
+                      {/* Loop */}
+                      <Menu.Root>
+                        <Menu.Button className='vds-menu-item'>
+                          <ChevronLeft className='vds-menu-close-icon' />
+                          <Icon
+                            name='Repeat'
+                            className='vds-icon'
+                          />
+                          <span className='vds-menu-item-label'>Loop</span>
+                          <span className='vds-menu-item-hint'>{isLoop ? "On" : "Off"}</span>
+                          <ChevronRight className='vds-menu-open-icon' />
+                        </Menu.Button>
+                        <Menu.Content className='vds-menu-items'>
+                          <Menu.RadioGroup
+                            className='vds-radio-group'
+                            value={String(isLoop)}
                           >
-                            <Icon
-                              name='Check'
-                              className='vds-icon'
-                            />
-                            <span className='vds-radio-label'>On</span>
-                          </Menu.Radio>
-                          <Menu.Radio
-                            className='vds-radio'
-                            value='false'
-                            onSelect={() => setIsLoop(false)}
-                          >
-                            <Icon
-                              name='Check'
-                              className='vds-icon'
-                            />
-                            <span className='vds-radio-label'>Off</span>
-                          </Menu.Radio>
-                        </Menu.RadioGroup>
-                      </Menu.Content>
-                    </Menu.Root>
+                            <Menu.Radio
+                              className='vds-radio'
+                              value='true'
+                              onSelect={() => setIsLoop(true)}
+                            >
+                              <Icon
+                                name='Check'
+                                className='vds-icon'
+                              />
+                              <span className='vds-radio-label'>On</span>
+                            </Menu.Radio>
+                            <Menu.Radio
+                              className='vds-radio'
+                              value='false'
+                              onSelect={() => setIsLoop(false)}
+                            >
+                              <Icon
+                                name='Check'
+                                className='vds-icon'
+                              />
+                              <span className='vds-radio-label'>Off</span>
+                            </Menu.Radio>
+                          </Menu.RadioGroup>
+                        </Menu.Content>
+                      </Menu.Root>
 
-                    {/* Playback Speed */}
-                    <PlaybackMenu />
+                      {/* Playback Speed */}
+                      <PlaybackMenu />
 
-                    {/* Audio Gain */}
-                    <AudioGain />
-                  </Menu.Items>
-                </Menu.Root>
+                      {/* Audio Gain */}
+                      <AudioGain />
+                    </Menu.Items>
+                  </Menu.Root>
+                </>
               ),
             }}
           />
@@ -389,6 +406,90 @@ function AudioGain() {
           ))}
         </Menu.RadioGroup>
       </Menu.Content>
+    </Menu.Root>
+  );
+}
+function PlaylistMenu({
+  playlist,
+  file,
+  placement = "top end",
+}: {
+  playlist: z.infer<typeof Schema_File>[];
+  file: z.infer<typeof Schema_File>;
+  placement?: Menu.ItemsProps["placement"];
+}) {
+  return (
+    <Menu.Root className='vds-menu'>
+      <Menu.Button
+        className='vds-menu-button vds-button'
+        aria-label='Playlist'
+      >
+        <MediaPlayerIcons.Menu.Chapters />
+      </Menu.Button>
+      <Menu.Items
+        className='vds-menu-items group space-y-1'
+        placement={placement}
+      >
+        {playlist.map((item) => {
+          const isCurrent = `${item.name}#${item.size}` === `${file.name}#${file.size}`;
+
+          const Wrapper = ({ children, className }: React.PropsWithChildren<{ className?: string }>) =>
+            isCurrent ? (
+              <div
+                className={className}
+                title={item.name}
+              >
+                {children}
+              </div>
+            ) : (
+              <Link
+                href={`${item.name}`}
+                className={className}
+                title={item.name}
+              >
+                {children}
+              </Link>
+            );
+
+          return (
+            <Wrapper
+              key={`playlist-${item.encryptedId}`}
+              className={cn(
+                "flex w-full max-w-96 grid-cols-4 place-items-center gap-2 rounded-lg",
+                isCurrent ? "bg-primary/10" : "hover:bg-primary/5",
+              )}
+            >
+              {/* Thumbnail */}
+              <div
+                className={cn(
+                  "aspect-video h-16 grow-0 overflow-hidden rounded-lg bg-black",
+                  isCurrent && "border border-primary",
+                )}
+              >
+                {item.mimeType.includes("video") ? (
+                  <img
+                    src={`/api/thumb/${item.encryptedId}`}
+                    alt={`Thumbnail for ${item.name}`}
+                    className='aspect-video w-full object-contain'
+                  />
+                ) : (
+                  <div className={"grid aspect-video w-full place-items-center"}>
+                    <Icon
+                      name={getPreviewIcon(item.fileExtension ?? "", item.mimeType)}
+                      className={"size-6"}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className={"col-span-3 w-full flex-1 p-2"}>
+                <p className={"line-clamp-1 break-all"}>{item.name}</p>
+                <span className={"text-sm text-muted-foreground"}>{formatDate(item.modifiedTime)}</span>
+              </div>
+            </Wrapper>
+          );
+        })}
+      </Menu.Items>
     </Menu.Root>
   );
 }
