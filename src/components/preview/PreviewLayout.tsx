@@ -14,7 +14,7 @@ import {
   PreviewUnknown,
 } from "~/components/preview";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 import { type getFileType } from "~/lib/previewHelper";
 import { cn } from "~/lib/utils";
@@ -23,8 +23,6 @@ import { type Schema_File } from "~/types/schema";
 
 import config from "config";
 
-import MediaPlaylistLayout from "./MediaPlaylistLayout";
-
 type Props = {
   data: z.infer<typeof Schema_File>;
   fileType: "unknown" | ReturnType<typeof getFileType>;
@@ -32,7 +30,7 @@ type Props = {
   playlist: z.infer<typeof Schema_File>[];
   paths: string[];
 };
-export default function PreviewLayout({ data, paths, fileType, token, playlist }: Props) {
+export default function PreviewLayout({ data, fileType, token, playlist }: Props) {
   const [view, setView] = useState<"markdown" | "raw">("markdown");
   const PreviewComponent = useMemo(() => {
     switch (fileType) {
@@ -44,6 +42,7 @@ export default function PreviewLayout({ data, paths, fileType, token, playlist }
           <PreviewMedia
             file={data}
             type={fileType}
+            playlist={playlist}
           />
         );
       case "code":
@@ -82,7 +81,7 @@ export default function PreviewLayout({ data, paths, fileType, token, playlist }
       default:
         return <PreviewUnknown />;
     }
-  }, [fileType, data, view, token]);
+  }, [fileType, data, view, token, playlist]);
 
   return (
     <div
@@ -134,14 +133,14 @@ export default function PreviewLayout({ data, paths, fileType, token, playlist }
           )}
         </CardContent>
 
-        <CardFooter>
+        {/* <CardFooter>
           <MediaPlaylistLayout
             type={"inside"}
             paths={paths}
             currentItem={data}
             playlist={playlist}
           />
-        </CardFooter>
+        </CardFooter> */}
       </Card>
 
       <PreviewInformation
