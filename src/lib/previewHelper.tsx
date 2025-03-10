@@ -346,7 +346,7 @@ export const MediaPlayerIcons = {
     Chapters: () => (
       <Icon
         hideWrapper
-        name='TableOfContents'
+        name='List'
         className='vds-icon size-5'
       />
     ),
