@@ -22,7 +22,7 @@ class EncryptionService {
 
       const iv = crypto.getRandomValues(new Uint8Array(12));
       const alg = { name: "AES-GCM", iv };
-      const keyhash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(forceKey ? forceKey : this.key));
+      const keyhash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(forceKey ?? this.key));
 
       const encodedData = new TextEncoder().encode(data);
       const secretKey = await crypto.subtle.importKey("raw", keyhash, alg, false, ["encrypt"]);
@@ -45,7 +45,7 @@ class EncryptionService {
       if (!cipherText || !iv) throw new Error("Invalid hash format.");
 
       const alg = { name: "AES-GCM", iv: new Uint8Array(Buffer.from(iv, "hex")) };
-      const keyhash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(forceKey ? forceKey : this.key));
+      const keyhash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(forceKey ?? this.key));
 
       const secretKey = await crypto.subtle.importKey("raw", keyhash, alg, false, ["decrypt"]);
 
