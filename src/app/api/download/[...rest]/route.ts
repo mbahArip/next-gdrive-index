@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+
+
 import { encryptionService, gdrive } from "~/lib/utils.server";
 
 import { GetFile } from "~/actions/files";
@@ -104,28 +106,45 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         responseType: "stream",
       },
     );
-    const fileBuffer = await new Promise<Buffer>((res, rej) => {
-      const chunks: Buffer<ArrayBufferLike>[] = [];
-      content.data.on("data", (chunk) => {
-        chunks.push(Buffer.from(chunk as ArrayBufferLike));
-      });
-      content.data.on("end", () => {
-        res(Buffer.concat(chunks));
-      });
-      content.data.on("error", (err) => {
-        rej(err);
-      });
+    // const fileBuffer = await new Promise<Buffer>((res, rej) => {
+    //   const chunks: Buffer<ArrayBufferLike>[] = [];
+    //   content.data.on("data", (chunk) => {
+    //     chunks.push(Buffer.from(chunk as ArrayBufferLike));
+    //   });
+    //   content.data.on("end", () => {
+    //     res(Buffer.concat(chunks));
+    //   });
+    //   content.data.on("error", (err) => {
+    //     rej(err);
+    //   });
+    // });
+    const nodeStream = content.data as NodeJS.ReadableStream;
+    const webStream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of nodeStream) {
+          controller.enqueue(chunk);
+        }
+        controller.close();
+      },
     });
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(webStream, {
       status: 200,
       headers: {
         "Content-Type": file.data.mimeType,
-        "Content-Length": fileBuffer.length.toString(),
         "Content-Disposition": `attachment; filename="${file.data.name}"`,
         "Cache-Control": config.cacheControl,
       },
     });
+    // return new NextResponse(fileBuffer, {
+    //   status: 200,
+    //   headers: {
+    //     "Content-Type": file.data.mimeType,
+    //     "Content-Length": fileBuffer.length.toString(),
+    //     "Content-Disposition": `attachment; filename="${file.data.name}"`,
+    //     "Cache-Control": config.cacheControl,
+    //   },
+    // });
   } catch (error) {
     const e = error as Error;
     const message = e.message.replace(/\[.*\]/, "").trim();

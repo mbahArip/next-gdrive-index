@@ -5,6 +5,8 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+
+
 import { Button } from "~/components/ui/button";
 import {
   ContextMenu,
@@ -92,8 +94,28 @@ export default function FileItem({ data, layout }: Props) {
     setShareDialogOpen(true);
   }, []);
   const onDownload = useCallback(async () => {
-    void 0;
-  }, []);
+    const toastId = `generate-token-${data.encryptedId}`;
+    toast.loading("Generating download token...", {
+      id: toastId,
+    });
+    const tokenResponse = await fetch("/api/token", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    const tokenData = (await tokenResponse.json()) as { data: string; message?: string };
+    if (!tokenResponse.ok) {
+      toast.error(tokenData?.message ?? "Failed to create download token", {
+        id: toastId,
+      });
+      return;
+    }
+
+    const downloadUrl = new URL(`/api/download/${filePath}`, config.basePath);
+    if (!config.apiConfig.allowDownloadProtectedFile) downloadUrl.searchParams.append("token", tokenData.data);
+
+    router.push(downloadUrl.toString());
+    toast.dismiss(toastId);
+  }, [filePath, router, data]);
 
   return (
     <>
