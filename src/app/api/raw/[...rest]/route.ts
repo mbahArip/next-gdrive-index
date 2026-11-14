@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { encryptionService } from "~/lib/utils.server";
 
 import { GetFile } from "~/actions/files";
+import { CheckIndexPassword, CheckPagePassword } from "~/actions/password";
 import { ValidatePaths } from "~/actions/paths";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,25 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (ALLOWED_TYPES.every((type) => !new RegExp(type.replace("*", ".*")).test(currentFile.mimeType))) {
       throw new Error("[400] Invalid file type", {
         cause: "Raw link only available for video, image, and audio files",
+      });
+    }
+
+    // Enforce the same password protection as the page and the download endpoint.
+    // Without this, a media file inside a password-protected folder (or any file
+    // when the index is private) can be fetched directly via this endpoint,
+    // bypassing the index and per-folder passwords.
+    const [indexUnlocked, pageUnlocked] = await Promise.all([
+      CheckIndexPassword(),
+      CheckPagePassword(validatedPaths.data),
+    ]);
+    if (!indexUnlocked.success) {
+      throw new Error(`[401] ${indexUnlocked.message}`, {
+        cause: indexUnlocked.error,
+      });
+    }
+    if (!pageUnlocked.success) {
+      throw new Error(`[401] ${pageUnlocked.message}`, {
+        cause: pageUnlocked.error,
       });
     }
 
