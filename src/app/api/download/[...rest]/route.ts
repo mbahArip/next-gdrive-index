@@ -132,7 +132,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       status: 200,
       headers: {
         "Content-Type": file.data.mimeType,
-        "Content-Disposition": `attachment; filename="${file.data.name}"`,
+        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.data.name)}`,
         "Cache-Control": config.cacheControl,
       },
     });
